@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accesso Autisti</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="logo/icon-progressive-web-app-bianco.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <main class="login-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Accesso Autisti</h1>
+            </div>
+
+            <form id="formLogin" autocomplete="off" onsubmit="inviaLogin(event)">
+                <div class="form-group">
+                    <label class="label" for="email">Email Accesso</label>
+                    <input type="email" id="email" class="input" required placeholder="mario@example.com" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="password">Password</label>
+                    <div class="pass-box">
+                        <input type="password" id="password" class="input" required placeholder="••••••••" autocomplete="current-password">
+                        <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <a href="reset-password.html" class="link">Password dimenticata?</a>
+
+                <button type="submit" class="btn btn-primary btn-full">Accedi</button>
+            </form>
+
+            <button type="button" class="btn btn-ghost btn-full" onclick="window.location.href='registrazione-autista-amministrativo.html'">Non hai un account? Registrati</button>
+
+            <button type="button" class="btn btn-ghost btn-full" onclick="toggleAssistenza()">Hai bisogno di assistenza?</button>
+
+            <form id="form_assistenza" class="hidden" onsubmit="inviaAssistenza(event)">
+                <div class="form-group">
+                    <label class="label" for="assistenza_email">La tua email</label>
+                    <input type="email" id="assistenza_email" class="input" required>
+                </div>
+                
+                <div class="form-group hidden">
+                    <input type="text" id="azienda_hp" name="azienda_hp" class="input" tabindex="-1" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="testo_assistenza">Descrivi il problema</label>
+                    <textarea id="testo_assistenza" class="input" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="ios_install_popup" class="ios-popup hidden">
+        <div class="ios-popup-content">
+            <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
+            <p>Per installare l'app su iPhone o iPad:</p>
+            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
