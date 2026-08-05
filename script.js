@@ -1707,7 +1707,7 @@ async function inviaNuovaPassword(event) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(registrazione => {
+    navigator.serviceWorker.register('service-worker.js').then(registrazione => {
         registrazione.addEventListener('updatefound', () => {
             nuovoServiceWorker = registrazione.installing;
             nuovoServiceWorker.addEventListener('statechange', () => {

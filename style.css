@@ -542,3 +542,7 @@ textarea.input {
 .spaziatura-assistenza > *:last-child {
     margin-bottom: 0 !important;
 }
+
+#form_assistenza .btn:first-of-type {
+    margin-top: 0 !important;
+}
