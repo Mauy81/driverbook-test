@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriverBook - Dashboard Passeggero</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="logo/icon-progressive-web-app-bianco.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <main class="dashboard-wrapper">
+
+        <div class="auth-card" style="text-align: center;">
+            <div class="auth-header">
+                <h1 id="welcome_message">Ciao,<br><span id="dash_nome_utente">...</span></h1>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <div class="label">Codice Cliente:</div>
+                <div id="dash_codice_cliente" style="font-size: 1.2rem; font-weight: bold; letter-spacing: 1px;">...</div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="window.location.href='prenota-servizio-passeggero.html'">PRENOTA SERVIZIO</button>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Viaggi in programma</h2>
+            </div>
+            <div id="lista_viaggi_attivi">
+                <div class="form-group" style="text-align: center;">
+                    <span class="label">Nessun viaggio in programma al momento.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Storico Viaggi</h2>
+            </div>
+            <div id="lista_viaggi_passati">
+                <div class="form-group" style="text-align: center;">
+                    <span class="label">Nessuno storico disponibile.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Modifica Profilo</h2>
+            </div>
+            <form id="formModificaProfilo" onsubmit="aggiornaProfilo(event)">
+                <div class="form-group">
+                    <label class="label" for="profilo_nome">Nome e Cognome / Referente</label>
+                    <input type="text" id="profilo_nome" class="input" placeholder="Mario Rossi" required>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="profilo_email">Email Accesso</label>
+                    <input type="email" id="profilo_email" class="input" placeholder="mario@example.com" required>
+                    <div class="label-nota">La modifica dell'email richiederà la conferma tramite un link inviato al nuovo indirizzo.</div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="profilo_telefono">Telefono Cellulare</label>
+                    <input type="tel" id="profilo_telefono" class="input" required>
+                </div>
+
+                <div class="checkbox-group" style="margin-top: 25px; margin-bottom: 25px;">
+                    <input type="checkbox" id="profilo_richiedeFattura" class="checkbox-input" onchange="verificaChiusuraFatturazione()">
+                    <label for="profilo_richiedeFattura" class="checkbox-label">Richiedo fatturazione elettronica (Azienda / Hotel)</label>
+                </div>
+
+                <div id="alert_chiusura_fatturazione" class="alert-eccedenza" style="display: none; margin-top: -10px; margin-bottom: 25px;">
+                    Attenzione: disattivando questa opzione, cancellerai irreversibilmente tutti i tuoi dati di fatturazione. Vuoi procedere?
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="button" class="btn btn-ghost btn-full" style="margin: 0;" onclick="annullaChiusuraFatturazione()">ANNULLA</button>
+                        <button type="button" class="btn btn-ghost btn-full" style="margin: 0; border-color: #FF4444; color: #FF4444;" onclick="confermaChiusuraFatturazione()">CONFERMA E CANCELLA</button>
+                    </div>
+                </div>
+
+                <div id="sezione_fatturazione_profilo" class="hidden">
+                    <div class="form-group">
+                        <label class="label" for="profilo_ragioneSociale">Ragione Sociale</label>
+                        <input type="text" id="profilo_ragioneSociale" class="input" placeholder="Es. Hotel Roma SRL">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_piva_cf">Partita IVA / Codice Fiscale</label>
+                        <input type="text" id="profilo_piva_cf" class="input" placeholder="12345678901">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_codice_sdi">Codice Destinatario SDI (7 caratteri)
+                            <div class="label-nota">Se non possiedi un codice SDI, inserisci 0000000 (sette zeri) e compila il campo PEC.</div>
+                        </label>
+                        <input type="text" id="profilo_codice_sdi" class="input" maxlength="7" placeholder="Es. M5UXCR1 oppure 0000000">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_pec">Indirizzo PEC</label>
+                        <input type="email" id="profilo_pec" class="input" placeholder="azienda@pec.it">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_via">Indirizzo Sede Legale (Via e Civico)</label>
+                        <input type="text" id="profilo_indirizzo_via" class="input" placeholder="Via Roma 10">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_cap">CAP</label>
+                        <input type="text" id="profilo_indirizzo_cap" class="input" placeholder="20121">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_citta">Città</label>
+                        <input type="text" id="profilo_indirizzo_citta" class="input" placeholder="Milano">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_provincia">Provincia (Sigla)</label>
+                        <input type="text" id="profilo_indirizzo_provincia" class="input" placeholder="MI">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 30px;">
+                    <label class="label">Come vuoi ricevere le notifiche?</label>
+                    <div class="gruppo-dinamico">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="profilo_notificaPush" class="checkbox-input" onchange="validaNotificheDashboard()">
+                            <label for="profilo_notificaPush" class="checkbox-label">
+                                Notifiche Push (Consigliata)
+                                <div class="label-nota">Istantanea su smartphone e PC.</div>
+                            </label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="profilo_notificaEmail" class="checkbox-input" onchange="validaNotificheDashboard()">
+                            <label for="profilo_notificaEmail" class="checkbox-label">Email</label>
+                        </div>
+                    </div>
+                    <div id="errore_notifiche_dashboard" class="error-message">Seleziona almeno un metodo per ricevere le notifiche.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 15px;">Salva Modifiche Profilo</button>
+            </form>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Sicurezza</h2>
+            </div>
+            <button class="btn btn-primary btn-full" id="btn_modifica_password" onclick="modificaPassword()" style="margin-bottom: 20px;">Reset Password</button>
+            <button class="btn btn-ghost btn-full" id="btn_logout" style="border-color: #FF4444; color: #FF4444;">ESCI DALL'ACCOUNT</button>
+        </div>
+
+    </main>
+
+    <div id="ios_install_popup" class="ios-popup hidden">
+        <div class="ios-popup-content">
+            <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
+            <p>Per installare l'app su iPhone o iPad:</p>
+            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
