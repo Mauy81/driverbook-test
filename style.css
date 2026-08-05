@@ -272,7 +272,7 @@ textarea.input {
         width: 100%;
     }
     .logo-text-img {
-        height: 20px;
+        height: 12px !important;
     }
     .login-wrapper {
         padding: 20px 15px;
@@ -282,6 +282,26 @@ textarea.input {
         border: none;
         background-color: transparent;
         box-shadow: none;
+    }
+    .navbar {
+        padding: 10px 2%;
+        height: auto;
+        min-height: 60px;
+    }
+    .logo-container {
+        gap: 5px;
+        padding: 4px;
+    }
+    .logo-icon {
+        height: 32px !important;
+    }
+    .menu-destra {
+        gap: 6px;
+    }
+    .nav-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+        white-space: nowrap;
     }
 }
 
