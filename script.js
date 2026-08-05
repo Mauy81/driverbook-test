@@ -1707,24 +1707,8 @@ async function inviaNuovaPassword(event) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').then(registrazione => {
-        registrazione.addEventListener('updatefound', () => {
-            nuovoServiceWorker = registrazione.installing;
-            nuovoServiceWorker.addEventListener('statechange', () => {
-                if (nuovoServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    mostraBannerAggiornamento();
-                }
-            });
-        });
-    }).catch(errore => console.log('Registrazione SW fallita: ', errore));
-
-    let ricaricamentoInCorso = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!ricaricamentoInCorso) {
-            window.location.reload();
-            ricaricamentoInCorso = true;
-        }
-    });
+    navigator.serviceWorker.register('service-worker.js')
+        .catch(errore => console.log('Registrazione SW fallita: ', errore));
 }
 
 let deferredPrompt;
@@ -1734,9 +1718,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     const btnDynamic = document.getElementById('btn_installa_app');
-    if (btnDynamic) {
-        btnDynamic.style.display = 'inline-block';
-    }
+    if (btnDynamic) btnDynamic.style.display = 'inline-block';
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1744,9 +1726,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         if (!isStandalone) {
             const btnDynamic = document.getElementById('btn_installa_app');
-            if (btnDynamic) {
-                btnDynamic.style.display = 'inline-block';
-            }
+            if (btnDynamic) btnDynamic.style.display = 'inline-block';
         }
     }
 });
@@ -1755,15 +1735,11 @@ document.addEventListener('click', async (e) => {
     if (e.target && e.target.id === 'btn_installa_app') {
         if (isIOS) {
             const iosPopup = document.getElementById('ios_install_popup');
-            if (iosPopup) {
-                iosPopup.classList.remove('hidden');
-            }
+            if (iosPopup) iosPopup.classList.remove('hidden');
         } else if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                e.target.style.display = 'none';
-            }
+            if (outcome === 'accepted') e.target.style.display = 'none';
             deferredPrompt = null;
         }
     }
@@ -1771,30 +1747,5 @@ document.addEventListener('click', async (e) => {
 
 function chiudiPopupIOS() {
     const iosPopup = document.getElementById('ios_install_popup');
-    if (iosPopup) {
-        iosPopup.classList.add('hidden');
-    }
-}
-
-let nuovoServiceWorker;
-
-function mostraBannerAggiornamento() {
-    const menuPrincipale = document.getElementById('menu-principale');
-    if (menuPrincipale) {
-        menuPrincipale.innerHTML = `
-            <div class="update-banner-container">
-                <div class="update-banner-titolo">⚠️ AGGIORNAMENTO NECESSARIO</div>
-                <div class="update-banner-testo">È disponibile una nuova versione di DriverBook. Aggiorna per continuare a navigare nel sito.</div>
-                <button class="update-banner-btn" onclick="forzaAggiornamento()">AGGIORNA ORA</button>
-            </div>
-        `;
-    }
-}
-
-function forzaAggiornamento() {
-    if (nuovoServiceWorker) {
-        nuovoServiceWorker.postMessage({ action: 'skipWaiting' });
-    } else {
-        window.location.reload();
-    }
+    if (iosPopup) iosPopup.classList.add('hidden');
 }

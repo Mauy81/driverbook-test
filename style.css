@@ -502,37 +502,6 @@ textarea.input {
     color: #00e676;
 }
 
-.update-banner-container {
-    background-color: #FF4444;
-    color: #ffffff;
-    text-align: center;
-    padding: 15px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-.update-banner-titolo {
-    font-weight: bold;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-}
-.update-banner-testo {
-    font-size: 0.9rem;
-}
-.update-banner-btn {
-    background-color: #ffffff;
-    color: #FF4444;
-    border: none;
-    padding: 10px 20px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    text-transform: uppercase;
-    margin-top: 5px;
-}
-
 .spaziatura-assistenza {
     margin-top: 15px;
 }

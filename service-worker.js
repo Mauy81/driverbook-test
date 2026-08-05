@@ -1,4 +1,4 @@
-const CACHE_NAME = 'driverbook-cache-v1';
+const CACHE_NAME = 'driverbook-cache';
 const urlsToCache = [
     './',
     './index.html',
@@ -8,24 +8,29 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then(cache => {
-            return cache.addAll(urlsToCache);
-        })
+        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
     );
+    self.skipWaiting(); 
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request)
+        fetch(event.request)
         .then(response => {
-            return response || fetch(event.request);
+            if (response && response.status === 200 && response.type === 'basic') {
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(event.request, responseToCache);
+                });
+            }
+            return response;
+        })
+        .catch(() => {
+            return caches.match(event.request);
         })
     );
-});
-
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.action === 'skipWaiting') {
-        self.skipWaiting();
-    }
 });
