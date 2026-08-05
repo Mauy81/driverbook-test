@@ -359,7 +359,7 @@ async function inviaRegistrazione(event) {
         return;
     }
 
-    let urlRedirect = "https://driverbook-test.netlify.app/login-autista-amministrativo.html";
+    let urlRedirect = "https://mauy81.github.io/driverbook-test/login-autista-amministrativo.html";
     if (window.location.protocol !== 'file:') {
         urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
     }
@@ -1118,7 +1118,7 @@ async function inviaRegistrazionePasseggero(event) {
         return;
     }
 
-    let urlRedirect = "https://driverbook-test.netlify.app/login-passeggero.html";
+    let urlRedirect = "https://mauy81.github.io/driverbook-test/login-passeggero.html";
     if (window.location.protocol !== 'file:') {
         urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
     }
@@ -1352,7 +1352,7 @@ async function aggiornaProfilo(event) {
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
             let paginaCorrente = window.location.pathname.split('/').pop() || 'dashboard-passeggero.html';
-            let urlRedirect = "https://driverbook-test.netlify.app/" + paginaCorrente;
+            let urlRedirect = "https://mauy81.github.io/driverbook-test/" + paginaCorrente;
             
             if (window.location.protocol !== 'file:') {
                 urlRedirect = window.location.origin + window.location.pathname;
@@ -1427,7 +1427,7 @@ async function modificaPassword() {
     btn.textContent = "Invio richiesta...";
     btn.disabled = true;
 
-    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://driverbook-test.netlify.app/reimposta-password.html";
+    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -1586,7 +1586,7 @@ async function richiediResetPassword(event) {
     btn.disabled = true;
     btn.textContent = "Elaborazione in corso...";
 
-    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://driverbook-test.netlify.app/reimposta-password.html";
+    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
