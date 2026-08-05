@@ -140,6 +140,10 @@ body {
     color: #000000;
 }
 
+.btn-danger-outline {
+    border-color: #dc3545 !important;
+}
+
 .btn-full {
     width: 100%;
 }
@@ -175,14 +179,17 @@ body {
 }
 
 .auth-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 30px;
 }
 
 .auth-header h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 1px;
+    border-left: 4px solid #00e65c;
+    padding-left: 12px;
 }
 
 .form-group {
@@ -519,7 +526,13 @@ textarea.input {
 }
 
 .auth-card .auth-header h2 {
-    color: #00e676;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ffffff;
+    border-left: 4px solid #00e65c;
+    padding-left: 12px;
 }
 
 .spaziatura-assistenza {
