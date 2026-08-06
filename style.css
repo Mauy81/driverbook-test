@@ -495,7 +495,6 @@ textarea.input {
     background-color: transparent;
     color: #ffffff;
     border: 1px solid #ffffff;
-    padding: 8px 15px;
     border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
@@ -506,6 +505,8 @@ textarea.input {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 40px;
+    padding: 0 15px;
 }
 
 .nav-btn:hover {
@@ -516,6 +517,7 @@ textarea.input {
 .btn-install-app {
     display: none;
     border: none !important;
+    height: 40px;
 }
 
 #menu-principale {
@@ -576,18 +578,20 @@ textarea.input {
     border: none;
     color: #ffffff;
     cursor: pointer;
-    padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 4px;
     transition: all 0.3s ease;
+    height: 40px;
+    width: 40px;
+    padding: 0;
 }
 .user-icon-btn:hover {
     background-color: #ffffff;
     color: #000000;
 }
-.user-icon-btn svg { width: 28px; height: 28px; }
+.user-icon-btn svg { width: 24px; height: 24px; }
 
 .side-panel {
     position: fixed;
@@ -602,29 +606,64 @@ textarea.input {
     transition: right 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden;
 }
 .side-panel.open { right: 0; }
+
+.sidebar-sticky-header {
+    background-color: #111111;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 
 .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #222222; }
 .panel-header h2 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; color: #ffffff; }
 .close-btn { background: transparent; border: none; color: #ffffff; font-size: 32px; cursor: pointer; line-height: 1; padding: 0 10px; }
 
-.menu-items { display: flex; flex-direction: column; padding: 10px 0; }
-.menu-item { padding: 20px; color: #ffffff; text-decoration: none; font-size: 1rem; border-bottom: 1px solid #222222; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease; }
-.menu-item:hover { background-color: #ffffff; color: #000000; }
-.menu-item:hover span { color: #000000 !important; }
+.swipe-logout-container {
+    padding: 20px;
+    border-bottom: 1px solid #222222;
+    background-color: #111111;
+}
+
+.swipe-logout-track {
+    position: relative;
+    width: 100%;
+    height: 45px;
+    background: #111111;
+    border: 1px solid #dc3545;
+    border-radius: 25px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swipe-logout-text {
+    position: absolute;
+    z-index: 1;
+    color: #dc3545;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+    width: 100%;
+    text-align: center;
+}
 
 .swipe-logout-slider {
     -webkit-appearance: none;
     width: 100%;
-    height: 45px;
-    background: #000000;
-    border: 1px solid #dc3545;
-    border-radius: 25px;
+    height: 100%;
+    background: transparent;
     outline: none;
-    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    margin: 0;
 }
+
 .swipe-logout-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -633,8 +672,9 @@ textarea.input {
     border-radius: 50%;
     background: #dc3545;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
 }
+
 .swipe-logout-slider::-moz-range-thumb {
     width: 45px;
     height: 45px;
@@ -642,8 +682,18 @@ textarea.input {
     background: #dc3545;
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
 }
+
+.scrollable-menu {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.menu-items { display: flex; flex-direction: column; padding: 0; }
+.menu-item { padding: 20px; color: #ffffff; text-decoration: none; font-size: 1rem; border-bottom: 1px solid #222222; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease; }
+.menu-item:hover { background-color: #ffffff; color: #000000; }
+.menu-item:hover span { color: #000000 !important; }
 
 .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
 .overlay.open { display: block; opacity: 1; }

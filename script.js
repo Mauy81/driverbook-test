@@ -30,9 +30,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
             <div class="menu-destra" style="gap: 5px;">
-                <button id="btn_installa_app" class="nav-btn btn-install-app" style="border: none; padding: 10px; font-weight: 600;">Installa App</button>
-                <div class="nav-btn lang-selector" style="border: none; padding: 10px; font-weight: 600;">IT / EN</div>
-                ${iconaUtente.replace('class="user-icon-btn"', 'class="user-icon-btn" style="padding: 10px;"')}
+                <button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>
+                <div class="nav-btn lang-selector" style="border: none;">IT / EN</div>
+                ${iconaUtente}
             </div>
         </nav>`;
     }
@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", function() {
         overlay.addEventListener('click', chiudiMenu);
 
         const sezioniSPA = {
-            'home': ['card_home_azioni', 'testo_cortesia_main'],
-            'viaggi': ['card_home_viaggi'],
+            'home': ['card_home_azioni', 'card_home_viaggi', 'testo_cortesia_main'],
+            'viaggi': ['card_viaggi_edit'],
             'storico': ['card_storico'],
             'profilo': ['card_profilo'],
             'sicurezza': ['card_sicurezza']
