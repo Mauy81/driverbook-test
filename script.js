@@ -146,9 +146,92 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaDatiDashboardPasseggero();
     }
 
+    const btnPrenota = document.getElementById('btn_prenota_servizio');
+    if (btnPrenota) {
+        btnPrenota.addEventListener('click', function() {
+            window.location.href = 'prenota-servizio-passeggero.html';
+        });
+    }
+
+    const formProfilo = document.getElementById('formModificaProfilo');
+    if (formProfilo) {
+        formProfilo.addEventListener('submit', function(event) {
+            if (typeof aggiornaProfilo === 'function') {
+                aggiornaProfilo(event);
+            }
+        });
+    }
+
+    const checkFattura = document.getElementById('profilo_richiedeFattura');
+    if (checkFattura) {
+        checkFattura.addEventListener('change', function() {
+            if (typeof verificaChiusuraFatturazione === 'function') {
+                verificaChiusuraFatturazione();
+            }
+        });
+    }
+
+    const btnAnnullaChiusura = document.getElementById('btn_annulla_chiusura');
+    if (btnAnnullaChiusura) {
+        btnAnnullaChiusura.addEventListener('click', function() {
+            if (typeof annullaChiusuraFatturazione === 'function') {
+                annullaChiusuraFatturazione();
+            }
+        });
+    }
+
+    const btnConfermaChiusura = document.getElementById('btn_conferma_chiusura');
+    if (btnConfermaChiusura) {
+        btnConfermaChiusura.addEventListener('click', function() {
+            if (typeof confermaChiusuraFatturazione === 'function') {
+                confermaChiusuraFatturazione();
+            }
+        });
+    }
+
+    const checkPush = document.getElementById('profilo_notificaPush');
+    if (checkPush) {
+        checkPush.addEventListener('change', function() {
+            if (typeof validaNotificheDashboard === 'function') {
+                validaNotificheDashboard();
+            }
+        });
+    }
+
+    const checkEmail = document.getElementById('profilo_notificaEmail');
+    if (checkEmail) {
+        checkEmail.addEventListener('change', function() {
+            if (typeof validaNotificheDashboard === 'function') {
+                validaNotificheDashboard();
+            }
+        });
+    }
+
+    const btnModificaPassword = document.getElementById('btn_modifica_password');
+    if (btnModificaPassword) {
+        btnModificaPassword.addEventListener('click', function() {
+            if (typeof modificaPassword === 'function') {
+                modificaPassword();
+            }
+        });
+    }
+
     const btnLogout = document.getElementById('btn_logout');
     if (btnLogout) {
-        btnLogout.addEventListener('click', esciAccount);
+        btnLogout.addEventListener('click', function() {
+            if (typeof esciAccount === 'function') {
+                esciAccount();
+            }
+        });
+    }
+
+    const btnChiudiIos = document.getElementById('btn_chiudi_ios_popup');
+    if (btnChiudiIos) {
+        btnChiudiIos.addEventListener('click', function() {
+            if (typeof chiudiPopupIOS === 'function') {
+                chiudiPopupIOS();
+            }
+        });
     }
 });
 
@@ -1538,7 +1621,7 @@ async function inviaAssistenza(event) {
 
 function esciAccount() {
     localStorage.removeItem('driverbook_auth_token');
-    window.location.href = 'home-it.html';
+    window.location.href = 'login-passeggero.html';
 }
 
 document.addEventListener("DOMContentLoaded", function() {

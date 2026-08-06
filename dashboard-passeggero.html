@@ -22,12 +22,12 @@
                 <h1 id="welcome_message">Ciao,<br><span id="dash_nome_utente">...</span></h1>
             </div>
             
-            <div style="margin-bottom: 25px;">
+            <div id="container_codice_cliente">
                 <div class="label">Codice Cliente:</div>
-                <div id="dash_codice_cliente" style="font-size: 1.2rem; font-weight: bold; letter-spacing: 1px;">...</div>
+                <div id="dash_codice_cliente">...</div>
             </div>
 
-            <button class="btn btn-primary btn-full" onclick="window.location.href='prenota-servizio-passeggero.html'">PRENOTA SERVIZIO</button>
+            <button class="btn btn-primary btn-full" id="btn_prenota_servizio">PRENOTA SERVIZIO</button>
         </div>
 
         <div class="auth-card">
@@ -56,7 +56,7 @@
             <div class="auth-header">
                 <h2>Modifica Profilo</h2>
             </div>
-            <form id="formModificaProfilo" onsubmit="aggiornaProfilo(event)">
+            <form id="formModificaProfilo">
                 <div class="form-group">
                     <label class="label" for="profilo_nome">Nome e Cognome / Referente</label>
                     <input type="text" id="profilo_nome" class="input" placeholder="Mario Rossi" required>
@@ -71,16 +71,16 @@
                     <input type="tel" id="profilo_telefono" class="input" required>
                 </div>
 
-                <div class="checkbox-group" style="margin-top: 25px; margin-bottom: 25px;">
-                    <input type="checkbox" id="profilo_richiedeFattura" class="checkbox-input" onchange="verificaChiusuraFatturazione()">
+                <div class="checkbox-group" id="container_fatturazione_checkbox">
+                    <input type="checkbox" id="profilo_richiedeFattura" class="checkbox-input">
                     <label for="profilo_richiedeFattura" class="checkbox-label">Richiedo fatturazione elettronica (Azienda / Hotel)</label>
                 </div>
 
-                <div id="alert_chiusura_fatturazione" class="alert-eccedenza" style="display: none; margin-top: -10px; margin-bottom: 25px;">
+                <div id="alert_chiusura_fatturazione" class="alert-eccedenza hidden">
                     Attenzione: disattivando questa opzione, cancellerai irreversibilmente tutti i tuoi dati di fatturazione. Vuoi procedere?
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button type="button" class="btn btn-ghost btn-full" style="margin: 0;" onclick="annullaChiusuraFatturazione()">ANNULLA</button>
-                        <button type="button" class="btn btn-ghost btn-full" style="margin: 0; border-color: #FF4444; color: #FF4444;" onclick="confermaChiusuraFatturazione()">CONFERMA E CANCELLA</button>
+                    <div id="container_bottoni_alert">
+                        <button type="button" class="btn btn-ghost btn-full" id="btn_annulla_chiusura">ANNULLA</button>
+                        <button type="button" class="btn btn-ghost btn-danger-outline btn-full" id="btn_conferma_chiusura">CONFERMA E CANCELLA</button>
                     </div>
                 </div>
 
@@ -121,25 +121,25 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 30px;">
+                <div class="form-group" id="container_notifiche">
                     <label class="label">Come vuoi ricevere le notifiche?</label>
                     <div class="gruppo-dinamico">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="profilo_notificaPush" class="checkbox-input" onchange="validaNotificheDashboard()">
+                            <input type="checkbox" id="profilo_notificaPush" class="checkbox-input">
                             <label for="profilo_notificaPush" class="checkbox-label">
                                 Notifiche Push (Consigliata)
                                 <div class="label-nota">Istantanea su smartphone e PC.</div>
                             </label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="profilo_notificaEmail" class="checkbox-input" onchange="validaNotificheDashboard()">
+                            <input type="checkbox" id="profilo_notificaEmail" class="checkbox-input">
                             <label for="profilo_notificaEmail" class="checkbox-label">Email</label>
                         </div>
                     </div>
                     <div id="errore_notifiche_dashboard" class="error-message">Seleziona almeno un metodo per ricevere le notifiche.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 15px;">Salva Modifiche Profilo</button>
+                <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo">Salva Modifiche Profilo</button>
             </form>
         </div>
 
@@ -147,7 +147,7 @@
             <div class="auth-header">
                 <h2>Sicurezza</h2>
             </div>
-            <button class="btn btn-ghost btn-danger-outline btn-full" id="btn_modifica_password" onclick="modificaPassword()" style="margin-bottom: 20px;">RESET PASSWORD</button>
+            <button class="btn btn-ghost btn-danger-outline btn-full" id="btn_modifica_password">RESET PASSWORD</button>
             <button class="btn btn-ghost btn-full" id="btn_logout">ESCI DALL'ACCOUNT</button>
         </div>
 
@@ -155,7 +155,7 @@
 
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
-            <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
+            <span class="close-popup" id="btn_chiudi_ios_popup">&times;</span>
             <p>Per installare l'app su iPhone o iPad:</p>
             <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
             <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
