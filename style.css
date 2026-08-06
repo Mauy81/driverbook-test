@@ -515,6 +515,7 @@ textarea.input {
 
 .btn-install-app {
     display: none;
+    border: none !important;
 }
 
 #menu-principale {
@@ -579,6 +580,12 @@ textarea.input {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+.user-icon-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
 }
 .user-icon-btn svg { width: 28px; height: 28px; }
 
@@ -596,7 +603,6 @@ textarea.input {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding-bottom: 40px;
 }
 .side-panel.open { right: 0; }
 
@@ -605,8 +611,14 @@ textarea.input {
 .close-btn { background: transparent; border: none; color: #ffffff; font-size: 32px; cursor: pointer; line-height: 1; padding: 0 10px; }
 
 .menu-items { display: flex; flex-direction: column; padding: 10px 0; }
-.menu-item { padding: 20px; color: #ffffff; text-decoration: none; font-size: 1rem; border-bottom: 1px solid #222222; display: flex; align-items: center; justify-content: space-between; }
-.menu-item-danger { color: #dc3545; font-weight: bold; border-bottom: none; cursor: pointer; background: transparent; border: none; font-size: 1rem; width: 100%; text-align: center; display: block; padding: 20px; }
+.menu-item { padding: 20px; color: #ffffff; text-decoration: none; font-size: 1rem; border-bottom: 1px solid #222222; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease; }
+.menu-item:hover { background-color: #ffffff; color: #000000; }
+.menu-item:hover span { color: #000000 !important; }
+
+.panel-footer-sticky { margin-top: auto; position: sticky; bottom: 0; background-color: #111111; border-top: 1px solid #222222; z-index: 10; width: 100%; }
+
+.menu-item-danger { color: #dc3545; font-weight: bold; cursor: pointer; background: transparent; border: none; font-size: 1rem; width: 100%; text-align: center; display: flex; align-items: center; justify-content: center; padding: 20px; transition: all 0.3s ease; }
+.menu-item-danger:hover { background-color: #dc3545; color: #ffffff; }
 
 .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
 .overlay.open { display: block; opacity: 1; }

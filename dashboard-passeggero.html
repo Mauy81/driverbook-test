@@ -17,7 +17,7 @@
 
     <main class="dashboard-wrapper">
 
-        <div class="auth-card">
+        <div class="auth-card" id="card_home_azioni">
             <div class="auth-header">
                 <h1 id="welcome_message">Ciao,<br><span id="dash_nome_utente">...</span></h1>
             </div>
@@ -30,7 +30,7 @@
             <button class="btn btn-primary btn-full" id="btn_prenota_servizio">PRENOTA SERVIZIO</button>
         </div>
 
-        <div class="auth-card">
+        <div class="auth-card" id="card_home_viaggi">
             <div class="auth-header">
                 <h2>Viaggi in programma</h2>
             </div>
@@ -41,7 +41,11 @@
             </div>
         </div>
 
-        <div class="auth-card hidden">
+        <div class="footer test-cortesia" id="testo_cortesia_main" style="margin-top: 10px; margin-bottom: 20px; font-size: 0.85rem;">
+            Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
+        </div>
+
+        <div class="auth-card hidden" id="card_storico">
             <div class="auth-header">
                 <h2>Storico Viaggi</h2>
             </div>
@@ -52,7 +56,7 @@
             </div>
         </div>
 
-        <div class="auth-card hidden">
+        <div class="auth-card hidden" id="card_profilo">
             <div class="auth-header">
                 <h2>Modifica Profilo</h2>
             </div>
@@ -143,7 +147,7 @@
             </form>
         </div>
 
-        <div class="auth-card hidden">
+        <div class="auth-card hidden" id="card_sicurezza">
             <div class="auth-header">
                 <h2>Sicurezza</h2>
             </div>
@@ -170,14 +174,16 @@
             <button id="btn_chiudi_menu" class="close-btn">&times;</button>
         </div>
         <div class="menu-items">
-            <a href="#" class="menu-item">Gestione Viaggi <span style="color:#555;">&gt;</span></a>
-            <a href="#" class="menu-item">Modifica Profilo <span style="color:#555;">&gt;</span></a>
-            <a href="#" class="menu-item">Dati Fatturazione <span style="color:#555;">&gt;</span></a>
-            <a href="#" class="menu-item">Sicurezza <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_home" class="menu-item">Dashboard Principale <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_profilo" class="menu-item">Profilo e Fatturazione <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_sicurezza" class="menu-item">Sicurezza <span style="color:#555;">&gt;</span></a>
         </div>
-        <div style="flex-grow: 1;"></div>
-        <div class="menu-items" style="border-top: 1px solid #222222;">
-            <button id="btn_logout" class="menu-item-danger">ESCI DALL'ACCOUNT</button>
+        <div class="panel-footer-sticky">
+            <button id="btn_logout" class="menu-item-danger">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                ESCI DALL'ACCOUNT
+            </button>
         </div>
     </div>
 

@@ -56,6 +56,62 @@ document.addEventListener("DOMContentLoaded", function() {
         btnApri.addEventListener('click', apriMenu);
         if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
         overlay.addEventListener('click', chiudiMenu);
+
+        const sezioniSPA = {
+            'home': ['card_home_azioni', 'card_home_viaggi', 'testo_cortesia_main'],
+            'storico': ['card_storico'],
+            'profilo': ['card_profilo'],
+            'sicurezza': ['card_sicurezza']
+        };
+
+        function cambiaSezione(nomeSezione, aggiornaHistory = true) {
+            Object.values(sezioniSPA).forEach(ids => {
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+            });
+
+            if (sezioniSPA[nomeSezione]) {
+                sezioniSPA[nomeSezione].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
+            }
+
+            if (aggiornaHistory) {
+                window.history.pushState({ sezione: nomeSezione }, '', '#' + nomeSezione);
+            }
+            
+            chiudiMenu();
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('link_menu_home')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('home'); });
+        document.getElementById('link_menu_storico')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('storico'); });
+        document.getElementById('link_menu_profilo')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('profilo'); });
+        document.getElementById('link_menu_sicurezza')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('sicurezza'); });
+
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.sezione) {
+                cambiaSezione(e.state.sezione, false);
+            } else {
+                const hash = window.location.hash.replace('#', '');
+                if (sezioniSPA[hash]) {
+                    cambiaSezione(hash, false);
+                } else {
+                    cambiaSezione('home', false);
+                }
+            }
+        });
+
+        const hashIniziale = window.location.hash.replace('#', '');
+        if (sezioniSPA[hashIniziale]) {
+            cambiaSezione(hashIniziale, false);
+        } else {
+            window.history.replaceState({ sezione: 'home' }, '', window.location.pathname);
+            cambiaSezione('home', false);
+        }
     }
 
     const phoneInputField = document.querySelector("#telefono");
