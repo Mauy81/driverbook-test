@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div class="auth-card">
+        <div class="auth-card hidden">
             <div class="auth-header">
                 <h2>Storico Viaggi</h2>
             </div>
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="auth-card">
+        <div class="auth-card hidden">
             <div class="auth-header">
                 <h2>Modifica Profilo</h2>
             </div>
@@ -143,12 +143,12 @@
             </form>
         </div>
 
-        <div class="auth-card">
+        <div class="auth-card hidden">
             <div class="auth-header">
                 <h2>Sicurezza</h2>
             </div>
             <button class="btn btn-ghost btn-danger-outline btn-full" id="btn_modifica_password">RESET PASSWORD</button>
-            <button class="btn btn-ghost btn-full" id="btn_logout">ESCI DALL'ACCOUNT</button>
+            <button class="btn btn-ghost btn-full" id="btn_logout_nascosto">ESCI DALL'ACCOUNT</button>
         </div>
 
     </main>
@@ -159,6 +159,25 @@
             <p>Per installare l'app su iPhone o iPad:</p>
             <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
             <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+        </div>
+    </div>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="panel-header">
+            <h2>Il Mio Account</h2>
+            <button id="btn_chiudi_menu" class="close-btn">&times;</button>
+        </div>
+        <div class="menu-items">
+            <a href="#" class="menu-item">Gestione Viaggi <span style="color:#555;">&gt;</span></a>
+            <a href="#" class="menu-item">Modifica Profilo <span style="color:#555;">&gt;</span></a>
+            <a href="#" class="menu-item">Dati Fatturazione <span style="color:#555;">&gt;</span></a>
+            <a href="#" class="menu-item">Sicurezza <span style="color:#555;">&gt;</span></a>
+        </div>
+        <div style="flex-grow: 1;"></div>
+        <div class="menu-items" style="border-top: 1px solid #222222;">
+            <button id="btn_logout" class="menu-item-danger">ESCI DALL'ACCOUNT</button>
         </div>
     </div>
 

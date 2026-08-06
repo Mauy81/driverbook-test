@@ -14,6 +14,15 @@ if ('scrollRestoration' in history) {
 document.addEventListener("DOMContentLoaded", function() {
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
+        const isDashboard = window.location.pathname.includes('dashboard');
+        const iconaUtente = isDashboard ? `
+            <button id="btn_apri_menu" class="user-icon-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </button>` : '';
+
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
             <a href="index.html" class="logo-container">
@@ -22,9 +31,31 @@ document.addEventListener("DOMContentLoaded", function() {
             </a>
             <div class="menu-destra">
                 <button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>
-                <div class="nav-btn lang-selector">IT / EN</div>
+                <div class="nav-btn lang-selector" style="border: none; padding: 0;">IT / EN</div>
+                ${iconaUtente}
             </div>
         </nav>`;
+    }
+
+    const btnApri = document.getElementById('btn_apri_menu');
+    const btnChiudi = document.getElementById('btn_chiudi_menu');
+    const overlay = document.getElementById('menu_overlay');
+    const sidePanel = document.getElementById('side_panel');
+    
+    if (btnApri && sidePanel && overlay) {
+        function apriMenu() {
+            sidePanel.classList.add('open');
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden'; 
+        }
+        function chiudiMenu() {
+            sidePanel.classList.remove('open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        btnApri.addEventListener('click', apriMenu);
+        if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
+        overlay.addEventListener('click', chiudiMenu);
     }
 
     const phoneInputField = document.querySelector("#telefono");
