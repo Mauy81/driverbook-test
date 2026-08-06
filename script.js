@@ -235,25 +235,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-function selezionaLingua(lingua) {
-    document.cookie = "driverbook_lang=" + lingua + "; max-age=31536000; path=/";
-    if (lingua === 'IT') {
-        window.location.href = "home-it.html";
-    } else {
-        alert("Hai selezionato: " + lingua);
-    }
-}
-
-function selezionaRuolo(ruolo) {
-    document.cookie = "driverbook_role=" + ruolo + "; max-age=31536000; path=/";
-    
-    if (ruolo === 'PASSEGGERO') {
-        window.location.href = "index-passeggero.html";
-    } else if (ruolo === 'AUTISTA') {
-        window.location.href = "index-autista-amministrativo.html";
-    }
-}
-
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
     const isPassword = input.type === 'password';
@@ -946,7 +927,7 @@ function caricaRiepilogo() {
             `;
         }
         setTimeout(() => {
-            window.location.href = 'index-passeggero.html';
+            window.location.href = 'prenota-servizio-passeggero.html';
         }, 5000);
         return;
     }
@@ -1302,7 +1283,7 @@ async function inviaRegistrazionePasseggero(event) {
 async function caricaDatiDashboardPasseggero() {
     const token = localStorage.getItem('driverbook_auth_token');
     if (!token) {
-        window.location.href = 'index-passeggero.html';
+        window.location.href = 'login-passeggero.html';
         return;
     }
 
