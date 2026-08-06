@@ -1117,26 +1117,26 @@ function verificaChiusuraFatturazione() {
         });
 
         if (haDati) {
-            if (alertBox) alertBox.style.display = 'block';
+            if (alertBox) alertBox.classList.remove('hidden');
         } else {
-            if (alertBox) alertBox.style.display = 'none';
+            if (alertBox) alertBox.classList.add('hidden');
             toggleFatturazioneProfiloReale(false);
         }
     } else {
-        if (alertBox) alertBox.style.display = 'none';
+        if (alertBox) alertBox.classList.add('hidden');
         toggleFatturazioneProfiloReale(true);
     }
 }
 
 function annullaChiusuraFatturazione() {
     document.getElementById('profilo_richiedeFattura').checked = true;
-    document.getElementById('alert_chiusura_fatturazione').style.display = 'none';
+    document.getElementById('alert_chiusura_fatturazione').classList.add('hidden');
     toggleFatturazioneProfiloReale(true);
 }
 
 function confermaChiusuraFatturazione() {
     document.getElementById('profilo_richiedeFattura').checked = false;
-    document.getElementById('alert_chiusura_fatturazione').style.display = 'none';
+    document.getElementById('alert_chiusura_fatturazione').classList.add('hidden');
 
     const campiFatturazione = [
         'profilo_ragioneSociale', 'profilo_piva_cf', 'profilo_codice_sdi', 'profilo_pec',
