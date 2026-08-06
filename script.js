@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 <img src="logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
                 <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
-            <div class="menu-destra">
-                <button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>
-                <div class="nav-btn lang-selector" style="border: none; padding: 0;">IT / EN</div>
-                ${iconaUtente}
+            <div class="menu-destra" style="gap: 5px;">
+                <button id="btn_installa_app" class="nav-btn btn-install-app" style="border: none; padding: 10px; font-weight: 600;">Installa App</button>
+                <div class="nav-btn lang-selector" style="border: none; padding: 10px; font-weight: 600;">IT / EN</div>
+                ${iconaUtente.replace('class="user-icon-btn"', 'class="user-icon-btn" style="padding: 10px;"')}
             </div>
         </nav>`;
     }
@@ -58,11 +58,26 @@ document.addEventListener("DOMContentLoaded", function() {
         overlay.addEventListener('click', chiudiMenu);
 
         const sezioniSPA = {
-            'home': ['card_home_azioni', 'card_home_viaggi', 'testo_cortesia_main'],
+            'home': ['card_home_azioni', 'testo_cortesia_main'],
+            'viaggi': ['card_home_viaggi'],
             'storico': ['card_storico'],
             'profilo': ['card_profilo'],
             'sicurezza': ['card_sicurezza']
         };
+
+        const swipeRange = document.getElementById('swipe_logout_range');
+        if(swipeRange) {
+            const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
+            swipeRange.addEventListener('input', function() {
+                if(this.value >= 95) {
+                    this.value = 100;
+                    esciAccount();
+                }
+            });
+            swipeRange.addEventListener('change', resetSlider);
+            swipeRange.addEventListener('touchend', resetSlider);
+            swipeRange.addEventListener('mouseup', resetSlider);
+        }
 
         function cambiaSezione(nomeSezione, aggiornaHistory = true) {
             Object.values(sezioniSPA).forEach(ids => {
@@ -88,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         document.getElementById('link_menu_home')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('home'); });
+        document.getElementById('link_menu_viaggi')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('viaggi'); });
         document.getElementById('link_menu_storico')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('storico'); });
         document.getElementById('link_menu_profilo')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('profilo'); });
         document.getElementById('link_menu_sicurezza')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('sicurezza'); });

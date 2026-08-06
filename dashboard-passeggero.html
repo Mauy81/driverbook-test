@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div class="footer test-cortesia" id="testo_cortesia_main" style="margin-top: 10px; margin-bottom: 20px; font-size: 0.85rem;">
+        <div class="footer test-cortesia" id="testo_cortesia_main" style="margin-top: 10px; margin-bottom: 20px; font-size: 0.85rem; color: #ffffff; text-align: center;">
             Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
         </div>
 
@@ -149,7 +149,7 @@
 
         <div class="auth-card hidden" id="card_sicurezza">
             <div class="auth-header">
-                <h2>Sicurezza</h2>
+                <h2>Password</h2>
             </div>
             <button class="btn btn-ghost btn-danger-outline btn-full" id="btn_modifica_password">RESET PASSWORD</button>
             <button class="btn btn-ghost btn-full" id="btn_logout_nascosto">ESCI DALL'ACCOUNT</button>
@@ -173,17 +173,16 @@
             <h2>Il Mio Account</h2>
             <button id="btn_chiudi_menu" class="close-btn">&times;</button>
         </div>
-        <div class="menu-items">
-            <a href="#" id="link_menu_home" class="menu-item">Dashboard Principale <span style="color:#555;">&gt;</span></a>
+        <div class="menu-items" style="padding-top: 0;">
+            <div style="padding: 20px; border-bottom: 1px solid #222222; background-color: #1a1a1a;">
+                <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                <div style="text-align: center; font-size: 0.85rem; color: #dc3545; margin-top: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">&gt;&gt; Scorri per uscire &gt;&gt;</div>
+            </div>
+            <a href="#" id="link_menu_home" class="menu-item">Prenotazione <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma <span style="color:#555;">&gt;</span></a>
             <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi <span style="color:#555;">&gt;</span></a>
             <a href="#" id="link_menu_profilo" class="menu-item">Profilo e Fatturazione <span style="color:#555;">&gt;</span></a>
-            <a href="#" id="link_menu_sicurezza" class="menu-item">Sicurezza <span style="color:#555;">&gt;</span></a>
-        </div>
-        <div class="panel-footer-sticky">
-            <button id="btn_logout" class="menu-item-danger">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                ESCI DALL'ACCOUNT
-            </button>
+            <a href="#" id="link_menu_sicurezza" class="menu-item">Password <span style="color:#555;">&gt;</span></a>
         </div>
     </div>
 
