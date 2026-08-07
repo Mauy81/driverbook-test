@@ -58,23 +58,21 @@ document.addEventListener("DOMContentLoaded", function() {
     if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
     if (overlay) overlay.addEventListener('click', chiudiMenu);
 
-    window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            // Spegne temporaneamente le animazioni per una chiusura immediata
-            if (sidePanel) {
-                sidePanel.style.transition = 'none';
-                sidePanel.classList.remove('open');
-                void sidePanel.offsetWidth; // Forza il browser ad applicare la modifica all'istante
-                sidePanel.style.transition = ''; // Riaccende l'animazione
-            }
-            if (overlay) {
-                overlay.style.transition = 'none';
-                overlay.classList.remove('open');
-                void overlay.offsetWidth;
-                overlay.style.transition = '';
-            }
-            document.body.style.overflow = '';
+    window.addEventListener('pagehide', function() {
+        if (sidePanel) {
+            sidePanel.style.transition = 'none';
+            sidePanel.classList.remove('open');
         }
+        if (overlay) {
+            overlay.style.transition = 'none';
+            overlay.classList.remove('open');
+        }
+        document.body.style.overflow = '';
+    });
+
+    window.addEventListener('pageshow', function() {
+        if (sidePanel) sidePanel.style.transition = '';
+        if (overlay) overlay.style.transition = '';
     });
 
     const swipeRange = document.getElementById('swipe_logout_range');

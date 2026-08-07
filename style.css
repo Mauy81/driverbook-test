@@ -178,7 +178,7 @@ body {
 }
 
 .auth-card form .btn:first-of-type {
-    margin-top: 28px;
+    margin-top: 27px;
 }
 
 .auth-card form .link + .btn {
@@ -224,7 +224,8 @@ body {
 
 textarea.input {
     resize: vertical;
-    min-height: 80px;
+    min-height: 200px;
+	display: block;
 }
 
 .input::placeholder {
@@ -553,10 +554,6 @@ textarea.input {
 }
 .spaziatura-assistenza > *:last-child {
     margin-bottom: 0 !important;
-}
-
-#form_assistenza .btn:first-of-type {
-    margin-top: 0 !important;
 }
 
 #container_bottoni_alert {
