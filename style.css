@@ -716,15 +716,26 @@ textarea.input {
     font-weight: bold;
     font-family: inherit;
     cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 4px;
-    display: inline-flex;
+    padding: 15px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .btn-chiudi-testuale:hover {
     background-color: #ffffff;
     color: #000000;
+}
+
+#blocco_fatturazione_registrazione {
+    margin-top: 46px;
+}
+
+#blocco_notifiche_registrazione {
+	margin-top: 40px;
+    margin-bottom: 40px;
+	
 }

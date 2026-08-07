@@ -38,7 +38,7 @@
                     <input type="tel" id="telefono" class="input" required placeholder="333 1234567" autocomplete="off">
                 </div>
 
-                <div class="checkbox-group">
+                <div class="checkbox-group" id="blocco_fatturazione_registrazione">
                     <input type="checkbox" id="richiedeFattura" class="checkbox-input" onchange="toggleFatturazione()">
                     <label for="richiedeFattura" class="checkbox-label">Richiedo fatturazione elettronica (Azienda / Hotel)</label>
                 </div>
@@ -87,7 +87,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group"id="blocco_notifiche_registrazione"">
                     <label class="label">Notifiche</label>
                     <div class="gruppo-dinamico">
                         <div class="checkbox-group">
@@ -138,14 +138,12 @@
 
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
-            <div class="panel-header">
-                <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                    CHIUDI MENU
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                </button>
-            </div>
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                CHIUDI MENU
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
         <div class="menu-items scrollable-menu">
             <a href="login-passeggero.html" class="menu-item">Accesso</a>

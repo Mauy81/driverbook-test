@@ -41,93 +41,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnChiudi = document.getElementById('btn_chiudi_menu');
     const overlay = document.getElementById('menu_overlay');
     const sidePanel = document.getElementById('side_panel');
-    
-    if (btnApri && sidePanel && overlay) {
-        function apriMenu() {
-            sidePanel.classList.add('open');
-            overlay.classList.add('open');
-            document.body.style.overflow = 'hidden'; 
-        }
-        function chiudiMenu() {
-            sidePanel.classList.remove('open');
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-        btnApri.addEventListener('click', apriMenu);
-        if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
-        overlay.addEventListener('click', chiudiMenu);
 
-        const sezioniSPA = {
-            'home': ['card_home_azioni', 'card_home_viaggi', 'testo_cortesia_main'],
-            'viaggi': ['card_viaggi_edit'],
-            'storico': ['card_storico'],
-            'profilo': ['card_profilo'],
-            'sicurezza': ['card_sicurezza']
-        };
+    function apriMenu() {
+        if (sidePanel) sidePanel.classList.add('open');
+        if (overlay) overlay.classList.add('open');
+        document.body.style.overflow = 'hidden'; 
+    }
 
-        const swipeRange = document.getElementById('swipe_logout_range');
-        if(swipeRange) {
-            const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
-            swipeRange.addEventListener('input', function() {
-                if(this.value >= 95) {
-                    this.value = 100;
-                    esciAccount();
-                }
-            });
-            swipeRange.addEventListener('change', resetSlider);
-            swipeRange.addEventListener('touchend', resetSlider);
-            swipeRange.addEventListener('mouseup', resetSlider);
-        }
+    function chiudiMenu() {
+        if (sidePanel) sidePanel.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
 
-        function cambiaSezione(nomeSezione, aggiornaHistory = true) {
-            Object.values(sezioniSPA).forEach(ids => {
-                ids.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('hidden');
-                });
-            });
+    if (btnApri) btnApri.addEventListener('click', apriMenu);
+    if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
+    if (overlay) overlay.addEventListener('click', chiudiMenu);
 
-            if (sezioniSPA[nomeSezione]) {
-                sezioniSPA[nomeSezione].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.remove('hidden');
-                });
-            }
-
-            if (aggiornaHistory) {
-                window.history.pushState({ sezione: nomeSezione }, '', '#' + nomeSezione);
-            }
-            
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
             chiudiMenu();
-            window.scrollTo(0, 0);
         }
+    });
 
-        document.getElementById('link_menu_home')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('home'); });
-        document.getElementById('link_menu_viaggi')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('viaggi'); });
-        document.getElementById('link_menu_storico')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('storico'); });
-        document.getElementById('link_menu_profilo')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('profilo'); });
-        document.getElementById('link_menu_sicurezza')?.addEventListener('click', (e) => { e.preventDefault(); cambiaSezione('sicurezza'); });
-
-        window.addEventListener('popstate', (e) => {
-            if (e.state && e.state.sezione) {
-                cambiaSezione(e.state.sezione, false);
-            } else {
-                const hash = window.location.hash.replace('#', '');
-                if (sezioniSPA[hash]) {
-                    cambiaSezione(hash, false);
-                } else {
-                    cambiaSezione('home', false);
-                }
+    const swipeRange = document.getElementById('swipe_logout_range');
+    if (swipeRange) {
+        const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
+        swipeRange.addEventListener('input', function() {
+            if(this.value >= 95) {
+                this.value = 100;
+                if (typeof esciAccount === 'function') esciAccount();
             }
         });
-
-        const hashIniziale = window.location.hash.replace('#', '');
-        if (sezioniSPA[hashIniziale]) {
-            cambiaSezione(hashIniziale, false);
-        } else {
-            window.history.replaceState({ sezione: 'home' }, '', window.location.pathname);
-            cambiaSezione('home', false);
-        }
+        swipeRange.addEventListener('change', resetSlider);
+        swipeRange.addEventListener('touchend', resetSlider);
+        swipeRange.addEventListener('mouseup', resetSlider);
     }
 
     const phoneInputField = document.querySelector("#telefono");
