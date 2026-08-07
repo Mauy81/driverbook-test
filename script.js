@@ -60,7 +60,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
-            chiudiMenu();
+            // Spegne temporaneamente le animazioni per una chiusura immediata
+            if (sidePanel) {
+                sidePanel.style.transition = 'none';
+                sidePanel.classList.remove('open');
+                void sidePanel.offsetWidth; // Forza il browser ad applicare la modifica all'istante
+                sidePanel.style.transition = ''; // Riaccende l'animazione
+            }
+            if (overlay) {
+                overlay.style.transition = 'none';
+                overlay.classList.remove('open');
+                void overlay.offsetWidth;
+                overlay.style.transition = '';
+            }
+            document.body.style.overflow = '';
         }
     });
 
