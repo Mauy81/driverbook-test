@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuovo Passeggero</title>
+    <title>Registrazione Passeggero</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,7 @@
     <main class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Nuovo Passeggero</h1>
+                <h1>Registrazione Passeggero</h1>
             </div>
 
             <form id="formRegistrazionePasseggero" autocomplete="off" onsubmit="inviaRegistrazionePasseggero(event)">
@@ -131,10 +131,28 @@
 
                 <button type="submit" class="btn btn-primary btn-full">Registrati</button>
             </form>
-
-            <button type="button" class="btn btn-ghost btn-full" onclick="window.location.href='login-passeggero.html'">Hai già un account? Accedi</button>
         </div>
     </main>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <div class="panel-header">
+                <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                    CHIUDI MENU
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="menu-items scrollable-menu">
+            <a href="login-passeggero.html" class="menu-item">Accesso</a>
+            <a href="reset-password.html" class="menu-item">Recupero Password</a>
+            <a href="#" class="menu-item">Assistenza</a>
+        </div>
+    </div>
 
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">

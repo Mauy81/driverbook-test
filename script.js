@@ -14,8 +14,8 @@ if ('scrollRestoration' in history) {
 document.addEventListener("DOMContentLoaded", function() {
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
-        const isDashboard = window.location.pathname.includes('dashboard');
-        const iconaUtente = isDashboard ? `
+        const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+        const iconaUtente = !isIndex ? `
             <button id="btn_apri_menu" class="user-icon-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

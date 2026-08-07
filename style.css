@@ -165,7 +165,7 @@ body {
 
 .auth-card {
     width: 100%;
-    max-width: 440px;
+    max-width: 500px;
     background-color: transparent;
     border: none;
     border-radius: 0;
@@ -178,7 +178,7 @@ body {
 }
 
 .auth-card form .btn:first-of-type {
-    margin-top: 20px;
+    margin-top: 28px;
 }
 
 .auth-card form .link + .btn {
@@ -630,18 +630,18 @@ textarea.input {
 .swipe-logout-track {
     position: relative;
     width: 100%;
-    height: 45px;
+    height: 54px;
     background: #111111;
     border: 1px solid #dc3545;
-    border-radius: 25px;
+    border-radius: 27px;
     overflow: hidden;
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 
 .swipe-logout-text {
-    position: absolute;
+    flex: 1;
+    margin-left: 54px;
     z-index: 1;
     color: #dc3545;
     font-size: 0.75rem;
@@ -649,8 +649,11 @@ textarea.input {
     text-transform: uppercase;
     letter-spacing: 1px;
     pointer-events: none;
-    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
     text-align: center;
+    line-height: 1.4;
+    white-space: normal;
 }
 
 .swipe-logout-slider {
@@ -697,3 +700,31 @@ textarea.input {
 
 .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7); z-index: 150; display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
 .overlay.open { display: block; opacity: 1; }
+
+.nota-informativa-login {
+    margin-top: 48px;
+    font-size: 0.85rem;
+    color: #ffffff;
+    text-align: center;
+}
+
+.btn-chiudi-testuale {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-chiudi-testuale:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
