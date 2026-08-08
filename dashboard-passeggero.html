@@ -28,6 +28,22 @@
 
             <button class="btn btn-primary btn-full" id="btn_prenota_servizio">PRENOTA SERVIZIO</button>
         </div>
+
+        <div class="auth-card hidden" id="card_assistenza">
+            <div class="auth-header">
+                <h1>Assistenza</h1>
+            </div>
+            <form id="form_assistenza_interna" autocomplete="off">
+                <div class="form-group hidden">
+                    <input type="text" id="azienda_hp_interna" name="azienda_hp" class="input" tabindex="-1" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="label" for="testo_assistenza_interna">Descrivi il problema</label>
+                    <textarea id="testo_assistenza_interna" class="input" required placeholder="Scrivi qui i dettagli della tua richiesta..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
+            </form>
+        </div>
     </main>
 
     <div id="ios_install_popup" class="ios-popup hidden">
@@ -57,11 +73,12 @@
             </div>
         </div>
         <div class="menu-items scrollable-menu">
-            <a href="#" id="link_menu_home" class="menu-item">Prenotazione</a>
+            <a href="#" id="link_menu_home" class="menu-item hidden">Prenotazione</a>
             <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
             <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
-            <a href="#" id="link_menu_profilo" class="menu-item">Profilo e Fatturazione</a>
-            <a href="#" id="link_menu_sicurezza" class="menu-item">Password</a>
+            <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
+            <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
+            <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
         </div>
     </div>
 

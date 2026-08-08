@@ -306,6 +306,65 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+
+    const linkAssistenza = document.getElementById('link_menu_assistenza');
+    const linkHome = document.getElementById('link_menu_home');
+    const cardHome = document.getElementById('card_home_azioni');
+    const cardAssistenza = document.getElementById('card_assistenza');
+    const formAssistenzaInterna = document.getElementById('form_assistenza_interna');
+
+    function apriAssistenza() {
+        if (cardHome && cardAssistenza) {
+            cardHome.classList.add('hidden');
+            cardAssistenza.classList.remove('hidden');
+            if (linkAssistenza) linkAssistenza.classList.add('hidden');
+            if (linkHome) linkHome.classList.remove('hidden');
+            history.pushState({ page: 'assistenza' }, 'Assistenza', '#assistenza');
+            if (typeof chiudiMenu === 'function') chiudiMenu();
+        }
+    }
+
+    function tornaAllaHome() {
+        if (cardHome && cardAssistenza) {
+            cardAssistenza.classList.add('hidden');
+            cardHome.classList.remove('hidden');
+            if (linkAssistenza) linkAssistenza.classList.remove('hidden');
+            if (linkHome) linkHome.classList.add('hidden');
+            if (typeof chiudiMenu === 'function') chiudiMenu();
+        }
+    }
+
+    if (linkAssistenza) {
+        linkAssistenza.addEventListener('click', function(e) {
+            e.preventDefault();
+            apriAssistenza();
+        });
+    }
+
+    if (linkHome) {
+        linkHome.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (history.state && history.state.page === 'assistenza') {
+                history.back();
+            } else {
+                tornaAllaHome();
+            }
+        });
+    }
+
+    window.addEventListener('popstate', function(event) {
+        if (cardHome && cardHome.classList.contains('hidden')) {
+            tornaAllaHome();
+        }
+    });
+
+    if (formAssistenzaInterna) {
+        formAssistenzaInterna.addEventListener('submit', function(event) {
+            if (typeof inviaAssistenzaInterna === 'function') {
+                inviaAssistenzaInterna(event);
+            }
+        });
+    }
 });
 
 function togglePassword(inputId, button) {
@@ -1888,4 +1947,92 @@ document.addEventListener('click', async (e) => {
 function chiudiPopupIOS() {
     const iosPopup = document.getElementById('ios_install_popup');
     if (iosPopup) iosPopup.classList.add('hidden');
+}
+
+async function inviaAssistenzaInterna(event) {
+    event.preventDefault();
+    
+    const honeypot = document.getElementById('azienda_hp_interna').value;
+    if (honeypot) return;
+
+    const messaggioUtente = document.getElementById('testo_assistenza_interna').value.trim();
+    const btnSubmit = document.querySelector('#form_assistenza_interna button[type="submit"]');
+
+    const testoOriginale = btnSubmit.textContent;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Invio in corso...";
+
+    const token = localStorage.getItem('driverbook_auth_token');
+    const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
+    const urlGoogleApp = "https://script.google.com/macros/s/AKfycbxS7_NOyZXPwhO9m3VDH1aD98a1emWtuDRDNi6VnnqStZtieZUE_ILt_lcvu_HU88In/exec";
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Sessione non valida");
+        const userData = await userRes.json();
+        const emailUtente = userData.email;
+
+        const nomeDom = document.getElementById('dash_nome_utente');
+        const codiceDom = document.getElementById('dash_codice_cliente');
+        const nomeUtente = nomeDom ? nomeDom.textContent : "N/A";
+        const codiceCliente = codiceDom ? codiceDom.textContent : "N/A";
+
+        const messaggioArricchito = `Codice Cliente: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
+
+        const resSupa = await fetch(urlSupabase, {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: emailUtente, messaggio: messaggioArricchito })
+        });
+
+        if (!resSupa.ok) throw new Error("Errore salvataggio database");
+
+        fetch(urlGoogleApp, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailUtente, messaggio: messaggioArricchito })
+        });
+
+        btnSubmit.textContent = "Richiesta inviata correttamente!";
+        btnSubmit.style.backgroundColor = "#00FF66";
+        btnSubmit.style.color = "#000000";
+        btnSubmit.style.borderColor = "#00FF66";
+        
+        setTimeout(() => {
+            document.getElementById('form_assistenza_interna').reset();
+            
+            btnSubmit.textContent = testoOriginale;
+            btnSubmit.style.backgroundColor = "";
+            btnSubmit.style.color = "";
+            btnSubmit.style.borderColor = "";
+            btnSubmit.disabled = false;
+            
+            if (history.state && history.state.page === 'assistenza') {
+                history.back();
+            } else {
+                const cardHome = document.getElementById('card_home_azioni');
+                const cardAssistenza = document.getElementById('card_assistenza');
+                const linkAssistenza = document.getElementById('link_menu_assistenza');
+                const linkHome = document.getElementById('link_menu_home');
+                
+                if(cardAssistenza) cardAssistenza.classList.add('hidden');
+                if(cardHome) cardHome.classList.remove('hidden');
+                if(linkAssistenza) linkAssistenza.classList.remove('hidden');
+                if(linkHome) linkHome.classList.add('hidden');
+            }
+        }, 5000);
+
+    } catch (errore) {
+        alert("Errore durante l'invio. Riprova più tardi.");
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = testoOriginale;
+    }
 }
