@@ -307,57 +307,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    const linkAssistenza = document.getElementById('link_menu_assistenza');
-    const linkHome = document.getElementById('link_menu_home');
-    const cardHome = document.getElementById('card_home_azioni');
-    const cardAssistenza = document.getElementById('card_assistenza');
     const formAssistenzaInterna = document.getElementById('form_assistenza_interna');
-
-    function apriAssistenza() {
-        if (cardHome && cardAssistenza) {
-            cardHome.classList.add('hidden');
-            cardAssistenza.classList.remove('hidden');
-            if (linkAssistenza) linkAssistenza.classList.add('hidden');
-            if (linkHome) linkHome.classList.remove('hidden');
-            history.pushState({ page: 'assistenza' }, 'Assistenza', '#assistenza');
-            if (typeof chiudiMenu === 'function') chiudiMenu();
-        }
-    }
-
-    function tornaAllaHome() {
-        if (cardHome && cardAssistenza) {
-            cardAssistenza.classList.add('hidden');
-            cardHome.classList.remove('hidden');
-            if (linkAssistenza) linkAssistenza.classList.remove('hidden');
-            if (linkHome) linkHome.classList.add('hidden');
-            if (typeof chiudiMenu === 'function') chiudiMenu();
-        }
-    }
-
-    if (linkAssistenza) {
-        linkAssistenza.addEventListener('click', function(e) {
-            e.preventDefault();
-            apriAssistenza();
-        });
-    }
-
-    if (linkHome) {
-        linkHome.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (history.state && history.state.page === 'assistenza') {
-                history.back();
-            } else {
-                tornaAllaHome();
-            }
-        });
-    }
-
-    window.addEventListener('popstate', function(event) {
-        if (cardHome && cardHome.classList.contains('hidden')) {
-            tornaAllaHome();
-        }
-    });
-
     if (formAssistenzaInterna) {
         formAssistenzaInterna.addEventListener('submit', function(event) {
             if (typeof inviaAssistenzaInterna === 'function') {
@@ -1974,11 +1924,29 @@ async function inviaAssistenzaInterna(event) {
         if (!userRes.ok) throw new Error("Sessione non valida");
         const userData = await userRes.json();
         const emailUtente = userData.email;
+        const userId = userData.id;
 
-        const nomeDom = document.getElementById('dash_nome_utente');
-        const codiceDom = document.getElementById('dash_codice_cliente');
-        const nomeUtente = nomeDom ? nomeDom.textContent : "N/A";
-        const codiceCliente = codiceDom ? codiceDom.textContent : "N/A";
+        let nomeUtente = "N/A";
+        let codiceCliente = "N/A";
+
+        const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=nome_cognome,codice_passeggero`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const datiPasseggero = await checkPasseggero.json();
+
+        if (datiPasseggero && datiPasseggero.length > 0) {
+            nomeUtente = datiPasseggero[0].nome_cognome || "N/A";
+            codiceCliente = datiPasseggero[0].codice_passeggero || "N/A";
+        } else {
+            const checkAutista = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti?id_autista=eq.${userId}&select=nome_cognome,codice_autista`, {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            const datiAutista = await checkAutista.json();
+            if (datiAutista && datiAutista.length > 0) {
+                nomeUtente = datiAutista[0].nome_cognome || "N/A";
+                codiceCliente = datiAutista[0].codice_autista || "N/A";
+            }
+        }
 
         const messaggioArricchito = `Codice Cliente: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
 
@@ -2007,27 +1975,7 @@ async function inviaAssistenzaInterna(event) {
         btnSubmit.style.borderColor = "#00FF66";
         
         setTimeout(() => {
-            document.getElementById('form_assistenza_interna').reset();
-            
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.style.backgroundColor = "";
-            btnSubmit.style.color = "";
-            btnSubmit.style.borderColor = "";
-            btnSubmit.disabled = false;
-            
-            if (history.state && history.state.page === 'assistenza') {
-                history.back();
-            } else {
-                const cardHome = document.getElementById('card_home_azioni');
-                const cardAssistenza = document.getElementById('card_assistenza');
-                const linkAssistenza = document.getElementById('link_menu_assistenza');
-                const linkHome = document.getElementById('link_menu_home');
-                
-                if(cardAssistenza) cardAssistenza.classList.add('hidden');
-                if(cardHome) cardHome.classList.remove('hidden');
-                if(linkAssistenza) linkAssistenza.classList.remove('hidden');
-                if(linkHome) linkHome.classList.add('hidden');
-            }
+            window.history.back();
         }, 5000);
 
     } catch (errore) {

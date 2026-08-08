@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DriverBook - Dashboard Passeggero</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+    <title>Assistenza - DriverBook</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,28 +15,22 @@
     <div id="menu-principale"></div>
 
     <main class="login-wrapper">
-        <div class="auth-card" id="card_home_azioni">
+        <div class="auth-card">
             <div class="auth-header">
-                <h1 id="welcome_message">Ciao,<br><span id="dash_nome_utente">...</span></h1>
+                <h1>Assistenza</h1>
             </div>
-            
-            <div id="container_codice_cliente">
-                <div class="label">Codice Cliente:</div>
-                <div id="dash_codice_cliente">...</div>
-            </div>
-
-            <button class="btn btn-primary btn-full" id="btn_prenota_servizio">PRENOTA SERVIZIO</button>
+            <form id="form_assistenza_interna" autocomplete="off">
+                <div class="form-group hidden">
+                    <input type="text" id="azienda_hp_interna" name="azienda_hp" class="input" tabindex="-1" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="label" for="testo_assistenza_interna">Descrivi il problema</label>
+                    <textarea id="testo_assistenza_interna" class="input" required placeholder="Scrivi qui i dettagli della tua richiesta..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
+            </form>
         </div>
     </main>
-
-    <div id="ios_install_popup" class="ios-popup hidden">
-        <div class="ios-popup-content">
-            <span class="close-popup" id="btn_chiudi_ios_popup">&times;</span>
-            <p>Per installare l'app su iPhone o iPad:</p>
-            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
-            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
-        </div>
-    </div>
 
     <div id="menu_overlay" class="overlay"></div>
 
@@ -66,7 +59,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
