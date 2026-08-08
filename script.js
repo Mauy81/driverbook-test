@@ -1646,7 +1646,6 @@ async function inviaAssistenza(event) {
         
         setTimeout(() => {
             document.getElementById('form_assistenza').reset();
-            document.getElementById('form_assistenza').classList.add('hidden');
             
             btnSubmit.textContent = testoOriginale;
             btnSubmit.style.backgroundColor = "";
@@ -1793,6 +1792,10 @@ async function inviaNuovaPassword(event) {
         });
 
         if (!risposta.ok) {
+            const datiErrore = await risposta.json();
+            if (datiErrore.error_code === "same_password") {
+                throw new Error("La nuova password digitata è uguale all'attuale, non hai bisogno di reimpostarla.");
+            }
             throw new Error("Impossibile aggiornare la password. Link scaduto o errore server.");
         }
 
@@ -1826,7 +1829,7 @@ async function inviaNuovaPassword(event) {
         btnSubmit.textContent = "Salva Nuova Password";
         btnSubmit.disabled = false;
         if (msgErroreServer) {
-            msgErroreServer.textContent = "Errore: " + errore.message;
+            msgErroreServer.textContent = errore.message;
             msgErroreServer.style.display = 'block';
         }
     }

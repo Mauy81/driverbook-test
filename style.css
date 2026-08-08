@@ -527,15 +527,6 @@ textarea.input {
     z-index: 100;
 }
 
-.dashboard-wrapper {
-    max-width: 500px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px 15px;
-}
-
 .auth-card .auth-header h2 {
     font-size: 1.1rem;
     font-weight: 700;
