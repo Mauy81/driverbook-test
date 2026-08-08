@@ -59,9 +59,16 @@ document.addEventListener("DOMContentLoaded", function() {
     if (overlay) overlay.addEventListener('click', chiudiMenu);
 
     const menuLinks = document.querySelectorAll('.menu-item');
+    const percorsoAttuale = window.location.pathname.split('/').pop() || 'index.html';
+    
     menuLinks.forEach(link => {
+        const urlDestinazione = link.getAttribute('href');
+        
+        if (urlDestinazione && urlDestinazione === percorsoAttuale) {
+            link.classList.add('hidden');
+        }
+        
         link.addEventListener('click', function(e) {
-            const urlDestinazione = this.getAttribute('href');
             if (urlDestinazione && urlDestinazione !== '#') {
                 e.preventDefault();
                 if (sidePanel) {
@@ -81,9 +88,16 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    window.addEventListener('pageshow', function() {
+    window.addEventListener('pageshow', function(event) {
         if (sidePanel) sidePanel.style.transition = '';
         if (overlay) overlay.style.transition = '';
+        
+        if (document.getElementById('formLogin')) {
+            localStorage.removeItem('driverbook_auth_token');
+            if (event.persisted) {
+                window.location.reload();
+            }
+        }
     });
 
     const swipeRange = document.getElementById('swipe_logout_range');
