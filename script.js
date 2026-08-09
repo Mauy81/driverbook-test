@@ -2081,3 +2081,65 @@ async function inviaAssistenzaInterna(event) {
         btnSubmit.textContent = testoOriginale;
     }
 }
+
+let moduloSporco = false;
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.body.addEventListener('input', function(e) {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+            moduloSporco = true;
+        }
+    });
+
+    document.body.addEventListener('submit', function() {
+        moduloSporco = false;
+    });
+
+    document.body.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        
+        if (!link || link.getAttribute('href') === '#' || link.getAttribute('href').startsWith('mailto:')) {
+            return;
+        }
+
+        if (moduloSporco) {
+            e.preventDefault();
+            mostraModaleSalvataggio(link.href);
+        }
+    }, true);
+});
+
+function mostraModaleSalvataggio(destinazione) {
+    let overlay = document.getElementById('modale_uscita_dati');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_uscita_dati';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 10000;';
+        
+        let modal = document.createElement('div');
+        modal.style.cssText = 'background: #111; border: 1px solid #00FF66; border-radius: 8px; padding: 20px; width: 90%; max-width: 400px; text-align: center; color: #fff; box-shadow: 0 4px 15px rgba(0,255,102,0.2);';
+        
+        modal.innerHTML = `
+            <h3 style="margin-top: 0; color: #00FF66; font-size: 20px;">Attenzione</h3>
+            <p style="margin-bottom: 25px; font-size: 15px;">Hai delle modifiche non salvate. Sei sicuro di voler abbandonare la pagina?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="btn_annulla_uscita" style="flex: 1; padding: 12px; background: transparent; border: 1px solid #00FF66; color: #00FF66; border-radius: 5px; cursor: pointer; font-weight: bold;">RESTA QUI</button>
+                <button id="btn_conferma_uscita" style="flex: 1; padding: 12px; background: transparent; border: 1px solid #ff3333; color: #ff3333; border-radius: 5px; cursor: pointer; font-weight: bold;">ESCI E PERDI</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_annulla_uscita').addEventListener('click', function() {
+            overlay.style.display = 'none';
+        });
+    }
+    
+    overlay.style.display = 'flex';
+    
+    document.getElementById('btn_conferma_uscita').onclick = function() {
+        moduloSporco = false;
+        window.location.href = destinazione;
+    };
+}
