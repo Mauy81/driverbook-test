@@ -28,6 +28,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
         const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+        
+        let linkLogo = "index.html";
+        if (localStorage.getItem('driverbook_auth_token') && !isIndex) {
+            linkLogo = window.location.pathname.includes('autista') ? 'dashboard-autista-amministrativo.html' : 'dashboard-passeggero.html';
+        }
+
         const iconaUtente = !isIndex ? `
             <button id="btn_apri_menu" class="user-icon-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -38,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
-            <a href="index.html" class="logo-container">
+            <a href="${linkLogo}" class="logo-container">
                 <img src="logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
                 <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
@@ -1763,7 +1769,7 @@ async function inviaAssistenza(event) {
 
 function esciAccount() {
     localStorage.removeItem('driverbook_auth_token');
-    window.location.href = 'login-passeggero.html';
+    window.location.href = 'index.html';
 }
 
 document.addEventListener("DOMContentLoaded", function() {
