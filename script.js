@@ -352,6 +352,13 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+
+    const inputPass = document.getElementById('password');
+    const inputConfPass = document.getElementById('confermaPassword');
+    if (inputPass && inputConfPass) {
+        inputPass.addEventListener('input', verificaCoincidenzaPassword);
+        inputConfPass.addEventListener('input', verificaCoincidenzaPassword);
+    }
 });
 
 function togglePassword(inputId, button) {
@@ -1654,10 +1661,12 @@ async function modificaPassword() {
         btn.style.backgroundColor = "#28a745"; 
 
         setTimeout(() => {
-            btn.textContent = testoOriginale;
-            btn.style.backgroundColor = ""; 
-            btn.disabled = false;
-        }, 5000);
+            if (typeof esciAccount === 'function') {
+                esciAccount();
+            } else {
+                window.location.href = 'login-passeggero.html';
+            }
+        }, 3000);
 
     } catch (errore) {
         console.error(errore);
@@ -1845,15 +1854,22 @@ async function inviaNuovaPassword(event) {
     }
 
     const nuovaPassword = document.getElementById('password').value;
-    const accessToken = localStorage.getItem('driverbook_temp_recovery_token');
+        const accessToken = localStorage.getItem('driverbook_temp_recovery_token');
 
-    if (!accessToken) {
-        alert("Sessione scaduta o token mancante. Richiedi un nuovo link.");
-        window.location.href = 'index.html';
-        return;
-    }
+        if (!accessToken) {
+            if (msgErroreServer) {
+                msgErroreServer.textContent = "Sessione scaduta o token mancante. Richiedi un nuovo link.";
+                msgErroreServer.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 5000);
+            } else {
+                window.location.href = 'index.html';
+            }
+            return;
+        }
 
-    const btnSubmit = document.getElementById('btn_salva_password');
+        const btnSubmit = document.getElementById('btn_salva_password');
     btnSubmit.textContent = "Salvataggio in corso...";
     btnSubmit.disabled = true;
 
