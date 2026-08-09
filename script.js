@@ -12,6 +12,19 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.hash.includes('type=email_change')) {
+        localStorage.removeItem('driverbook_auth_token');
+        const urlAttuale = window.location.href.toLowerCase();
+        const destinazioneLogin = urlAttuale.includes('autista') ? 'login-autista-amministrativo.html' : 'login-passeggero.html';
+        window.location.href = destinazioneLogin + '?email_changed=1';
+        return;
+    }
+
+    if (window.location.search.includes('email_changed=1')) {
+        const msgBox = document.getElementById('messaggio_cambio_email');
+        if (msgBox) msgBox.classList.remove('hidden');
+    }
+
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
         const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
