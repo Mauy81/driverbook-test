@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DriverBook - Dashboard Passeggero</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+    <title>Storico Viaggi - DriverBook</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,21 +11,18 @@
     <link rel="apple-touch-icon" href="logo/icon-progressive-web-app-bianco.png">
 </head>
 <body>
-
     <div id="menu-principale"></div>
 
     <main class="login-wrapper">
-        <div class="auth-card" id="card_home_azioni">
+        <div class="auth-card" id="card_storico">
             <div class="auth-header">
-                <h1 id="welcome_message">Ciao,<br><span id="dash_nome_utente">...</span></h1>
+                <h1>Storico Viaggi</h1>
             </div>
-            
-            <div id="container_codice_cliente">
-                <div class="label">Codice Cliente:</div>
-                <div id="dash_codice_cliente">...</div>
+            <div id="lista_viaggi_passati">
+                <div class="form-group">
+                    <span class="label">Nessuno storico disponibile.</span>
+                </div>
             </div>
-
-            <button class="btn btn-primary btn-full" id="btn_prenota_servizio">PRENOTA SERVIZIO</button>
         </div>
     </main>
 
@@ -43,12 +39,10 @@
 
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
-            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </button>
+            <div class="panel-header">
+                <h2>Il Mio Account</h2>
+                <button id="btn_chiudi_menu" class="close-btn">&times;</button>
+            </div>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
                     <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
@@ -57,16 +51,15 @@
             </div>
         </div>
         <div class="menu-items scrollable-menu">
-            <a href="#" id="link_menu_home" class="menu-item">Prenotazione</a>
-            <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
-            <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
-            <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
-            <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
-            <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
+            <a href="#" id="link_menu_home" class="menu-item">Prenotazione <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password <span style="color:#555;">&gt;</span></a>
+            <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza <span style="color:#555;">&gt;</span></a>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

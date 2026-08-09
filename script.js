@@ -60,9 +60,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const menuLinks = document.querySelectorAll('.menu-item');
     const percorsoAttuale = window.location.pathname.split('/').pop() || 'index.html';
+
+    const mappaPagine = {
+        'link_menu_home': 'dashboard-passeggero.html',
+        'link_menu_viaggi': 'viaggi-in-programma.html',
+        'link_menu_storico': 'storico-viaggi.html',
+        'link_menu_profilo': 'modifica-profilo.html',
+        'link_menu_sicurezza': 'cambio-password.html',
+        'link_menu_assistenza': 'assistenza-loggato.html'
+    };
     
     menuLinks.forEach(link => {
-        const urlDestinazione = link.getAttribute('href');
+        const idLink = link.id;
+        const urlDestinazione = mappaPagine[idLink] || link.getAttribute('href');
         
         if (urlDestinazione && urlDestinazione === percorsoAttuale) {
             link.classList.add('hidden');
@@ -229,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaRiepilogo();
     }
 
-    if (document.getElementById('dash_nome_utente')) {
+    if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna')) {
         caricaDatiDashboardPasseggero();
     }
 
@@ -1401,8 +1411,13 @@ async function caricaDatiDashboardPasseggero() {
 
         if (dbData && dbData.length > 0) {
             const passeggero = dbData[0];
-            document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
-            document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
+            
+            if (document.getElementById('dash_nome_utente')) {
+                document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
+            }
+            if (document.getElementById('dash_codice_cliente')) {
+                document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
+            }
             
             if (document.getElementById('profilo_nome')) {
                 document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
@@ -1429,7 +1444,8 @@ async function caricaDatiDashboardPasseggero() {
             }
         }
     } catch (error) {
-        console.error(error);
+        localStorage.removeItem('driverbook_auth_token');
+        window.location.href = 'login-passeggero.html';
     }
 }
 
@@ -1579,25 +1595,42 @@ async function aggiornaProfilo(event) {
 }
 
 async function modificaPassword() {
-    const email = document.getElementById('profilo_email').value;
-    if (!email) return;
-
     const btn = document.getElementById('btn_modifica_password');
+    if (!btn) return;
+    
     const testoOriginale = btn.textContent;
     btn.textContent = "Invio richiesta...";
     btn.disabled = true;
 
+    const token = localStorage.getItem('driverbook_auth_token');
     const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
+        let emailUtente = "";
+        const emailInput = document.getElementById('profilo_email');
+        
+        if (emailInput && emailInput.value) {
+            emailUtente = emailInput.value;
+        } else if (token) {
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                emailUtente = userData.email;
+            }
+        }
+
+        if (!emailUtente) throw new Error("Email non trovata");
+
         const risposta = await fetch(urlRecover, {
             method: "POST",
             headers: {
                 "apikey": chiaveAnon,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ email: emailUtente })
         });
 
         if (!risposta.ok) {
