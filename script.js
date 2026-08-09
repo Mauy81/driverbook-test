@@ -1911,6 +1911,10 @@ async function inviaNuovaPassword(event) {
         if (msgErroreServer) {
             msgErroreServer.textContent = errore.message;
             msgErroreServer.style.display = 'block';
+            
+            setTimeout(() => {
+                msgErroreServer.style.display = 'none';
+            }, 5000);
         }
     }
 }
