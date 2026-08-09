@@ -914,3 +914,7 @@ textarea.input {
     margin-bottom: 20px;
     line-height: 1.5;
 }
+
+.bordo-inferiore-grigio {
+    border-bottom: 1px solid #222222;
+}

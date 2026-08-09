@@ -12,6 +12,21 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    const paginaCorrenteSicurezza = window.location.pathname.split('/').pop() || 'index.html';
+    const blacklistPubblicaAccesso = [
+        'index.html',
+        'login-passeggero.html',
+        'registrazione-passeggero.html',
+        'reset-password.html',
+        'reimposta-password.html',
+        'assistenza.html'
+    ];
+
+    if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza) && !localStorage.getItem('driverbook_auth_token')) {
+        window.location.href = 'login-passeggero.html';
+        return;
+    }
+
     if (window.location.hash.includes('type=email_change')) {
         localStorage.removeItem('driverbook_auth_token');
         const urlAttuale = window.location.href.toLowerCase();
@@ -28,28 +43,37 @@ document.addEventListener("DOMContentLoaded", function() {
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
         const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+        const isResetPassword = window.location.pathname.endsWith('reimposta-password.html');
+        const isIndexOrReset = isIndex || isResetPassword;
         
         let linkLogo = "index.html";
-        if (localStorage.getItem('driverbook_auth_token') && !isIndex) {
+        if (isResetPassword) {
+            linkLogo = "javascript:void(0)";
+        } else if (localStorage.getItem('driverbook_auth_token') && !isIndex) {
             linkLogo = window.location.pathname.includes('autista') ? 'dashboard-autista-amministrativo.html' : 'dashboard-passeggero.html';
         }
 
-        const iconaUtente = !isIndex ? `
+        const paginaCorrente = window.location.pathname.split('/').pop() || 'index.html';
+        const bloccaClickLogo = (linkLogo === paginaCorrente) || isResetPassword;
+
+        const iconaUtente = !isIndexOrReset ? `
             <button id="btn_apri_menu" class="user-icon-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
             </button>` : '';
+            
+        const btnInstallaApp = !isResetPassword ? `<button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>` : '';
 
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
-            <a href="${linkLogo}" class="logo-container">
+            <a href="${linkLogo}" class="logo-container" ${bloccaClickLogo ? 'style="pointer-events: none;"' : ''}>
                 <img src="logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
                 <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
             <div class="menu-destra" style="gap: 5px;">
-                <button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>
+                ${btnInstallaApp}
                 <div class="nav-btn lang-selector" style="border: none;">IT / EN</div>
                 ${iconaUtente}
             </div>
@@ -78,16 +102,32 @@ document.addEventListener("DOMContentLoaded", function() {
     if (overlay) overlay.addEventListener('click', chiudiMenu);
 
     const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
-    if (contenitoreMenuLaterale && localStorage.getItem('driverbook_auth_token')) {
-        contenitoreMenuLaterale.innerHTML = `
-            <a href="#" id="link_menu_home" class="menu-item">Dashboard</a>
-            <a href="#" id="link_menu_prenota" class="menu-item">Prenota Servizio</a>
-            <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
-            <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
-            <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
-            <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
-            <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
-        `;
+    const percorsoCorrenteMenu = window.location.pathname.split('/').pop() || 'index.html';
+    const blacklistPubblica = ['login-passeggero.html', 'reset-password.html', 'registrazione-passeggero.html', 'assistenza.html'];
+    const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu);
+
+    if (contenitoreMenuLaterale) {
+        if (isPaginaPubblica) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a href="#" id="link_menu_pub_login" class="menu-item">Accesso</a>
+                <a href="#" id="link_menu_pub_reset" class="menu-item">Recupero password</a>
+                <a href="#" id="link_menu_pub_reg" class="menu-item">Registrazione</a>
+                <a href="#" id="link_menu_pub_assist" class="menu-item">Assistenza</a>
+            `;
+            if (btnChiudi) {
+                btnChiudi.classList.add('bordo-inferiore-grigio');
+            }
+        } else if (localStorage.getItem('driverbook_auth_token')) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a href="#" id="link_menu_home" class="menu-item">Dashboard</a>
+                <a href="#" id="link_menu_prenota" class="menu-item">Prenota Servizio</a>
+                <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
+                <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
+                <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
+                <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
+                <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
+            `;
+        }
     }
 
     const menuLinks = document.querySelectorAll('.menu-item');
@@ -100,7 +140,11 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_storico': 'storico-viaggi.html',
         'link_menu_profilo': 'modifica-profilo.html',
         'link_menu_sicurezza': 'cambio-password.html',
-        'link_menu_assistenza': 'assistenza-loggato.html'
+        'link_menu_assistenza': 'assistenza-loggato.html',
+        'link_menu_pub_login': 'login-passeggero.html',
+        'link_menu_pub_reset': 'reset-password.html',
+        'link_menu_pub_reg': 'registrazione-passeggero.html',
+        'link_menu_pub_assist': 'assistenza.html'
     };
     
     menuLinks.forEach(link => {
@@ -1428,11 +1472,6 @@ async function inviaRegistrazionePasseggero(event) {
 
 async function caricaDatiDashboardPasseggero() {
     const token = localStorage.getItem('driverbook_auth_token');
-    if (!token) {
-        window.location.href = 'login-passeggero.html';
-        return;
-    }
-
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     
     try {
