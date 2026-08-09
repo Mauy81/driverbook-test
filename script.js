@@ -77,11 +77,25 @@ document.addEventListener("DOMContentLoaded", function() {
     if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
     if (overlay) overlay.addEventListener('click', chiudiMenu);
 
+    const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
+    if (contenitoreMenuLaterale && localStorage.getItem('driverbook_auth_token')) {
+        contenitoreMenuLaterale.innerHTML = `
+            <a href="#" id="link_menu_home" class="menu-item">Dashboard</a>
+            <a href="#" id="link_menu_prenota" class="menu-item">Prenota Servizio</a>
+            <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
+            <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
+            <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
+            <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
+            <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
+        `;
+    }
+
     const menuLinks = document.querySelectorAll('.menu-item');
     const percorsoAttuale = window.location.pathname.split('/').pop() || 'index.html';
 
     const mappaPagine = {
         'link_menu_home': 'dashboard-passeggero.html',
+        'link_menu_prenota': 'prenota-servizio-passeggero.html',
         'link_menu_viaggi': 'viaggi-in-programma.html',
         'link_menu_storico': 'storico-viaggi.html',
         'link_menu_profilo': 'modifica-profilo.html',
