@@ -1574,24 +1574,35 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
-            btnSubmit.textContent = "Profilo aggiornato! Conferma la nuova email ricevuta.";
+            btnSubmit.textContent = "Email aggiornata! Ti scolleghiamo, conferma il link ricevuto.";
+            btnSubmit.style.backgroundColor = "#00FF66";
+            btnSubmit.style.color = "#000000";
+            btnSubmit.style.borderColor = "#00FF66";
+
+            setTimeout(() => {
+                localStorage.removeItem('driverbook_auth_token');
+                const urlAttuale = window.location.href.toLowerCase();
+                const destinazioneLogin = urlAttuale.includes('autista') ? 'login-autista-amministrativo.html' : 'login-passeggero.html';
+                window.location.href = destinazioneLogin;
+            }, 5000);
+            
+            return;
         } else {
             btnSubmit.textContent = "Modifiche salvate con successo!";
-        }
-        
-        btnSubmit.style.backgroundColor = "#00FF66";
-        btnSubmit.style.color = "#000000";
-        btnSubmit.style.borderColor = "#00FF66";
+            btnSubmit.style.backgroundColor = "#00FF66";
+            btnSubmit.style.color = "#000000";
+            btnSubmit.style.borderColor = "#00FF66";
 
-        setTimeout(() => {
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.style.backgroundColor = "";
-            btnSubmit.style.color = "";
-            btnSubmit.style.borderColor = "";
-            btnSubmit.disabled = false;
-        }, 5000);
-        
-        caricaDatiDashboardPasseggero();
+            setTimeout(() => {
+                btnSubmit.textContent = testoOriginale;
+                btnSubmit.style.backgroundColor = "";
+                btnSubmit.style.color = "";
+                btnSubmit.style.borderColor = "";
+                btnSubmit.disabled = false;
+            }, 5000);
+            
+            caricaDatiDashboardPasseggero();
+        }
     } catch (errore) {
         let msgErrore = "Errore durante il salvataggio. Riprova.";
         
