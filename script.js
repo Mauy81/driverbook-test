@@ -1302,26 +1302,49 @@ async function confermaPrenotazione() {
         const datiSalvati = await risposta.json();
         const codiceGenerato = datiSalvati[0].codice_prenotazione;
         
-        alert("Richiesta d'ordine inviata correttamente! Il tuo codice prenotazione è: " + codiceGenerato);
+        const chiaviDaCancellare = [
+            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+            'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+            'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+        ];
+        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+
+        let overlay = document.createElement('div');
+        overlay.className = 'modale-overlay';
+        overlay.innerHTML = `
+            <div class="modale-box">
+                <h3 class="modale-titolo" style="color: #00FF66; margin-bottom: 15px;">Richiesta Inviata!</h3>
+                <p class="modale-testo">La tua prenotazione è stata registrata con successo.<br><br>Codice: <strong style="color: #00FF66;">${codiceGenerato}</strong></p>
+                <div class="modale-bottoni-container">
+                    <button id="btn_chiudi_conferma" class="btn-modale-bianco">Vai alla Dashboard</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_chiudi_conferma').onclick = function() {
+            window.location.href = 'dashboard-passeggero.html';
+        };
 
     } catch (errore) {
         console.error(errore);
-        alert("Si è verificato un errore durante l'invio della richiesta nel database.");
-        return;
+        let overlayErrore = document.createElement('div');
+        overlayErrore.className = 'modale-overlay';
+        overlayErrore.innerHTML = `
+            <div class="modale-box">
+                <h3 class="modale-titolo" style="color: #FF4444; margin-bottom: 15px;">Errore</h3>
+                <p class="modale-testo">Si è verificato un errore durante l'invio della richiesta nel database. Riprova tra poco.</p>
+                <div class="modale-bottoni-container">
+                    <button id="btn_chiudi_errore" class="btn-modale-bianco">Chiudi</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlayErrore);
+        document.getElementById('btn_chiudi_errore').onclick = function() {
+            document.body.removeChild(overlayErrore);
+        };
     }
-
-    const chiaviDaCancellare = [
-        'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
-        'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
-        'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
-    ];
-
-    chiaviDaCancellare.forEach(chiave => {
-        localStorage.removeItem(chiave);
-    });
-
-    window.location.href = 'index-passeggero.html';
 }
 
 function toggleFatturazione() {
