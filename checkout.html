@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DriverBook - Riepilogo Prenotazione</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="menu_overlay" class="overlay"></div>
+    
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                CHIUDI MENU
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+
+    <div id="menu-principale"></div>
+
+    <div class="login-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Riepilogo Richiesta</h1>
+            </div>
+
+            <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                <h2>Passeggero</h2>
+            </div>
+            <div class="form-group">
+                <label class="label">Nome e Cognome</label>
+                <div id="view_nome_pax" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div class="form-group">
+                <label class="label">Telefono Passeggero</label>
+                <div id="view_tel_pax" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+
+            <div id="blocco_view_referente" class="hidden">
+                <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                    <h2>Referente Prenotazione</h2>
+                </div>
+                <div class="form-group">
+                    <label class="label">Nome Azienda / Referente</label>
+                    <div id="view_nome_ref" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="label">Telefono Referente</label>
+                    <div id="view_tel_ref" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+                </div>
+            </div>
+
+            <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                <h2>Dettagli Servizio</h2>
+            </div>
+            <div class="form-group">
+                <label class="label">Tipologia Servizio</label>
+                <div id="view_servizio" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div class="form-group">
+                <label class="label">Vettura Richiesta</label>
+                <div id="view_vettura" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div class="form-group">
+                <label class="label">Data e Ora Partenza</label>
+                <div id="view_data_ora" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div id="blocco_view_ore" class="form-group hidden">
+                <label class="label">Durata Disposizione</label>
+                <div id="view_ore" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+
+            <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                <h2>Itinerario</h2>
+            </div>
+            <div class="form-group">
+                <label class="label">Luogo di Partenza</label>
+                <div id="view_partenza" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div id="blocco_view_arrivo" class="form-group hidden">
+                <label class="label">Luogo di Destinazione</label>
+                <div id="view_arrivo" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div id="blocco_view_itinerario" class="form-group hidden">
+                <label class="label">Itinerario Previsto</label>
+                <div id="view_itinerario" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+
+            <div id="blocco_view_hub" class="hidden">
+                <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                    <h2>Monitoraggio</h2>
+                </div>
+                <div class="form-group">
+                    <label class="label">Volo / Treno / Nave</label>
+                    <div id="view_info_trasporto" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+                </div>
+            </div>
+
+            <div class="auth-header" style="margin-top: 30px; margin-bottom: 20px;">
+                <h2>Logistica e Note</h2>
+            </div>
+            <div class="form-group">
+                <label class="label">Passeggeri e Bagagli</label>
+                <div id="view_carico" style="color: #ffffff; font-size: 1rem; line-height: 1.4;">-</div>
+            </div>
+            <div class="form-group">
+                <label class="label">Note e Richieste Particolari</label>
+                <div id="view_note" style="color: #ffffff; font-size: 1rem; line-height: 1.4; white-space: pre-line;">-</div>
+            </div>
+
+            <div class="auth-header" style="margin-top: 40px; margin-bottom: 20px; border-top: 1px solid #333333; padding-top: 30px;">
+                <h2>Totale Stimato</h2>
+            </div>
+            <div class="form-group">
+                <div id="view_prezzo" style="color: #00FF66; font-size: 1.8rem; font-weight: 700; line-height: 1.4;">-</div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-full" onclick="confermaPrenotazione()" style="margin-top: 30px;">Invia Richiesta</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

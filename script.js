@@ -1,5 +1,7 @@
 let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero;
+let latLngPartenza = null;
+let latLngArrivo = null;
 
 const CONFIG_TARIFFE = {
     CLASSE_E: { allAlKm: 2.00, oraDisposizione: 70.00, corsaMinima: 70.00 },
@@ -271,8 +273,20 @@ document.addEventListener("DOMContentLoaded", function() {
             const acPartenza = new google.maps.places.Autocomplete(inputPartenza, opzioniGoogle);
             const acArrivo = new google.maps.places.Autocomplete(inputArrivo, opzioniGoogle);
 
-            acPartenza.addListener('place_changed', calcolaPrezzi);
-            acArrivo.addListener('place_changed', calcolaPrezzi);
+            acPartenza.addListener('place_changed', function() {
+                const place = acPartenza.getPlace();
+                if (place && place.geometry) {
+                    latLngPartenza = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                }
+                calcolaPrezzi();
+            });
+            acArrivo.addListener('place_changed', function() {
+                const place = acArrivo.getPlace();
+                if (place && place.geometry) {
+                    latLngArrivo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                }
+                calcolaPrezzi();
+            });
         }
         
         inputPartenza.addEventListener('blur', calcolaPrezzi);
@@ -833,7 +847,7 @@ function validaOrario() {
     }
 }
 
-function calcolaPrezzi() {
+function calcolaPrezzi(tentativo = 1) {
     const tipoServizio = document.getElementById('tipo_servizio').value;
     if (!tipoServizio) return;
 
@@ -864,6 +878,19 @@ function calcolaPrezzi() {
                 if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
                     const distanzaMetri = response.rows[0].elements[0].distance.value;
                     const km = distanzaMetri / 1000;
+                    
+                    let distanzaValida = true;
+                    if (latLngPartenza && latLngArrivo) {
+                        const distanzaAria = calcolaDistanzaAria(latLngPartenza.lat, latLngPartenza.lng, latLngArrivo.lat, latLngArrivo.lng);
+                        if (distanzaAria > 0 && km > (distanzaAria * 2.2)) {
+                            distanzaValida = false;
+                        }
+                    }
+
+                    if (!distanzaValida && tentativo === 1) {
+                        setTimeout(() => calcolaPrezzi(2), 200);
+                        return;
+                    }
                     
                     let prezzoE = km * CONFIG_TARIFFE.CLASSE_E.allAlKm;
                     if(prezzoE < CONFIG_TARIFFE.CLASSE_E.corsaMinima) prezzoE = CONFIG_TARIFFE.CLASSE_E.corsaMinima;
@@ -1023,20 +1050,27 @@ function selezionaVettura(codiceVettura) {
     if(cardV.classList.contains('attiva')) { cardV.classList.remove('selezionata'); tagV.textContent = "Disponibile"; }
 
     cardCliccata.classList.add('selezionata');
-    inputVettura.value = codiceVettura;
-    
-    if(codiceVettura === 'CLASSE_E') tagE.textContent = "Selezionata";
-    if(codiceVettura === 'CLASSE_S') tagS.textContent = "Selezionata";
-    if(codiceVettura === 'CLASSE_V') tagV.textContent = "Selezionata";
-}
+        inputVettura.value = codiceVettura;
+        
+        if(codiceVettura === 'CLASSE_E') tagE.textContent = "Selezionata";
+        if(codiceVettura === 'CLASSE_S') tagS.textContent = "Selezionata";
+        if(codiceVettura === 'CLASSE_V') tagV.textContent = "Selezionata";
+
+        const msgErroreVettura = document.getElementById('errore_vettura');
+        if (msgErroreVettura) msgErroreVettura.style.display = 'none';
+    }
 
 function inviaRichiesta(event) {
     event.preventDefault();
     
     const vetturaScelta = document.getElementById('vettura_selezionata').value;
+    const msgErroreVettura = document.getElementById('errore_vettura');
+
     if (!vetturaScelta) {
-        alert("Per procedere è necessario selezionare una delle vetture disponibili.");
+        if (msgErroreVettura) msgErroreVettura.style.display = 'block';
         return;
+    } else {
+        if (msgErroreVettura) msgErroreVettura.style.display = 'none';
     }
 
     if (validaOrario()) {
@@ -1503,10 +1537,19 @@ async function caricaDatiDashboardPasseggero() {
             }
             
             if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
-                document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
-            }
-            if (document.getElementById('tel_passeggero') && itiPasseggero && passeggero.telefono && !localStorage.getItem('db_tel_passeggero')) {
-                itiPasseggero.setNumber(passeggero.telefono);
+                if (passeggero.richiede_fattura) {
+                    document.getElementById('chk_referente').checked = true;
+                    gestisciVisualizzazioneReferente();
+                    document.getElementById('nome_referente').value = passeggero.ragione_sociale || passeggero.nome_cognome || '';
+                    if (itiReferente && passeggero.telefono) {
+                        itiReferente.setNumber(passeggero.telefono);
+                    }
+                } else {
+                    document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
+                    if (itiPasseggero && passeggero.telefono) {
+                        itiPasseggero.setNumber(passeggero.telefono);
+                    }
+                }
             }
             
             if (document.getElementById('profilo_nome')) {
@@ -2237,4 +2280,13 @@ async function rinnovaSessioneSilenziosa() {
     } catch (errore) {
         console.error("Errore di rete durante il rinnovo:", errore);
     }
+}
+
+function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }

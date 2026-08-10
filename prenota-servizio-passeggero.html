@@ -179,9 +179,6 @@
 
                     <div id="sezione_vetture" class="hidden">
                         <label class="label">Seleziona la Vettura Desiderata</label>
-                        <div id="alert_eccedenza" class="alert-eccedenza hidden">
-                            Per motivi di sicurezza e in conformità con le normative vigenti, tutti i bagagli devono essere alloggiati esclusivamente nel vano di carico. La quantità selezionata supera la capacità massima del bagagliaio.
-                        </div>
                         
                         <input type="hidden" id="vettura_selezionata">
                         
@@ -209,6 +206,10 @@
                                 <div id="prezzo_classe_v" class="vettura-prezzo hidden">€ 0,00</div>
                             </div>
                         </div>
+
+                        <div id="alert_eccedenza" class="alert-eccedenza" style="display: none;">
+                            Per motivi di sicurezza e in conformità con le normative vigenti, tutti i bagagli devono essere alloggiati esclusivamente nel vano di carico. La quantità selezionata supera la capacità massima dei vani di carico delle nostre vetture.<br><br>Per procedere, vi invitiamo ad effettuare due prenotazioni separate, distribuendo passeggeri e bagagli su due vetture distinte.
+                        </div>
                     </div>
 
                     <div id="blocco_note" class="form-group hidden" style="margin-top: 25px;">
@@ -217,6 +218,7 @@
                         <div class="label-nota">(Segnala qui la necessità di seggiolini, contatti di assistenti o altre necessità logistiche)</div>
                     </div>
 
+                    <div id="errore_vettura" class="error-message">Per procedere è necessario selezionare una delle vetture disponibili.</div>
                     <button type="submit" id="btn_submit" class="btn btn-primary btn-full hidden">Procedi</button>
                 </div>
             </form>
