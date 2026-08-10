@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DriverBook - Prenota Servizio</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="menu_overlay" class="overlay"></div>
@@ -49,7 +49,7 @@
                     <div class="label-nota">(Per coordinare il punto d'incontro all'arrivo)</div>
                 </div>
 
-                <div class="checkbox-group">
+                <div class="checkbox-group" id="blocco_chk_referente">
                     <input type="checkbox" id="chk_referente" class="checkbox-input" onchange="toggleReferente(event)">
                     <label for="chk_referente" class="checkbox-label">La prenotazione viene effettuata da un referente? (es. Hotel, Azienda)</label>
                 </div>
@@ -69,13 +69,29 @@
                 <div class="form-group">
                     <label class="label">Tipo di Servizio</label>
                     <select id="tipo_servizio" class="input" onchange="gestisciCampi()" required>
-                        <option value="">Seleziona...</option>
+                        <option value="" disabled selected>Seleziona...</option>
                         <option value="TRASFERIMENTO">Servizio a Tratta Diretta</option>
                         <option value="DISPOSIZIONE">Servizio a Disposizione Oraria</option>
                     </select>
                 </div>
 
                 <div id="campi_comuni" class="hidden">
+                    <div id="campo_ore" class="form-group hidden">
+                        <label class="label">Durata Disposizione</label>
+                        <select id="ore" class="input">
+                            <option value="3">3 Ore (Minimo)</option>
+                            <option value="4">4 Ore</option>
+                            <option value="5">5 Ore</option>
+                            <option value="6">6 Ore</option>
+                            <option value="7">7 Ore</option>
+                            <option value="8">8 Ore</option>
+                            <option value="9">9 Ore</option>
+                            <option value="10">10 Ore</option>
+                            <option value="11">11 Ore</option>
+                            <option value="12">12 Ore (Massimo)</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label class="label">Luogo di Partenza</label>
                         <input type="text" id="partenza" class="input" placeholder="Cerca indirizzo, hotel, aeroporto...">
@@ -84,6 +100,12 @@
                     <div id="campo_arrivo" class="form-group hidden">
                         <label class="label">Luogo di Destinazione</label>
                         <input type="text" id="arrivo" class="input" placeholder="Cerca indirizzo, hotel, aeroporto...">
+                    </div>
+
+                    <div id="blocco_itinerario" class="form-group hidden">
+                        <label class="label">Itinerario Previsto (Opzionale)</label>
+                        <textarea id="itinerario_previsto" class="input" style="min-height: 80px;" placeholder="Es: Milano Centro -> Monza -> Ritorno a Milano"></textarea>
+                        <div class="label-nota">(Inserisci qui una traccia indicativa delle tappe o delle località previste, per permettere al conducente di pianificare al meglio il servizio)</div>
                     </div>
 
                     <div id="blocco_chk_hub" class="hidden">
@@ -101,36 +123,15 @@
                         </div>
                     </div>
 
-                    <div id="campo_ore" class="form-group hidden">
-                        <label class="label">Durata Disposizione</label>
-                        <select id="ore" class="input">
-                            <option value="3">3 Ore (Minimo)</option>
-                            <option value="4">4 Ore</option>
-                            <option value="5">5 Ore</option>
-                            <option value="6">6 Ore</option>
-                            <option value="7">7 Ore</option>
-                            <option value="8">8 Ore</option>
-                            <option value="9">9 Ore</option>
-                            <option value="10">10 Ore</option>
-                            <option value="11">11 Ore</option>
-                            <option value="12">12 Ore (Massimo)</option>
-                        </select>
-                    </div>
-
-                    <div id="blocco_itinerario" class="form-group hidden">
-                        <label class="label">Itinerario Previsto (Opzionale)</label>
-                        <textarea id="itinerario_previsto" class="input" style="min-height: 80px;" placeholder="Es: Milano Centro -> Monza -> Ritorno a Milano"></textarea>
-                        <div class="label-nota">(Inserisci qui una traccia indicativa delle tappe o delle località previste, per permettere al conducente di pianificare al meglio il servizio)</div>
-                    </div>
-
                     <div id="blocco_tempo" class="hidden">
                         <div class="form-group">
                             <label class="label">Data del Servizio</label>
-                            <input type="date" id="data_partenza" class="input">
+                            <input type="date" id="data_partenza" class="input" onclick="this.showPicker()">
                         </div>
+
                         <div class="form-group">
                             <label class="label">Ora di Partenza</label>
-                            <input type="time" id="ora_partenza" class="input" onchange="validaOrario()">
+                            <input type="time" id="ora_partenza" class="input" onclick="this.showPicker()" onchange="validaOrario()">
                             <div id="errore_ora" class="error-message">Preavviso minimo richiesto: 3 ore</div>
                         </div>
                     </div>
@@ -169,6 +170,9 @@
                                 <option value="2">2 Trolley</option>
                                 <option value="3">3 Trolley</option>
                                 <option value="4">4 Trolley</option>
+                                <option value="5">5 Trolley</option>
+                                <option value="6">6 Trolley</option>
+                                <option value="7">7 Trolley</option>
                             </select>
                         </div>
                     </div>
@@ -215,8 +219,6 @@
 
                     <button type="submit" id="btn_submit" class="btn btn-primary btn-full hidden">Procedi</button>
                 </div>
-                
-                <a href="dashboard-passeggero.html" class="btn btn-ghost btn-full form-protetto" style="margin-top: 15px;">Torna a Dashboard</a>
             </form>
         </div>
     </div>

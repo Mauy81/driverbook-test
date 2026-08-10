@@ -5,6 +5,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html {
+    scroll-padding-top: 120px;
+}
+
 body {
     background-color: #000000;
     color: #ffffff;
@@ -745,6 +749,16 @@ textarea.input {
     margin-top: 46px;
 }
 
+#blocco_chk_referente {
+    margin-top: 43px;
+    margin-bottom: 39px;
+}
+
+#blocco_chk_hub {
+    margin-top: 43px;
+    margin-bottom: 39px;
+}
+
 #blocco_notifiche_registrazione {
 	margin-top: 40px;
     margin-bottom: 40px;
@@ -822,9 +836,9 @@ textarea.input {
 }
 
 .vettura-card {
-    background-color: #111111;
-    border: 2px solid #333333;
-    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
     padding: 20px;
     text-align: center;
     transition: all 0.3s ease;
@@ -855,14 +869,13 @@ textarea.input {
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 4px;
-    text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .vettura-sottotitolo {
     font-size: 0.85rem;
     color: #aaaaaa;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 .vettura-tag {
@@ -871,13 +884,14 @@ textarea.input {
     font-size: 0.75rem;
     font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
     border-radius: 4px;
     margin-bottom: 15px;
 }
 
 .attiva .vettura-tag {
-    background-color: #333333;
-    color: #ffffff;
+    background-color: transparent;
+    color: #aaaaaa;
 }
 
 .selezionata .vettura-tag {
@@ -917,4 +931,24 @@ textarea.input {
 
 .bordo-inferiore-grigio {
     border-bottom: 1px solid #222222;
+}
+
+select.input option {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+#data_partenza,
+#ora_partenza {
+    cursor: pointer;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-day-field,
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-year-field,
+input[type="time"]:focus::-webkit-datetime-edit-hour-field,
+input[type="time"]:focus::-webkit-datetime-edit-minute-field {
+    background-color: transparent;
+    color: inherit;
+    outline: none;
 }

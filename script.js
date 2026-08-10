@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza) && !localStorage.getItem('driverbook_auth_token')) {
         window.location.href = 'login-passeggero.html';
         return;
+    } else if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza)) {
+        rinnovaSessioneSilenziosa(); 
+        setInterval(rinnovaSessioneSilenziosa, 50 * 60 * 1000); 
     }
 
     if (window.location.hash.includes('type=email_change')) {
@@ -158,6 +161,7 @@ document.addEventListener("DOMContentLoaded", function() {
         link.addEventListener('click', function(e) {
             if (urlDestinazione && urlDestinazione !== '#') {
                 e.preventDefault();
+                
                 if (sidePanel) {
                     sidePanel.style.transition = 'none';
                     sidePanel.classList.remove('open');
@@ -167,6 +171,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     overlay.classList.remove('open');
                 }
                 document.body.style.overflow = '';
+                
+                if (typeof moduloSporco !== 'undefined' && moduloSporco) {
+                    mostraModaleSalvataggio(urlDestinazione);
+                    return;
+                }
                 
                 setTimeout(() => {
                     window.location.href = urlDestinazione;
@@ -233,12 +242,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputTelPasseggero = document.getElementById('tel_passeggero');
     if (inputTelPasseggero && window.intlTelInput) {
         itiPasseggero = window.intlTelInput(inputTelPasseggero, {
+            initialCountry: "it",
             preferredCountries: ['it'],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
 
         const inputTelReferente = document.getElementById('tel_referente');
         itiReferente = window.intlTelInput(inputTelReferente, {
+            initialCountry: "it",
             preferredCountries: ['it'],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
@@ -316,7 +327,7 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaRiepilogo();
     }
 
-    if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna')) {
+    if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
         caricaDatiDashboardPasseggero();
     }
 
@@ -497,6 +508,7 @@ async function inviaLogin(event) {
         }
 
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
+        localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
         
         btnSubmit.textContent = "Accesso effettuato!";
         btnSubmit.style.backgroundColor = "#28a745";
@@ -716,11 +728,7 @@ async function inviaRegistrazione(event) {
 }
 
 function toggleReferente(event) {
-    if (event.target.id !== 'chk_referente') {
-        const chk = document.getElementById('chk_referente');
-        chk.checked = !chk.checked;
-        gestisciVisualizzazioneReferente();
-    }
+    gestisciVisualizzazioneReferente();
 }
 
 function gestisciVisualizzazioneReferente() {
@@ -743,11 +751,7 @@ function gestisciVisualizzazioneReferente() {
 }
 
 function toggleHubTrasporti(event) {
-    if (event.target.id !== 'chk_hub') {
-        const chk = document.getElementById('chk_hub');
-        chk.checked = !chk.checked;
-        gestisciVisualizzazioneHub();
-    }
+    gestisciVisualizzazioneHub();
 }
 
 function gestisciVisualizzazioneHub() {
@@ -1498,6 +1502,13 @@ async function caricaDatiDashboardPasseggero() {
                 document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
             }
             
+            if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
+                document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
+            }
+            if (document.getElementById('tel_passeggero') && itiPasseggero && passeggero.telefono && !localStorage.getItem('db_tel_passeggero')) {
+                itiPasseggero.setNumber(passeggero.telefono);
+            }
+            
             if (document.getElementById('profilo_nome')) {
                 document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
                 document.getElementById('profilo_email').value = passeggero.email || '';
@@ -2195,4 +2206,35 @@ function mostraModaleSalvataggio(destinazione) {
         moduloSporco = false;
         window.location.href = destinazione;
     };
+}
+
+async function rinnovaSessioneSilenziosa() {
+    const refreshToken = localStorage.getItem('driverbook_refresh_token');
+    if (!refreshToken) return;
+
+    const urlRinnovo = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/token?grant_type=refresh_token";
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const risposta = await fetch(urlRinnovo, {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+
+        if (risposta.ok) {
+            const nuoviDati = await risposta.json();
+            localStorage.setItem('driverbook_auth_token', nuoviDati.access_token);
+            localStorage.setItem('driverbook_refresh_token', nuoviDati.refresh_token);
+            console.log("Sessione rinnovata con successo dietro le quinte.");
+        } else {
+            console.warn("Impossibile rinnovare la sessione. Disconnessione imminente.");
+            esciAccount();
+        }
+    } catch (errore) {
+        console.error("Errore di rete durante il rinnovo:", errore);
+    }
 }
