@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
                 <a href="#" id="link_menu_pub_login" class="menu-item">Accesso</a>
-                <a href="#" id="link_menu_pub_reset" class="menu-item">Recupero password</a>
+                <a href="#" id="link_menu_pub_reset" class="menu-item">Recupero Password</a>
                 <a href="#" id="link_menu_pub_reg" class="menu-item">Registrazione</a>
                 <a href="#" id="link_menu_pub_assist" class="menu-item">Assistenza</a>
             `;
@@ -123,13 +123,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
+            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a href="#" id="link_menu_riepilogo" class="menu-item">Riepilogo Richiesta</a>` : '';
             contenitoreMenuLaterale.innerHTML = `
-                <a href="#" id="link_menu_home" class="menu-item">Dashboard</a>
+                <a href="#" id="link_menu_home" class="menu-item">Pannello Utente</a>
                 <a href="#" id="link_menu_prenota" class="menu-item">Prenota Servizio</a>
-                <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in programma</a>
+                ${linkRiepilogo}
+                <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in Programma</a>
                 <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
-                <a href="#" id="link_menu_profilo" class="menu-item">Modifica profilo</a>
-                <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio password</a>
+                <a href="#" id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
+                <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
                 <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
             `;
         }
@@ -141,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const mappaPagine = {
         'link_menu_home': 'dashboard-passeggero.html',
         'link_menu_prenota': 'prenota-servizio-passeggero.html',
+        'link_menu_riepilogo': 'checkout.html',
         'link_menu_viaggi': 'viaggi-in-programma.html',
         'link_menu_storico': 'storico-viaggi.html',
         'link_menu_profilo': 'modifica-profilo.html',
@@ -1237,6 +1240,22 @@ async function confermaPrenotazione() {
 
     const urlCompleto = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    const token = localStorage.getItem('driverbook_auth_token');
+
+    let emailUtente = null;
+    if (token) {
+        try {
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                emailUtente = userData.email;
+            }
+        } catch (e) {
+            console.error("Errore nel recupero email dell'utente", e);
+        }
+    }
 
     const corpoDati = {
         nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
@@ -1259,7 +1278,7 @@ async function confermaPrenotazione() {
         vettura_selezionata: localStorage.getItem('db_vettura') ? localStorage.getItem('db_vettura').replace('_', ' ') : null,
         note_servizio: localStorage.getItem('db_note_servizio') || null,
         prezzo_totale: prezzoNumero,
-        email_cliente: null,
+        email_cliente: emailUtente,
         stripe_payment_intent_id: null,
         termini_accettati: null
     };
@@ -2067,20 +2086,23 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+function mostraBottoneInstallazione() {
+    const btnDynamic = document.getElementById('btn_installa_app');
+    if (btnDynamic) btnDynamic.style.setProperty('display', 'flex', 'important');
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const btnDynamic = document.getElementById('btn_installa_app');
-    if (btnDynamic) btnDynamic.style.display = 'inline-block';
+    mostraBottoneInstallazione();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    if (deferredPrompt) mostraBottoneInstallazione();
+    
     if (isIOS) {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        if (!isStandalone) {
-            const btnDynamic = document.getElementById('btn_installa_app');
-            if (btnDynamic) btnDynamic.style.display = 'inline-block';
-        }
+        if (!isStandalone) mostraBottoneInstallazione();
     }
 });
 
