@@ -1970,14 +1970,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const container = document.querySelector('.container') || document.querySelector('.login-wrapper');
             if (container) {
                 container.innerHTML = `
-                    <nav class="navbar">
-                        <a href="index.html" class="logo-container">
-                            <img src="logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
-                            <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
-                        </a>
-                        <div class="lang-selector" style="cursor: pointer;" onclick="let l = (localStorage.getItem('driverbook_lang') || 'it') === 'it' ? 'en' : 'it'; localStorage.setItem('driverbook_lang', l); location.reload();">IT / EN</div>
-                    </nav>
-                    <div style="text-align: center; margin-top: 40px;">
+                    <div style="text-align: center; margin-top: 40px; width: 100%;">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         <h2 style="color: #ffffff; margin-bottom: 15px;">${dict.js_link_exp_title}</h2>
                         <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;">${dict.js_link_exp_text}</p>
