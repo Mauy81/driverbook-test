@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistenza - DriverBook</title>
+    <title data-i18n="title_assistenza">Assistenza - DriverBook</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,17 +17,17 @@
     <main class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Assistenza</h1>
+                <h1 data-i18n="h1_assistenza">Assistenza</h1>
             </div>
             <form id="form_assistenza_interna" autocomplete="off">
                 <div class="form-group hidden">
                     <input type="text" id="azienda_hp_interna" name="azienda_hp" class="input" tabindex="-1" autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label class="label" for="testo_assistenza_interna">Descrivi il problema</label>
+                    <label class="label" for="testo_assistenza_interna" data-i18n="label_descrivi_problema">Descrivi il problema</label>
                     <textarea id="testo_assistenza_interna" class="input" required placeholder="Scrivi qui i dettagli della tua richiesta..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="btn_invia_richiesta">Invia Richiesta</button>
             </form>
         </div>
     </main>
@@ -37,14 +37,14 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -52,6 +52,7 @@
         <div class="menu-items scrollable-menu"></div>
     </div>
 
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

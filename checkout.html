@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DriverBook - Riepilogo Prenotazione</title>
+    <title data-i18n="title_checkout">DriverBook - Riepilogo Prenotazione</title>
     <link rel="stylesheet" href="style.css">
 	<link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,14 +16,14 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -36,104 +36,105 @@
     <div class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Riepilogo Richiesta</h1>
+                <h1 data-i18n="h1_checkout">Riepilogo Richiesta</h1>
             </div>
 
             <div class="auth-header checkout-section-header">
-                <h2>Passeggero</h2>
+                <h2 data-i18n="h2_passeggero">Passeggero</h2>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Nome e Cognome</label>
+                <label class="label-nota" data-i18n="lbl_nome_cognome_pax">Nome e Cognome</label>
                 <div id="view_nome_pax" class="checkout-data-value">-</div>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Telefono Passeggero</label>
+                <label class="label-nota" data-i18n="lbl_tel_pax">Telefono Passeggero</label>
                 <div id="view_tel_pax" class="checkout-data-value">-</div>
             </div>
 
             <div id="blocco_view_referente" class="hidden">
                 <div class="auth-header checkout-section-header">
-                    <h2>Referente Prenotazione</h2>
+                    <h2 data-i18n="h2_referente">Referente Prenotazione</h2>
                 </div>
                 <div class="form-group form-group-checkout">
-                    <label class="label-nota">Nome Azienda / Referente</label>
+                    <label class="label-nota" data-i18n="lbl_nome_ref">Nome Azienda / Referente</label>
                     <div id="view_nome_ref" class="checkout-data-value">-</div>
                 </div>
                 <div class="form-group form-group-checkout">
-                    <label class="label-nota">Telefono Referente</label>
+                    <label class="label-nota" data-i18n="lbl_tel_ref">Telefono Referente</label>
                     <div id="view_tel_ref" class="checkout-data-value">-</div>
                 </div>
             </div>
 
             <div class="auth-header checkout-section-header">
-                <h2>Dettagli Servizio</h2>
+                <h2 data-i18n="h2_dettagli_servizio">Dettagli Servizio</h2>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Tipologia Servizio</label>
+                <label class="label-nota" data-i18n="lbl_tipologia">Tipologia Servizio</label>
                 <div id="view_servizio" class="checkout-data-value">-</div>
             </div>
             <div id="blocco_view_ore" class="form-group form-group-checkout hidden">
-                <label class="label-nota">Durata Disposizione</label>
+                <label class="label-nota" data-i18n="lbl_durata">Durata Disposizione</label>
                 <div id="view_ore" class="checkout-data-value">-</div>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Vettura Richiesta</label>
+                <label class="label-nota" data-i18n="lbl_vettura_richiesta">Vettura Richiesta</label>
                 <div id="view_vettura" class="checkout-data-value">-</div>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Data e Ora Partenza</label>
+                <label class="label-nota" data-i18n="lbl_data_ora">Data e Ora Partenza</label>
                 <div id="view_data_ora" class="checkout-data-value">-</div>
             </div>
 
             <div class="auth-header checkout-section-header">
-                <h2>Itinerario</h2>
+                <h2 data-i18n="h2_itinerario">Itinerario</h2>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Luogo di Partenza</label>
+                <label class="label-nota" data-i18n="lbl_partenza">Luogo di Partenza</label>
                 <div id="view_partenza" class="checkout-data-value">-</div>
             </div>
             <div id="blocco_view_arrivo" class="form-group form-group-checkout hidden">
-                <label class="label-nota">Luogo di Destinazione</label>
+                <label class="label-nota" data-i18n="lbl_arrivo">Luogo di Destinazione</label>
                 <div id="view_arrivo" class="checkout-data-value">-</div>
             </div>
             <div id="blocco_view_itinerario" class="form-group form-group-checkout hidden">
-                <label class="label-nota">Itinerario Previsto</label>
+                <label class="label-nota" data-i18n="lbl_itinerario_previsto">Itinerario Previsto</label>
                 <div id="view_itinerario" class="checkout-data-value">-</div>
             </div>
 
             <div id="blocco_view_hub" class="hidden">
                 <div class="auth-header checkout-section-header">
-                    <h2>Monitoraggio</h2>
+                    <h2 data-i18n="h2_monitoraggio">Monitoraggio</h2>
                 </div>
                 <div class="form-group form-group-checkout">
-                    <label class="label-nota">Volo / Treno / Nave</label>
+                    <label class="label-nota" data-i18n="lbl_volo_treno_nave">Volo / Treno / Nave</label>
                     <div id="view_info_trasporto" class="checkout-data-value">-</div>
                 </div>
             </div>
 
             <div class="auth-header checkout-section-header">
-                <h2>Logistica e Note</h2>
+                <h2 data-i18n="h2_logistica">Logistica e Note</h2>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Passeggeri e Bagagli</label>
+                <label class="label-nota" data-i18n="lbl_pax_bagagli">Passeggeri e Bagagli</label>
                 <div id="view_carico" class="checkout-data-value">-</div>
             </div>
             <div class="form-group form-group-checkout">
-                <label class="label-nota">Note e Richieste Particolari</label>
+                <label class="label-nota" data-i18n="lbl_note_richieste">Note e Richieste Particolari</label>
                 <div id="view_note" class="checkout-data-note">-</div>
             </div>
 
             <div class="auth-header checkout-total-header">
-                <h1>Totale</h1>
+                <h1 data-i18n="h1_totale">Totale</h1>
             </div>
             <div class="form-group form-group-checkout">
                 <div id="view_prezzo" class="checkout-total-value">-</div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-full checkout-submit-btn" onclick="confermaPrenotazione()">Invia Richiesta</button>
+            <button type="button" class="btn btn-primary btn-full checkout-submit-btn" onclick="confermaPrenotazione()" data-i18n="btn_invia_richiesta_checkout">Invia Richiesta</button>
         </div>
     </div>
 
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

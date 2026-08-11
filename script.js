@@ -469,10 +469,13 @@ function togglePassword(inputId, button) {
 async function inviaLogin(event) {
     event.preventDefault();
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const btnSubmit = document.querySelector('#formLogin button[type="submit"]');
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "Accesso in corso...";
+    btnSubmit.textContent = dict.js_login_loading;
     
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -495,10 +498,10 @@ async function inviaLogin(event) {
             const descErrore = (erroreDati.error_description || erroreDati.msg || "").toLowerCase();
             
             if (descErrore.includes("not confirmed") || descErrore.includes("non confermata")) {
-                throw new Error("Account non attivo. Hai confermato il link via email?");
+                throw new Error(dict.js_login_err_active);
             }
             
-            throw new Error("Email o password non validi.");
+            throw new Error(dict.js_login_err_invalid);
         }
 
         const datiSessione = await risposta.json();
@@ -511,7 +514,7 @@ async function inviaLogin(event) {
             const datiPasseggero = await checkResponse.json();
 
             if (!datiPasseggero || datiPasseggero.length === 0) {
-                throw new Error("Account non registrato come Passeggero.");
+                throw new Error(dict.js_login_err_pax);
             }
         } else {
             const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti?id_autista=eq.${userId}&select=id_autista`, {
@@ -520,14 +523,14 @@ async function inviaLogin(event) {
             const datiAutista = await checkResponse.json();
 
             if (!datiAutista || datiAutista.length === 0) {
-                throw new Error("Account non autorizzato come Autista.");
+                throw new Error(dict.js_login_err_driver);
             }
         }
 
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
         localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
         
-        btnSubmit.textContent = "Accesso effettuato!";
+        btnSubmit.textContent = dict.js_login_success;
         btnSubmit.style.backgroundColor = "#28a745";
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
@@ -633,6 +636,9 @@ function validaNotificheDashboard() {
 async function inviaRegistrazione(event) {
     event.preventDefault();
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) {
         msgErroreServer.style.display = 'none';
@@ -719,7 +725,7 @@ async function inviaRegistrazione(event) {
         }
 
         const btnSubmit = document.querySelector('#formRegistrazione button[type="submit"]');
-        btnSubmit.textContent = "Registrato! Conferma la mail per attivarlo.";
+        btnSubmit.textContent = dict.js_reg_success;
         btnSubmit.style.backgroundColor = "#28a745";
         btnSubmit.disabled = true;
 
@@ -732,9 +738,9 @@ async function inviaRegistrazione(event) {
         let testoErrore = errore.message;
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = "Questa email risulta già registrata. Inserisci un indirizzo diverso oppure vai alla pagina di Login.";
+            testoErrore = dict.js_reg_err_exists;
         } else {
-            testoErrore = "Non è stato possibile completare la registrazione: " + testoErrore;
+            testoErrore = dict.js_reg_err_generic + testoErrore;
         }
         
         if (msgErroreServer) {
@@ -935,6 +941,9 @@ function nascondiPrezzi() {
 }
 
 function validaFlottaEBagagli() {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const pax = parseInt(document.getElementById('passeggeri').value) || 1;
     const grandi = parseInt(document.getElementById('bagagli_grandi').value) || 0;
     const mano = parseInt(document.getElementById('bagagli_mano').value) || 0;
@@ -960,9 +969,9 @@ function validaFlottaEBagagli() {
     cardS.className = "vettura-card attiva";
     cardV.className = "vettura-card attiva";
     
-    tagE.textContent = (inputVettura.value === 'CLASSE_E') ? "Selezionata" : "Disponibile";
-    tagS.textContent = (inputVettura.value === 'CLASSE_S') ? "Selezionata" : "Disponibile";
-    tagV.textContent = (inputVettura.value === 'CLASSE_V') ? "Selezionata" : "Disponibile";
+    tagE.textContent = (inputVettura.value === 'CLASSE_E') ? dict.js_vettura_sel : dict.js_vettura_disp;
+    tagS.textContent = (inputVettura.value === 'CLASSE_S') ? dict.js_vettura_sel : dict.js_vettura_disp;
+    tagV.textContent = (inputVettura.value === 'CLASSE_V') ? dict.js_vettura_sel : dict.js_vettura_disp;
     
     if(inputVettura.value === 'CLASSE_E') cardE.classList.add('selezionata');
     if(inputVettura.value === 'CLASSE_S') cardS.classList.add('selezionata');
@@ -980,21 +989,21 @@ function validaFlottaEBagagli() {
         cardE.className = "vettura-card bloccata";
         cardS.className = "vettura-card bloccata";
         cardV.className = "vettura-card bloccata";
-        tagE.textContent = "Non disponibile";
-        tagS.textContent = "Non disponibile";
-        tagV.textContent = "Non disponibile";
+        tagE.textContent = dict.js_vettura_non_disp;
+        tagS.textContent = dict.js_vettura_non_disp;
+        tagV.textContent = dict.js_vettura_non_disp;
         nascondiPrezzi();
         return;
     }
 
-    const msgBagagliEccedenti = "Per motivi di sicurezza e in conformità con le normative vigenti, tutti i bagagli devono essere alloggiati esclusivamente nel vano di carico. La quantità selezionata supera la capacità massima del bagagliaio.";
+    const msgBagagliEccedenti = dict.js_motivo_bagagli;
 
     let escludiE = false;
     let motivoE_testo = "";
 
     if (pax > 2) {
         escludiE = true;
-        motivoE_testo = "Per garantire il massimo comfort e l'esclusività del servizio sulle nostre berline, ospitiamo un massimo di due passeggeri nella parte posteriore. Oltre questa capienza è prevista la selezione del Van.";
+        motivoE_testo = dict.js_motivo_comfort;
     } else if (punteggioBagagli > 5) {
         escludiE = true;
         motivoE_testo = msgBagagliEccedenti;
@@ -1002,7 +1011,7 @@ function validaFlottaEBagagli() {
 
     if (escludiE) {
         cardE.className = "vettura-card bloccata";
-        tagE.textContent = "Non disponibile";
+        tagE.textContent = dict.js_vettura_non_disp;
         motivoE.textContent = motivoE_testo;
         motivoE.style.display = 'block';
         if (inputVettura.value === 'CLASSE_E') inputVettura.value = "";
@@ -1013,7 +1022,7 @@ function validaFlottaEBagagli() {
 
     if (pax > 2) {
         escludiS = true;
-        motivoS_testo = "Per garantire il massimo comfort e l'esclusività del servizio sulle nostre berline, ospitiamo un massimo di due passeggeri nella parte posteriore. Oltre questa capienza è prevista la selezione del Van.";
+        motivoS_testo = dict.js_motivo_comfort;
     } else if (punteggioBagagli > 5) {
         escludiS = true;
         motivoS_testo = msgBagagliEccedenti;
@@ -1021,7 +1030,7 @@ function validaFlottaEBagagli() {
 
     if (escludiS) {
         cardS.className = "vettura-card bloccata";
-        tagS.textContent = "Non disponibile";
+        tagS.textContent = dict.js_vettura_non_disp;
         motivoS.textContent = motivoS_testo;
         motivoS.style.display = 'block';
         if (inputVettura.value === 'CLASSE_S') inputVettura.value = "";
@@ -1031,6 +1040,9 @@ function validaFlottaEBagagli() {
 }
 
 function selezionaVettura(codiceVettura) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const cardE = document.getElementById('card_classe_e');
     const cardS = document.getElementById('card_classe_s');
     const cardV = document.getElementById('card_classe_v');
@@ -1048,20 +1060,20 @@ function selezionaVettura(codiceVettura) {
 
     if (cardCliccata.classList.contains('bloccata')) return;
 
-    if(cardE.classList.contains('attiva')) { cardE.classList.remove('selezionata'); tagE.textContent = "Disponibile"; }
-    if(cardS.classList.contains('attiva')) { cardS.classList.remove('selezionata'); tagS.textContent = "Disponibile"; }
-    if(cardV.classList.contains('attiva')) { cardV.classList.remove('selezionata'); tagV.textContent = "Disponibile"; }
+    if(cardE.classList.contains('attiva')) { cardE.classList.remove('selezionata'); tagE.textContent = dict.js_vettura_disp; }
+    if(cardS.classList.contains('attiva')) { cardS.classList.remove('selezionata'); tagS.textContent = dict.js_vettura_disp; }
+    if(cardV.classList.contains('attiva')) { cardV.classList.remove('selezionata'); tagV.textContent = dict.js_vettura_disp; }
 
     cardCliccata.classList.add('selezionata');
-        inputVettura.value = codiceVettura;
-        
-        if(codiceVettura === 'CLASSE_E') tagE.textContent = "Selezionata";
-        if(codiceVettura === 'CLASSE_S') tagS.textContent = "Selezionata";
-        if(codiceVettura === 'CLASSE_V') tagV.textContent = "Selezionata";
+    inputVettura.value = codiceVettura;
+    
+    if(codiceVettura === 'CLASSE_E') tagE.textContent = dict.js_vettura_sel;
+    if(codiceVettura === 'CLASSE_S') tagS.textContent = dict.js_vettura_sel;
+    if(codiceVettura === 'CLASSE_V') tagV.textContent = dict.js_vettura_sel;
 
-        const msgErroreVettura = document.getElementById('errore_vettura');
-        if (msgErroreVettura) msgErroreVettura.style.display = 'none';
-    }
+    const msgErroreVettura = document.getElementById('errore_vettura');
+    if (msgErroreVettura) msgErroreVettura.style.display = 'none';
+}
 
 function inviaRichiesta(event) {
     event.preventDefault();
@@ -1120,6 +1132,9 @@ function inviaRichiesta(event) {
 }
 
 function caricaRiepilogo() {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const nomePax = localStorage.getItem('db_nome_passeggero');
     const telPax = localStorage.getItem('db_tel_passeggero');
     const chkReferente = localStorage.getItem('db_chk_referente') === 'true';
@@ -1153,7 +1168,7 @@ function caricaRiepilogo() {
                     <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
                 </div>
                 <div class="alert-redirect">
-                    Nessun dato di prenotazione trovato.<br><br>Reindirizzamento in corso...
+                    ${dict.js_check_redirect}
                 </div>
             `;
         }
@@ -1233,6 +1248,9 @@ function caricaRiepilogo() {
 async function confermaPrenotazione() {
     const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
     
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    
     let prezzoNumero = 0;
     if (prezzoStimato) {
         prezzoNumero = parseFloat(prezzoStimato.replace('€', '').trim()) || 0;
@@ -1253,7 +1271,7 @@ async function confermaPrenotazione() {
                 emailUtente = userData.email;
             }
         } catch (e) {
-            console.error("Errore nel recupero email dell'utente", e);
+            console.error(e);
         }
     }
 
@@ -1314,10 +1332,10 @@ async function confermaPrenotazione() {
         overlay.className = 'modale-overlay';
         overlay.innerHTML = `
             <div class="modale-box">
-                <h3 class="modale-titolo" style="color: #00FF66; margin-bottom: 15px;">Richiesta Inviata!</h3>
-                <p class="modale-testo">La tua prenotazione è stata registrata con successo.<br><br>Codice: <strong style="color: #00FF66;">${codiceGenerato}</strong></p>
+                <h3 class="modale-titolo" style="color: #00FF66; margin-bottom: 15px;">${dict.js_check_success_title}</h3>
+                <p class="modale-testo">${dict.js_check_success_text}<strong style="color: #00FF66;">${codiceGenerato}</strong></p>
                 <div class="modale-bottoni-container">
-                    <button id="btn_chiudi_conferma" class="btn btn-primary btn-full">VAI AL PANNELLO UTENTE</button>
+                    <button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${dict.js_check_btn_dash}</button>
                 </div>
             </div>
         `;
@@ -1328,15 +1346,14 @@ async function confermaPrenotazione() {
         };
 
     } catch (errore) {
-        console.error(errore);
         let overlayErrore = document.createElement('div');
         overlayErrore.className = 'modale-overlay';
         overlayErrore.innerHTML = `
             <div class="modale-box">
-                <h3 class="modale-titolo" style="color: #FF4444; margin-bottom: 15px;">Errore</h3>
-                <p class="modale-testo">Si è verificato un errore durante l'invio della richiesta nel database. Riprova tra poco.</p>
+                <h3 class="modale-titolo" style="color: #FF4444; margin-bottom: 15px;">${dict.js_check_err_title}</h3>
+                <p class="modale-testo">${dict.js_check_err_text}</p>
                 <div class="modale-bottoni-container">
-                    <button id="btn_chiudi_errore" class="btn-modale-bianco">Chiudi</button>
+                    <button id="btn_chiudi_errore" class="btn-modale-bianco">${dict.js_check_btn_close}</button>
                 </div>
             </div>
         `;
@@ -1443,6 +1460,9 @@ function toggleFatturazioneProfiloReale(stato) {
 async function inviaRegistrazionePasseggero(event) {
     event.preventDefault();
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) {
         msgErroreServer.style.display = 'none';
@@ -1527,7 +1547,7 @@ async function inviaRegistrazionePasseggero(event) {
         }
 
         const btnSubmit = document.querySelector('#formRegistrazionePasseggero button[type="submit"]');
-        btnSubmit.textContent = "Registrato! Conferma la mail per attivarlo.";
+        btnSubmit.textContent = dict.js_reg_success;
         btnSubmit.style.backgroundColor = "#28a745";
         btnSubmit.disabled = true;
 
@@ -1540,7 +1560,7 @@ async function inviaRegistrazionePasseggero(event) {
         let testoErrore = errore.message;
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = "Questa email risulta già registrata. Inserisci un indirizzo diverso oppure vai alla pagina di Login.";
+            testoErrore = dict.js_reg_err_exists;
         }
         
         if (msgErroreServer) {
@@ -1627,6 +1647,9 @@ async function caricaDatiDashboardPasseggero() {
 async function aggiornaProfilo(event) {
     event.preventDefault();
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     if (!validaNotificheDashboard()) {
         return;
     }
@@ -1637,7 +1660,7 @@ async function aggiornaProfilo(event) {
 
     const alertBox = document.getElementById('alert_chiusura_fatturazione');
     if (alertBox && alertBox.style.display === 'block') {
-        btnSubmit.textContent = "Conferma disattivazione P.IVA prima di salvare!";
+        btnSubmit.textContent = dict.js_prof_err_vat;
         btnSubmit.style.backgroundColor = "#FF4444";
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#FF4444";
@@ -1652,7 +1675,7 @@ async function aggiornaProfilo(event) {
         return;
     }
 
-    btnSubmit.textContent = "Salvataggio in corso...";
+    btnSubmit.textContent = dict.js_prof_loading;
 
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -1729,7 +1752,7 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
-            btnSubmit.textContent = "Email aggiornata! Ti scolleghiamo, conferma il link ricevuto.";
+            btnSubmit.textContent = dict.js_prof_email_success;
             btnSubmit.style.backgroundColor = "#00FF66";
             btnSubmit.style.color = "#000000";
             btnSubmit.style.borderColor = "#00FF66";
@@ -1743,7 +1766,7 @@ async function aggiornaProfilo(event) {
             
             return;
         } else {
-            btnSubmit.textContent = "Modifiche salvate con successo!";
+            btnSubmit.textContent = dict.js_prof_success;
             btnSubmit.style.backgroundColor = "#00FF66";
             btnSubmit.style.color = "#000000";
             btnSubmit.style.borderColor = "#00FF66";
@@ -1759,10 +1782,10 @@ async function aggiornaProfilo(event) {
             caricaDatiDashboardPasseggero();
         }
     } catch (errore) {
-        let msgErrore = "Errore durante il salvataggio. Riprova.";
+        let msgErrore = dict.js_prof_err_save;
         
         if (errore.message === "EMAIL_ESISTENTE") {
-            msgErrore = "La mail scelta è già registrata.";
+            msgErrore = dict.js_prof_err_email_exists;
         }
 
         btnSubmit.textContent = msgErrore;
@@ -1784,8 +1807,11 @@ async function modificaPassword() {
     const btn = document.getElementById('btn_modifica_password');
     if (!btn) return;
     
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const testoOriginale = btn.textContent;
-    btn.textContent = "Invio richiesta...";
+    btn.textContent = dict.js_rec_loading;
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbook_auth_token');
@@ -1823,7 +1849,7 @@ async function modificaPassword() {
             throw new Error("Errore durante l'invio della richiesta");
         }
 
-        btn.textContent = "Email di ripristino inviata!";
+        btn.textContent = dict.js_rec_success;
         btn.style.backgroundColor = "#28a745"; 
 
         setTimeout(() => {
@@ -1836,7 +1862,7 @@ async function modificaPassword() {
 
     } catch (errore) {
         console.error(errore);
-        btn.textContent = "Errore di invio";
+        btn.textContent = dict.js_rec_err;
         btn.style.backgroundColor = "#dc3545"; 
         
         setTimeout(() => {
@@ -1862,13 +1888,16 @@ async function inviaAssistenza(event) {
     const honeypot = document.getElementById('azienda_hp').value;
     if (honeypot) return;
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const emailUtente = document.getElementById('assistenza_email').value.trim();
     const messaggioUtente = document.getElementById('testo_assistenza').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza button[type="submit"]');
 
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "Invio in corso...";
+    btnSubmit.textContent = dict.js_assist_loading;
 
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
     const urlGoogleApp = "https://script.google.com/macros/s/AKfycbxS7_NOyZXPwhO9m3VDH1aD98a1emWtuDRDNi6VnnqStZtieZUE_ILt_lcvu_HU88In/exec";
@@ -1894,7 +1923,7 @@ async function inviaAssistenza(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioUtente })
         });
 
-        btnSubmit.textContent = "Richiesta inviata correttamente!";
+        btnSubmit.textContent = dict.js_assist_success;
         btnSubmit.style.backgroundColor = "#00FF66";
         btnSubmit.style.color = "#000000";
         btnSubmit.style.borderColor = "#00FF66";
@@ -1910,7 +1939,7 @@ async function inviaAssistenza(event) {
         }, 5000);
 
     } catch (errore) {
-        alert("Errore durante l'invio. Riprova più tardi.");
+        alert(dict.js_assist_err);
         btnSubmit.disabled = false;
         btnSubmit.textContent = testoOriginale;
     }
@@ -1935,7 +1964,10 @@ document.addEventListener("DOMContentLoaded", function() {
             localStorage.setItem('driverbook_temp_recovery_token', accessToken);
             window.history.replaceState(null, null, window.location.pathname);
         } else if (!localStorage.getItem('driverbook_temp_recovery_token')) {
-            const container = document.querySelector('.container');
+            const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+            const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+            
+            const container = document.querySelector('.container') || document.querySelector('.login-wrapper');
             if (container) {
                 container.innerHTML = `
                     <nav class="navbar">
@@ -1943,13 +1975,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             <img src="logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
                             <img src="logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
                         </a>
-                        <div class="lang-selector">IT / EN</div>
+                        <div class="lang-selector" style="cursor: pointer;" onclick="let l = (localStorage.getItem('driverbook_lang') || 'it') === 'it' ? 'en' : 'it'; localStorage.setItem('driverbook_lang', l); location.reload();">IT / EN</div>
                     </nav>
                     <div style="text-align: center; margin-top: 40px;">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        <h2 style="color: #ffffff; margin-bottom: 15px;">Link Scaduto o<br>Non Valido</h2>
-                        <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;">Il link di sicurezza che hai utilizzato non è più valido.<br>Ti preghiamo di effettuare una nuova richiesta.</p>
-                        <a href="reset-password.html" class="btn">Richiedi un nuovo link</a>
+                        <h2 style="color: #ffffff; margin-bottom: 15px;">${dict.js_link_exp_title}</h2>
+                        <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;">${dict.js_link_exp_text}</p>
+                        <a href="reset-password.html" class="btn" style="display: inline-block;">${dict.js_link_exp_btn}</a>
                     </div>
                 `;
             }
@@ -1959,12 +1991,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function richiediResetPassword(event) {
     event.preventDefault();
+    
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const email = document.getElementById('email_recupero').value.trim();
     const btn = document.getElementById('btn_invia_recupero');
 
     const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Elaborazione in corso...";
+    btn.textContent = dict.js_rec_proc;
 
     const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -1979,7 +2015,7 @@ async function richiediResetPassword(event) {
             body: JSON.stringify({ email: email })
         });
 
-        btn.textContent = "Se registrato, riceverai un'email a breve!";
+        btn.textContent = dict.js_rec_email_sent;
         btn.style.backgroundColor = "#00FF66";
         btn.style.color = "#000000";
         btn.style.borderColor = "#00FF66";
@@ -1994,7 +2030,7 @@ async function richiediResetPassword(event) {
         }, 5000);
 
     } catch (errore) {
-        btn.textContent = "Errore di connessione. Riprova.";
+        btn.textContent = dict.js_rec_conn_err;
         btn.style.backgroundColor = "#dc3545";
         btn.style.color = "#ffffff";
         btn.style.borderColor = "#dc3545";
@@ -2012,6 +2048,9 @@ async function richiediResetPassword(event) {
 async function inviaNuovaPassword(event) {
     event.preventDefault();
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) msgErroreServer.style.display = 'none';
 
@@ -2020,23 +2059,24 @@ async function inviaNuovaPassword(event) {
     }
 
     const nuovaPassword = document.getElementById('password').value;
-        const accessToken = localStorage.getItem('driverbook_temp_recovery_token');
+    const accessToken = localStorage.getItem('driverbook_temp_recovery_token');
 
-        if (!accessToken) {
-            if (msgErroreServer) {
-                msgErroreServer.textContent = "Sessione scaduta o token mancante. Richiedi un nuovo link.";
-                msgErroreServer.style.display = 'block';
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 5000);
-            } else {
+    if (!accessToken) {
+        if (msgErroreServer) {
+            msgErroreServer.textContent = linguaAttuale === 'en' ? "Session expired or missing token. Request a new link." : "Sessione scaduta o token mancante. Richiedi un nuovo link.";
+            msgErroreServer.style.display = 'block';
+            setTimeout(() => {
                 window.location.href = 'index.html';
-            }
-            return;
+            }, 5000);
+        } else {
+            window.location.href = 'index.html';
         }
+        return;
+    }
 
-        const btnSubmit = document.getElementById('btn_salva_password');
-    btnSubmit.textContent = "Salvataggio in corso...";
+    const btnSubmit = document.getElementById('btn_salva_password');
+    const testoOriginale = btnSubmit.textContent;
+    btnSubmit.textContent = dict.js_pass_loading;
     btnSubmit.disabled = true;
 
     const urlUpdate = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user";
@@ -2056,15 +2096,15 @@ async function inviaNuovaPassword(event) {
         if (!risposta.ok) {
             const datiErrore = await risposta.json();
             if (datiErrore.error_code === "same_password") {
-                throw new Error("La nuova password digitata è uguale all'attuale, non hai bisogno di reimpostarla.");
+                throw new Error(dict.js_pass_err_same);
             }
-            throw new Error("Impossibile aggiornare la password. Link scaduto o errore server.");
+            throw new Error(dict.js_pass_err_update);
         }
 
         localStorage.removeItem('driverbook_temp_recovery_token');
         localStorage.setItem('driverbook_auth_token', accessToken);
 
-        btnSubmit.textContent = "Password aggiornata! Accesso in corso...";
+        btnSubmit.textContent = dict.js_pass_success;
         btnSubmit.style.backgroundColor = "#28a745";
 
         const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2088,7 +2128,7 @@ async function inviaNuovaPassword(event) {
 
     } catch (errore) {
         console.error(errore);
-        btnSubmit.textContent = "Salva Nuova Password";
+        btnSubmit.textContent = testoOriginale;
         btnSubmit.disabled = false;
         if (msgErroreServer) {
             msgErroreServer.textContent = errore.message;
@@ -2154,12 +2194,15 @@ async function inviaAssistenzaInterna(event) {
     const honeypot = document.getElementById('azienda_hp_interna').value;
     if (honeypot) return;
 
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     const messaggioUtente = document.getElementById('testo_assistenza_interna').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza_interna button[type="submit"]');
 
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "Invio in corso...";
+    btnSubmit.textContent = dict.js_assist_loading;
 
     const token = localStorage.getItem('driverbook_auth_token');
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
@@ -2218,7 +2261,7 @@ async function inviaAssistenzaInterna(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioArricchito })
         });
 
-        btnSubmit.textContent = "Richiesta inviata correttamente!";
+        btnSubmit.textContent = dict.js_assist_success;
         btnSubmit.style.backgroundColor = "#00FF66";
         btnSubmit.style.color = "#000000";
         btnSubmit.style.borderColor = "#00FF66";
@@ -2228,7 +2271,7 @@ async function inviaAssistenzaInterna(event) {
         }, 5000);
 
     } catch (errore) {
-        alert("Errore durante l'invio. Riprova più tardi.");
+        alert(dict.js_assist_err);
         btnSubmit.disabled = false;
         btnSubmit.textContent = testoOriginale;
     }
@@ -2356,6 +2399,11 @@ function applicaTraduzioni() {
     const textareaAssistenza = document.getElementById('testo_assistenza');
     if (textareaAssistenza && traduzioni[linguaAttuale]) {
         textareaAssistenza.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
+    }
+
+    const textareaAssistenzaInterna = document.getElementById('testo_assistenza_interna');
+    if (textareaAssistenzaInterna && traduzioni[linguaAttuale]) {
+        textareaAssistenzaInterna.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
     }
 
     const bloccoFatturazione = document.getElementById('blocco_fatturazione_registrazione');

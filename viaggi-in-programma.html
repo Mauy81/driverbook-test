@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viaggi in Programma - DriverBook</title>
+    <title data-i18n="title_viaggi_programma">Viaggi in Programma - DriverBook</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,11 +16,11 @@
     <main class="login-wrapper">
         <div class="auth-card" id="card_viaggi_edit">
             <div class="auth-header">
-                <h1>Viaggi in programma</h1>
+                <h1 data-i18n="h1_viaggi_programma">Viaggi in programma</h1>
             </div>
             <div id="lista_viaggi_attivi_edit">
                 <div class="form-group">
-                    <span class="label">Nessun viaggio in programma da gestire.</span>
+                    <span class="label" data-i18n="lbl_nessun_viaggio_gestire">Nessun viaggio in programma da gestire.</span>
                 </div>
             </div>
         </div>
@@ -29,9 +29,9 @@
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
             <span class="close-popup" id="btn_chiudi_ios_popup">&times;</span>
-            <p>Per installare l'app su iPhone o iPad:</p>
-            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
-            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+            <p data-i18n="ios_install_1">Per installare l'app su iPhone o iPad:</p>
+            <p data-i18n="ios_install_2">1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p data-i18n="ios_install_3">2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
         </div>
     </div>
 
@@ -40,12 +40,12 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <div class="panel-header">
-                <h2>Il Mio Account</h2>
+                <h2 data-i18n="h2_mio_account">Il Mio Account</h2>
                 <button id="btn_chiudi_menu" class="close-btn">&times;</button>
             </div>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -53,6 +53,7 @@
         <div class="menu-items scrollable-menu"></div>
     </div>
 
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

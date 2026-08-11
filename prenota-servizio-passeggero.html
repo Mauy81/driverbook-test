@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DriverBook - Prenota Servizio</title>
+    <title data-i18n="title_prenota">DriverBook - Prenota Servizio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
 	<link rel="stylesheet" href="style.css">
 	<link rel="manifest" href="manifest.json">
@@ -17,14 +17,14 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -37,193 +37,193 @@
     <div class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Prenota Servizio</h1>
+                <h1 data-i18n="h1_prenota">Prenota Servizio</h1>
             </div>
             
             <form id="form_prenotazione" onsubmit="inviaRichiesta(event)">
                 <div class="form-group">
-                    <label class="label">Nome e Cognome Passeggero</label>
+                    <label class="label" data-i18n="label_nome_pax">Nome e Cognome Passeggero</label>
                     <input type="text" id="nome_passeggero" class="input" placeholder="Es. Andrea Bianchi" required>
-                    <div class="label-nota">(Per il cartello di benvenuto)</div>
+                    <div class="label-nota" data-i18n="nota_cartello">(Per il cartello di benvenuto)</div>
                 </div>
 
                 <div class="form-group">
-                    <label class="label">Telefono Passeggero</label>
+                    <label class="label" data-i18n="label_tel_pax">Telefono Passeggero</label>
                     <input type="tel" id="tel_passeggero" class="input" required>
-                    <div class="label-nota">(Per coordinare il punto d'incontro all'arrivo)</div>
+                    <div class="label-nota" data-i18n="nota_incontro">(Per coordinare il punto d'incontro all'arrivo)</div>
                 </div>
 
                 <div class="checkbox-group" id="blocco_chk_referente">
                     <input type="checkbox" id="chk_referente" class="checkbox-input" onchange="toggleReferente(event)">
-                    <label for="chk_referente" class="checkbox-label">La prenotazione viene effettuata da un referente? (es. Hotel, Azienda)</label>
+                    <label for="chk_referente" class="checkbox-label" data-i18n="label_chk_ref">La prenotazione viene effettuata da un referente? (es. Hotel, Azienda)</label>
                 </div>
 
                 <div id="sezione_referente" class="gruppo-dinamico hidden">
                     <div class="form-group">
-                        <label class="label">Nome Referente</label>
+                        <label class="label" data-i18n="label_nome_ref">Nome Referente</label>
                         <input type="text" id="nome_referente" class="input" placeholder="Es. Studio Bianchi / Hotel Vista">
                     </div>
                     <div class="form-group">
-                        <label class="label">Telefono Referente</label>
+                        <label class="label" data-i18n="label_tel_ref">Telefono Referente</label>
                         <input type="tel" id="tel_referente" class="input">
-                        <div class="label-nota">(Per comunicazioni logistiche e amministrative)</div>
+                        <div class="label-nota" data-i18n="nota_logistica">(Per comunicazioni logistiche e amministrative)</div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="label">Tipo di Servizio</label>
+                    <label class="label" data-i18n="label_tipo_servizio">Tipo di Servizio</label>
                     <select id="tipo_servizio" class="input" onchange="gestisciCampi()" required>
-                        <option value="" disabled selected>Seleziona...</option>
-                        <option value="TRASFERIMENTO">Servizio a Tratta Diretta</option>
-                        <option value="DISPOSIZIONE">Servizio a Disposizione Oraria</option>
+                        <option value="" disabled selected data-i18n="opt_seleziona">Seleziona...</option>
+                        <option value="TRASFERIMENTO" data-i18n="opt_tratta">Servizio a Tratta Diretta</option>
+                        <option value="DISPOSIZIONE" data-i18n="opt_disposizione">Servizio a Disposizione Oraria</option>
                     </select>
                 </div>
 
                 <div id="campi_comuni" class="hidden">
                     <div id="campo_ore" class="form-group hidden">
-                        <label class="label">Durata Disposizione</label>
+                        <label class="label" data-i18n="label_durata">Durata Disposizione</label>
                         <select id="ore" class="input">
-                            <option value="3">3 Ore (Minimo)</option>
-                            <option value="4">4 Ore</option>
-                            <option value="5">5 Ore</option>
-                            <option value="6">6 Ore</option>
-                            <option value="7">7 Ore</option>
-                            <option value="8">8 Ore</option>
-                            <option value="9">9 Ore</option>
-                            <option value="10">10 Ore</option>
-                            <option value="11">11 Ore</option>
-                            <option value="12">12 Ore (Massimo)</option>
+                            <option value="3" data-i18n="opt_ore_min">3 Ore (Minimo)</option>
+                            <option value="4" data-i18n="opt_ore_4">4 Ore</option>
+                            <option value="5" data-i18n="opt_ore_5">5 Ore</option>
+                            <option value="6" data-i18n="opt_ore_6">6 Ore</option>
+                            <option value="7" data-i18n="opt_ore_7">7 Ore</option>
+                            <option value="8" data-i18n="opt_ore_8">8 Ore</option>
+                            <option value="9" data-i18n="opt_ore_9">9 Ore</option>
+                            <option value="10" data-i18n="opt_ore_10">10 Ore</option>
+                            <option value="11" data-i18n="opt_ore_11">11 Ore</option>
+                            <option value="12" data-i18n="opt_ore_max">12 Ore (Massimo)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="label">Luogo di Partenza</label>
+                        <label class="label" data-i18n="label_partenza">Luogo di Partenza</label>
                         <input type="text" id="partenza" class="input" placeholder="Cerca indirizzo, hotel, aeroporto...">
                     </div>
 
                     <div id="campo_arrivo" class="form-group hidden">
-                        <label class="label">Luogo di Destinazione</label>
+                        <label class="label" data-i18n="label_arrivo">Luogo di Destinazione</label>
                         <input type="text" id="arrivo" class="input" placeholder="Cerca indirizzo, hotel, aeroporto...">
                     </div>
 
                     <div id="blocco_itinerario" class="form-group hidden">
-                        <label class="label">Itinerario Previsto (Opzionale)</label>
+                        <label class="label" data-i18n="label_itinerario">Itinerario Previsto (Opzionale)</label>
                         <textarea id="itinerario_previsto" class="input" style="min-height: 80px;" placeholder="Es: Milano Centro -> Monza -> Ritorno a Milano"></textarea>
-                        <div class="label-nota">(Inserisci qui una traccia indicativa delle tappe o delle località previste, per permettere al conducente di pianificare al meglio il servizio)</div>
+                        <div class="label-nota" data-i18n="nota_itinerario">(Inserisci qui una traccia indicativa delle tappe o delle località previste, per permettere al conducente di pianificare al meglio il servizio)</div>
                     </div>
 
                     <div id="blocco_chk_hub" class="hidden">
                         <div class="checkbox-group">
                             <input type="checkbox" id="chk_hub" class="checkbox-input" onchange="toggleHubTrasporti(event)">
-                            <label for="chk_hub" class="checkbox-label">Il servizio prevede la partenza o l'arrivo in Aeroporto, Stazione o Porto?</label>
+                            <label for="chk_hub" class="checkbox-label" data-i18n="label_chk_hub">Il servizio prevede la partenza o l'arrivo in Aeroporto, Stazione o Porto?</label>
                         </div>
                     </div>
 
                     <div id="sezione_hub" class="gruppo-dinamico hidden">
                         <div class="form-group">
-                            <label class="label">Numero del Volo, Treno o Nave</label>
+                            <label class="label" data-i18n="label_info_trasporto">Numero del Volo, Treno o Nave</label>
                             <input type="text" id="info_trasporto" class="input" placeholder="Es. AZ204 / Frecciarossa 9512">
-                            <div class="label-nota">(Necessario all'autista per identificare il terminal, il punto di ingresso/uscita e monitorare lo stato in tempo reale)</div>
+                            <div class="label-nota" data-i18n="nota_trasporto">(Necessario all'autista per identificare il terminal, il punto di ingresso/uscita e monitorare lo stato in tempo reale)</div>
                         </div>
                     </div>
 
                     <div id="blocco_tempo" class="hidden">
                         <div class="form-group">
-                            <label class="label">Data del Servizio</label>
+                            <label class="label" data-i18n="label_data_servizio">Data del Servizio</label>
                             <input type="date" id="data_partenza" class="input" onclick="this.showPicker()">
                         </div>
 
                         <div class="form-group">
-                            <label class="label">Ora di Partenza</label>
+                            <label class="label" data-i18n="label_ora_partenza">Ora di Partenza</label>
                             <input type="time" id="ora_partenza" class="input" onclick="this.showPicker()" onchange="validaOrario()">
-                            <div id="errore_ora" class="error-message">Preavviso minimo richiesto: 3 ore</div>
+                            <div id="errore_ora" class="error-message" data-i18n="err_preavviso">Preavviso minimo richiesto: 3 ore</div>
                         </div>
                     </div>
 
                     <div id="blocco_passeggeri" class="hidden">
                         <div class="form-group">
-                            <label class="label">Numero Passeggeri</label>
+                            <label class="label" data-i18n="label_num_pax">Numero Passeggeri</label>
                             <select id="passeggeri" class="input" onchange="validaFlottaEBagagli()">
-                                <option value="1">1 Passeggero</option>
-                                <option value="2">2 Passeggeri</option>
-                                <option value="3">3 Passeggeri</option>
-                                <option value="4">4 Passeggeri</option>
-                                <option value="5">5 Passeggeri</option>
-                                <option value="6">6 Passeggeri</option>
-                                <option value="7">7 Passeggeri</option>
+                                <option value="1" data-i18n="opt_pax_1">1 Passeggero</option>
+                                <option value="2" data-i18n="opt_pax_2">2 Passeggeri</option>
+                                <option value="3" data-i18n="opt_pax_3">3 Passeggeri</option>
+                                <option value="4" data-i18n="opt_pax_4">4 Passeggeri</option>
+                                <option value="5" data-i18n="opt_pax_5">5 Passeggeri</option>
+                                <option value="6" data-i18n="opt_pax_6">6 Passeggeri</option>
+                                <option value="7" data-i18n="opt_pax_7">7 Passeggeri</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="label">Valigie Grandi (Da Stiva)</label>
+                            <label class="label" data-i18n="label_valigie">Valigie Grandi (Da Stiva)</label>
                             <select id="bagagli_grandi" class="input" onchange="validaFlottaEBagagli()">
-                                <option value="0">0 Valigie Grandi</option>
-                                <option value="1">1 Valigia Grande</option>
-                                <option value="2">2 Valigie Grandi</option>
-                                <option value="3">3 Valigie Grandi</option>
-                                <option value="4">4 Valigie Grandi</option>
-                                <option value="5">5 Valigie Grandi</option>
-                                <option value="6">6 Valigie Grandi</option>
-                                <option value="7">7 Valigie Grandi</option>
+                                <option value="0" data-i18n="opt_val_0">0 Valigie Grandi</option>
+                                <option value="1" data-i18n="opt_val_1">1 Valigia Grande</option>
+                                <option value="2" data-i18n="opt_val_2">2 Valigie Grandi</option>
+                                <option value="3" data-i18n="opt_val_3">3 Valigie Grandi</option>
+                                <option value="4" data-i18n="opt_val_4">4 Valigie Grandi</option>
+                                <option value="5" data-i18n="opt_val_5">5 Valigie Grandi</option>
+                                <option value="6" data-i18n="opt_val_6">6 Valigie Grandi</option>
+                                <option value="7" data-i18n="opt_val_7">7 Valigie Grandi</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="label">Trolley (Bagaglio a Mano)</label>
+                            <label class="label" data-i18n="label_trolley">Trolley (Bagaglio a Mano)</label>
                             <select id="bagagli_mano" class="input" onchange="validaFlottaEBagagli()">
-                                <option value="0">0 Trolley</option>
-                                <option value="1">1 Trolley</option>
-                                <option value="2">2 Trolley</option>
-                                <option value="3">3 Trolley</option>
-                                <option value="4">4 Trolley</option>
-                                <option value="5">5 Trolley</option>
-                                <option value="6">6 Trolley</option>
-                                <option value="7">7 Trolley</option>
+                                <option value="0" data-i18n="opt_tro_0">0 Trolley</option>
+                                <option value="1" data-i18n="opt_tro_1">1 Trolley</option>
+                                <option value="2" data-i18n="opt_tro_2">2 Trolley</option>
+                                <option value="3" data-i18n="opt_tro_3">3 Trolley</option>
+                                <option value="4" data-i18n="opt_tro_4">4 Trolley</option>
+                                <option value="5" data-i18n="opt_tro_5">5 Trolley</option>
+                                <option value="6" data-i18n="opt_tro_6">6 Trolley</option>
+                                <option value="7" data-i18n="opt_tro_7">7 Trolley</option>
                             </select>
                         </div>
                     </div>
 
                     <div id="sezione_vetture" class="hidden">
-                        <label class="label">Seleziona la Vettura Desiderata</label>
+                        <label class="label" data-i18n="label_seleziona_vettura">Seleziona la Vettura Desiderata</label>
                         
                         <input type="hidden" id="vettura_selezionata">
                         
                         <div class="sezione-vetture">
                             <div id="card_classe_e" class="vettura-card attiva" onclick="selezionaVettura('CLASSE_E')">
                                 <div class="vettura-titolo">Mercedes Classe E</div>
-                                <div class="vettura-sottotitolo">Berlina Comfort</div>
-                                <div id="tag_classe_e" class="vettura-tag">Disponibile</div>
+                                <div class="vettura-sottotitolo" data-i18n="vettura_berlina_comfort">Berlina Comfort</div>
+                                <div id="tag_classe_e" class="vettura-tag" data-i18n="vettura_disponibile">Disponibile</div>
                                 <div id="prezzo_classe_e" class="vettura-prezzo hidden">€ 0,00</div>
                                 <div id="motivo_classe_e" class="motivo-blocco" style="display:none;"></div>
                             </div>
                             
                             <div id="card_classe_s" class="vettura-card attiva" onclick="selezionaVettura('CLASSE_S')">
                                 <div class="vettura-titolo">Mercedes Classe S</div>
-                                <div class="vettura-sottotitolo">Berlina Lusso</div>
-                                <div id="tag_classe_s" class="vettura-tag">Disponibile</div>
+                                <div class="vettura-sottotitolo" data-i18n="vettura_berlina_lusso">Berlina Lusso</div>
+                                <div id="tag_classe_s" class="vettura-tag" data-i18n="vettura_disponibile">Disponibile</div>
                                 <div id="prezzo_classe_s" class="vettura-prezzo hidden">€ 0,00</div>
                                 <div id="motivo_classe_s" class="motivo-blocco" style="display:none;"></div>
                             </div>
                             
                             <div id="card_classe_v" class="vettura-card attiva" onclick="selezionaVettura('CLASSE_V')">
                                 <div class="vettura-titolo">Mercedes Classe V</div>
-                                <div class="vettura-sottotitolo">Van Comfort</div>
-                                <div id="tag_classe_v" class="vettura-tag">Disponibile</div>
+                                <div class="vettura-sottotitolo" data-i18n="vettura_van_comfort">Van Comfort</div>
+                                <div id="tag_classe_v" class="vettura-tag" data-i18n="vettura_disponibile">Disponibile</div>
                                 <div id="prezzo_classe_v" class="vettura-prezzo hidden">€ 0,00</div>
                             </div>
                         </div>
 
-                        <div id="alert_eccedenza" class="alert-eccedenza" style="display: none;">
+                        <div id="alert_eccedenza" class="alert-eccedenza" style="display: none;" data-i18n="alert_bagagli_eccedenza">
                             Per motivi di sicurezza e in conformità con le normative vigenti, tutti i bagagli devono essere alloggiati esclusivamente nel vano di carico. La quantità selezionata supera la capacità massima dei vani di carico delle nostre vetture.<br><br>Per procedere, vi invitiamo ad effettuare due prenotazioni separate, distribuendo passeggeri e bagagli su due vetture distinte.
                         </div>
                     </div>
 
                     <div id="blocco_note" class="form-group hidden" style="margin-top: 25px;">
-                        <label class="label">Note e Richieste Particolari</label>
+                        <label class="label" data-i18n="label_note_servizio">Note e Richieste Particolari</label>
                         <textarea id="note_servizio" class="input" style="min-height: 80px;" placeholder="Es: Richiesto seggiolino bimbo 15-36 kg..."></textarea>
-                        <div class="label-nota">(Segnala qui la necessità di seggiolini, contatti di assistenti o altre necessità logistiche)</div>
+                        <div class="label-nota" data-i18n="nota_note">(Segnala qui la necessità di seggiolini, contatti di assistenti o altre necessità logistiche)</div>
                     </div>
 
-                    <div id="errore_vettura" class="error-message">Per procedere è necessario selezionare una delle vetture disponibili.</div>
-                    <button type="submit" id="btn_submit" class="btn btn-primary btn-full hidden">Procedi</button>
+                    <div id="errore_vettura" class="error-message" data-i18n="err_selezione_vettura">Per procedere è necessario selezionare una delle vetture disponibili.</div>
+                    <button type="submit" id="btn_submit" class="btn btn-primary btn-full hidden" data-i18n="btn_procedi">Procedi</button>
                 </div>
             </form>
         </div>
@@ -231,6 +231,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtn-SaUnB4JjkC9fKYEGBKfUDRxiVRMM&libraries=places"></script>
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

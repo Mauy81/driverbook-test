@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifica Profilo - DriverBook</title>
+    <title data-i18n="title_modifica_profilo">Modifica Profilo - DriverBook</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -17,92 +17,93 @@
     <main class="login-wrapper">
         <div class="auth-card" id="card_profilo">
             <div class="auth-header">
-                <h1>Modifica Profilo</h1>
+                <h1 data-i18n="h1_modifica_profilo">Modifica Profilo</h1>
             </div>
             <form id="formModificaProfilo">
                 <div class="form-group">
-                    <label class="label" for="profilo_nome">Nome e Cognome / Referente</label>
+                    <label class="label" for="profilo_nome" data-i18n="label_nome_cognome">Nome e Cognome / Referente</label>
                     <input type="text" id="profilo_nome" class="input" placeholder="Mario Rossi" required>
                 </div>
                 <div class="form-group">
-                    <label class="label" for="profilo_email">Email Accesso</label>
+                    <label class="label" for="profilo_email" data-i18n="label_email_accesso">Email Accesso</label>
                     <input type="email" id="profilo_email" class="input" placeholder="mario@example.com" required>
-                    <div class="label-nota">La modifica dell'email richiederà la conferma tramite un link inviato al nuovo indirizzo.</div>
+                    <div class="label-nota" data-i18n="nota_modifica_email">La modifica dell'email richiederà la conferma tramite un link inviato al nuovo indirizzo.</div>
                 </div>
                 <div class="form-group">
-                    <label class="label" for="profilo_telefono">Telefono Cellulare</label>
+                    <label class="label" for="profilo_telefono" data-i18n="label_telefono">Telefono Cellulare</label>
                     <input type="tel" id="profilo_telefono" class="input" required placeholder="333 1234567">
                 </div>
 
                 <div class="checkbox-group" id="blocco_fatturazione_registrazione">
                     <input type="checkbox" id="profilo_richiedeFattura" class="checkbox-input">
-                    <label for="profilo_richiedeFattura" class="checkbox-label">Richiedo fatturazione elettronica (Azienda / Hotel)</label>
+                    <label for="profilo_richiedeFattura" class="checkbox-label" data-i18n="label_richiede_fattura">Richiedo fatturazione elettronica (Azienda / Hotel)</label>
                 </div>
 
                 <div id="alert_chiusura_fatturazione" class="alert-eccedenza hidden">
-                    Attenzione: disattivando questa opzione, cancellerai irreversibilmente tutti i tuoi dati di fatturazione. Vuoi procedere?
+                    <span data-i18n="alert_chiusura_fatturazione">Attenzione: disattivando questa opzione, cancellerai irreversibilmente tutti i tuoi dati di fatturazione. Vuoi procedere?</span>
                     <div id="container_bottoni_alert">
-                        <button type="button" class="btn btn-ghost btn-full" id="btn_annulla_chiusura">ANNULLA</button>
-                        <button type="button" class="btn btn-ghost btn-full" id="btn_conferma_chiusura">CONFERMA E CANCELLA</button>
+                        <button type="button" class="btn btn-ghost btn-full" id="btn_annulla_chiusura" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                        <button type="button" class="btn btn-ghost btn-full" id="btn_conferma_chiusura" data-i18n="btn_conferma_chiusura">CONFERMA E CANCELLA</button>
                     </div>
                 </div>
 
                 <div id="sezione_fatturazione_profilo" class="gruppo-dinamico hidden">
                     <div class="form-group">
-                        <label class="label" for="profilo_ragioneSociale">Ragione Sociale</label>
+                        <label class="label" for="profilo_ragioneSociale" data-i18n="label_ragione_sociale">Ragione Sociale</label>
                         <input type="text" id="profilo_ragioneSociale" class="input" placeholder="Es. Hotel Roma SRL">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_piva_cf">Partita IVA / Codice Fiscale</label>
+                        <label class="label" for="profilo_piva_cf" data-i18n="label_piva_cf">Partita IVA / Codice Fiscale</label>
                         <input type="text" id="profilo_piva_cf" class="input" placeholder="12345678901">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_codice_sdi">Codice Destinatario SDI (7 caratteri)
-                            <div class="label-nota">Se non possiedi un codice SDI, inserisci 0000000 (sette zeri) e compila il campo PEC.</div>
+                        <label class="label" for="profilo_codice_sdi">
+                            <span data-i18n="label_sdi">Codice Destinatario SDI (7 caratteri)</span>
+                            <div class="label-nota" data-i18n="nota_sdi">Se non possiedi un codice SDI, inserisci 0000000 (sette zeri) e compila il campo PEC.</div>
                         </label>
                         <input type="text" id="profilo_codice_sdi" class="input" maxlength="7" placeholder="Es. M5UXCR1 oppure 0000000">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_pec">Indirizzo PEC</label>
+                        <label class="label" for="profilo_pec" data-i18n="label_pec">Indirizzo PEC</label>
                         <input type="email" id="profilo_pec" class="input" placeholder="azienda@pec.it">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_indirizzo_via">Indirizzo Sede Legale (Via e Civico)</label>
+                        <label class="label" for="profilo_indirizzo_via" data-i18n="label_indirizzo_via">Indirizzo Sede Legale (Via e Civico)</label>
                         <input type="text" id="profilo_indirizzo_via" class="input" placeholder="Via Roma 10">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_indirizzo_cap">CAP</label>
+                        <label class="label" for="profilo_indirizzo_cap" data-i18n="label_cap">CAP</label>
                         <input type="text" id="profilo_indirizzo_cap" class="input" maxlength="5" placeholder="20121">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_indirizzo_citta">Città</label>
+                        <label class="label" for="profilo_indirizzo_citta" data-i18n="label_citta">Città</label>
                         <input type="text" id="profilo_indirizzo_citta" class="input" placeholder="Milano">
                     </div>
                     <div class="form-group">
-                        <label class="label" for="profilo_indirizzo_provincia">Provincia (Sigla)</label>
+                        <label class="label" for="profilo_indirizzo_provincia" data-i18n="label_provincia">Provincia (Sigla)</label>
                         <input type="text" id="profilo_indirizzo_provincia" class="input" maxlength="2" placeholder="MI">
                     </div>
                 </div>
 
                 <div class="form-group" id="blocco_notifiche_registrazione">
-                    <label class="label">Come vuoi ricevere le notifiche?</label>
+                    <label class="label" data-i18n="label_come_notifiche">Come vuoi ricevere le notifiche?</label>
                     <div class="gruppo-dinamico">
                         <div class="checkbox-group">
                             <input type="checkbox" id="profilo_notificaPush" class="checkbox-input" checked>
                             <label for="profilo_notificaPush" class="checkbox-label">
-                                Notifiche Push (Consigliata)
-                                <div class="label-nota">Istantanea su smartphone e PC.</div>
+                                <span data-i18n="label_push">Notifiche Push (Consigliata)</span>
+                                <div class="label-nota" data-i18n="nota_push">Istantanea su smartphone e PC.</div>
                             </label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="profilo_notificaEmail" class="checkbox-input">
-                            <label for="profilo_notificaEmail" class="checkbox-label">Email</label>
+                            <label for="profilo_notificaEmail" class="checkbox-label" data-i18n="label_notifica_email">Email</label>
                         </div>
                     </div>
-                    <div id="errore_notifiche_dashboard" class="error-message">Seleziona almeno un metodo per ricevere le notifiche.</div>
+                    <div id="errore_notifiche_dashboard" class="error-message" data-i18n="err_seleziona_notifica">Seleziona almeno un metodo per ricevere le notifiche.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo">Salva Modifiche Profilo</button>
+                <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo" data-i18n="btn_salva_profilo">Salva Modifiche Profilo</button>
             </form>
         </div>
     </main>
@@ -110,9 +111,9 @@
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
             <span class="close-popup" id="btn_chiudi_ios_popup">&times;</span>
-            <p>Per installare l'app su iPhone o iPad:</p>
-            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
-            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+            <p data-i18n="ios_install_1">Per installare l'app su iPhone o iPad:</p>
+            <p data-i18n="ios_install_2">1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p data-i18n="ios_install_3">2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
         </div>
     </div>
 
@@ -121,12 +122,12 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <div class="panel-header">
-                <h2>Il Mio Account</h2>
+                <h2 data-i18n="h2_mio_account">Il Mio Account</h2>
                 <button id="btn_chiudi_menu" class="close-btn">&times;</button>
             </div>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text">SCORRI PER USCIRE DALL'ACCOUNT<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -135,6 +136,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
