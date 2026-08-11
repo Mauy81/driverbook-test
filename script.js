@@ -1972,9 +1972,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 container.innerHTML = `
                     <div style="text-align: center; margin-top: 40px; width: 100%;">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        <h2 style="color: #ffffff; margin-bottom: 15px;">${dict.js_link_exp_title}</h2>
-                        <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;">${dict.js_link_exp_text}</p>
-                        <a href="reset-password.html" class="btn" style="display: inline-block;">${dict.js_link_exp_btn}</a>
+                        <h2 style="color: #ffffff; margin-bottom: 15px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>
+                        <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>
+                        <a href="reset-password.html" class="btn" style="display: inline-block;" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>
                     </div>
                 `;
             }
