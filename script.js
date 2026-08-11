@@ -1317,7 +1317,7 @@ async function confermaPrenotazione() {
                 <h3 class="modale-titolo" style="color: #00FF66; margin-bottom: 15px;">Richiesta Inviata!</h3>
                 <p class="modale-testo">La tua prenotazione è stata registrata con successo.<br><br>Codice: <strong style="color: #00FF66;">${codiceGenerato}</strong></p>
                 <div class="modale-bottoni-container">
-                    <button id="btn_chiudi_conferma" class="btn-modale-bianco">Vai alla Dashboard</button>
+                    <button id="btn_chiudi_conferma" class="btn btn-primary btn-full">VAI AL PANNELLO UTENTE</button>
                 </div>
             </div>
         `;
