@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistenza - DriverBook</title>
+    <title data-i18n="title_assistenza">Assistenza - DriverBook</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,12 +17,12 @@
     <main class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Assistenza</h1>
+                <h1 data-i18n="h1_assistenza">Assistenza</h1>
             </div>
 
             <form id="form_assistenza" autocomplete="off" onsubmit="inviaAssistenza(event)">
                 <div class="form-group">
-                    <label class="label" for="assistenza_email">La tua email</label>
+                    <label class="label" for="assistenza_email" data-i18n="label_assistenza_email">La tua email</label>
                     <input type="email" id="assistenza_email" class="input" required placeholder="mario@example.com" autocomplete="email">
                 </div>
                 
@@ -31,11 +31,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="label" for="testo_assistenza">Descrivi il problema</label>
+                    <label class="label" for="testo_assistenza" data-i18n="label_descrivi_problema">Descrivi il problema</label>
                     <textarea id="testo_assistenza" class="input" required placeholder="Scrivi qui i dettagli della tua richiesta..."></textarea>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="btn_invia_richiesta">Invia Richiesta</button>
             </form>
         </div>
     </main>
@@ -45,7 +45,7 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -57,12 +57,13 @@
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
             <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
-            <p>Per installare l'app su iPhone o iPad:</p>
-            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
-            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+            <p data-i18n="ios_install_1">Per installare l'app su iPhone o iPad:</p>
+            <p data-i18n="ios_install_2">1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p data-i18n="ios_install_3">2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
         </div>
     </div>
 
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accesso Passeggeri</title>
+    <title data-i18n="title_login_passeggeri">Accesso Passeggeri</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,20 +17,20 @@
     <main class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Accesso Passeggeri</h1>
+                <h1 data-i18n="h1_login_passeggeri">Accesso Passeggeri</h1>
             </div>
             
-            <div id="messaggio_cambio_email" class="hidden" style="color: #00FF66; text-align: center; margin-bottom: 15px; font-weight: bold; padding: 10px; border: 1px solid #00FF66; border-radius: 5px;">
+            <div id="messaggio_cambio_email" class="hidden" style="color: #00FF66; text-align: center; margin-bottom: 15px; font-weight: bold; padding: 10px; border: 1px solid #00FF66; border-radius: 5px;" data-i18n="msg_email_confermata">
                 Email confermata con successo. Effettua il login con le tue nuove credenziali.
             </div>
 
             <form id="formLogin" autocomplete="off" onsubmit="inviaLogin(event)">
                 <div class="form-group">
-                    <label class="label" for="email">Email Accesso</label>
+                    <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
                     <input type="email" id="email" class="input" required placeholder="mario@example.com" autocomplete="username">
                 </div>
                 <div class="form-group">
-                    <label class="label" for="password">Password</label>
+                    <label class="label" for="password" data-i18n="label_password">Password</label>
                     <div class="pass-box">
                         <input type="password" id="password" class="input" required placeholder="••••••••" autocomplete="current-password">
                         <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
@@ -38,9 +38,9 @@
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Accedi</button>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="btn_accedi">Accedi</button>
             </form>
-            <div class="nota-informativa-login">
+            <div class="nota-informativa-login" data-i18n="nota_impostazioni">
                 Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
             </div>
         </div>
@@ -51,7 +51,7 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                CHIUDI MENU
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -63,12 +63,13 @@
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
             <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
-            <p>Per installare l'app su iPhone o iPad:</p>
-            <p>1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
-            <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+            <p data-i18n="ios_install_1">Per installare l'app su iPhone o iPad:</p>
+            <p data-i18n="ios_install_2">1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p data-i18n="ios_install_3">2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
         </div>
     </div>
 
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

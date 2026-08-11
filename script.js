@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
             </a>
             <div class="menu-destra" style="gap: 5px;">
                 ${btnInstallaApp}
-                <div class="nav-btn lang-selector" style="border: none;">IT / EN</div>
+                <div class="nav-btn lang-selector" style="border: none;" onclick="cambiaLingua()">IT / EN</div>
                 ${iconaUtente}
             </div>
         </nav>`;
@@ -114,25 +114,25 @@ document.addEventListener("DOMContentLoaded", function() {
     if (contenitoreMenuLaterale) {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
-                <a href="#" id="link_menu_pub_login" class="menu-item">Accesso</a>
-                <a href="#" id="link_menu_pub_reset" class="menu-item">Recupero Password</a>
-                <a href="#" id="link_menu_pub_reg" class="menu-item">Registrazione</a>
-                <a href="#" id="link_menu_pub_assist" class="menu-item">Assistenza</a>
+                <a href="#" id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
+                <a href="#" id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Recupero Password</a>
+                <a href="#" id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
+                <a href="#" id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
             `;
             if (btnChiudi) {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
-            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a href="#" id="link_menu_riepilogo" class="menu-item">Riepilogo Richiesta</a>` : '';
+            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a href="#" id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
             contenitoreMenuLaterale.innerHTML = `
-                <a href="#" id="link_menu_home" class="menu-item">Pannello Utente</a>
-                <a href="#" id="link_menu_prenota" class="menu-item">Prenota Servizio</a>
+                <a href="#" id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                <a href="#" id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
                 ${linkRiepilogo}
-                <a href="#" id="link_menu_viaggi" class="menu-item">Viaggi in Programma</a>
-                <a href="#" id="link_menu_storico" class="menu-item">Storico Viaggi</a>
-                <a href="#" id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
-                <a href="#" id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
-                <a href="#" id="link_menu_assistenza" class="menu-item">Assistenza</a>
+                <a href="#" id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
+                <a href="#" id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
+                <a href="#" id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
+                <a href="#" id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
+                <a href="#" id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
             `;
         }
     }
@@ -2263,6 +2263,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function mostraModaleSalvataggio(destinazione) {
     let overlay = document.getElementById('modale_uscita_dati');
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'modale_uscita_dati';
@@ -2272,11 +2275,11 @@ function mostraModaleSalvataggio(destinazione) {
         modal.className = 'modale-box';
         
         modal.innerHTML = `
-            <h3 class="modale-titolo">Attenzione</h3>
-            <p class="modale-testo">Hai delle modifiche non salvate. Sei sicuro di voler abbandonare la pagina?</p>
+            <h3 class="modale-titolo">${dict.modale_uscita_titolo}</h3>
+            <p class="modale-testo">${dict.modale_uscita_testo}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco">RESTA QUI</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco">ESCI E PERDI</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco">${dict.modale_uscita_btn_resta}</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco">${dict.modale_uscita_btn_esci}</button>
             </div>
         `;
         
@@ -2335,3 +2338,48 @@ function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
+
+function applicaTraduzioni() {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    
+    document.querySelectorAll('[data-i18n]').forEach(elemento => {
+        const chiave = elemento.getAttribute('data-i18n');
+        if (traduzioni[linguaAttuale] && traduzioni[linguaAttuale][chiave]) {
+            if (elemento.tagName === 'TITLE') {
+                document.title = traduzioni[linguaAttuale][chiave];
+            } else {
+                elemento.innerHTML = traduzioni[linguaAttuale][chiave];
+            }
+        }
+    });
+
+    const textareaAssistenza = document.getElementById('testo_assistenza');
+    if (textareaAssistenza && traduzioni[linguaAttuale]) {
+        textareaAssistenza.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
+    }
+
+    const bloccoFatturazione = document.getElementById('blocco_fatturazione_registrazione');
+    if (bloccoFatturazione) {
+        const checkboxFattura = document.getElementById('richiedeFattura');
+        if (linguaAttuale === 'en') {
+            bloccoFatturazione.style.display = 'none';
+            if (checkboxFattura && checkboxFattura.checked) {
+                checkboxFattura.checked = false;
+                toggleFatturazione();
+            }
+        } else {
+            bloccoFatturazione.style.display = 'flex';
+        }
+    }
+    
+    document.documentElement.lang = linguaAttuale;
+}
+
+function cambiaLingua() {
+    let linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    let nuovaLingua = linguaAttuale === 'it' ? 'en' : 'it';
+    localStorage.setItem('driverbook_lang', nuovaLingua);
+    applicaTraduzioni();
+}
+
+document.addEventListener('DOMContentLoaded', applicaTraduzioni);
