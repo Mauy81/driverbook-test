@@ -377,6 +377,7 @@ textarea.input {
     width: 460px;
     max-width: calc(100vw - 70px);
     box-sizing: border-box;
+    left: 0 !important;
 }
 
 .iti__country {
