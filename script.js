@@ -1241,15 +1241,15 @@ function caricaRiepilogo() {
     }
 
     if (tipoServizio === 'TRASFERIMENTO') {
-        document.getElementById('view_servizio').textContent = 'Servizio a Tratta Diretta';
+        document.getElementById('view_servizio').textContent = dict.opt_tratta;
         document.getElementById('blocco_view_arrivo').classList.remove('hidden');
         document.getElementById('view_arrivo').textContent = arrivo || '-';
         document.getElementById('blocco_view_ore').classList.add('hidden');
         document.getElementById('blocco_view_itinerario').classList.add('hidden');
     } else if (tipoServizio === 'DISPOSIZIONE') {
-        document.getElementById('view_servizio').textContent = 'Servizio a Disposizione Oraria';
+        document.getElementById('view_servizio').textContent = dict.opt_disposizione;
         document.getElementById('blocco_view_ore').classList.remove('hidden');
-        document.getElementById('view_ore').textContent = `${ore} Ore`;
+        document.getElementById('view_ore').textContent = ore + dict.js_ore;
         document.getElementById('blocco_view_arrivo').classList.add('hidden');
         
         if (itinerario && itinerario.trim() !== '') {
@@ -1269,7 +1269,7 @@ function caricaRiepilogo() {
         const parti = dataPartenza.split('-');
         if(parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
     }
-    document.getElementById('view_data_ora').textContent = `${dataFormattata} alle ore ${oraPartenza}`;
+    document.getElementById('view_data_ora').textContent = dataFormattata + dict.js_alle_ore + oraPartenza;
     document.getElementById('view_partenza').textContent = partenza || '-';
 
     if (chkHub) {
@@ -1277,16 +1277,16 @@ function caricaRiepilogo() {
         document.getElementById('view_info_trasporto').textContent = infoTrasporto || '-';
     }
 
-    let testoPax = pax === '1' ? "1 Passeggero" : pax + " Passeggeri";
-    let testoGrandi = grandi === '1' ? "1 Valigia Grande" : grandi + " Valigie Grandi";
-    let testoMano = mano + " Trolley";
+    let testoPax = pax === '1' ? dict.js_pax_singolo : pax + dict.js_pax_plur;
+    let testoGrandi = grandi === '1' ? dict.js_val_singola : grandi + dict.js_val_plur;
+    let testoMano = mano === '1' ? dict.js_tro_singolo : mano + dict.js_tro_plur;
 
     document.getElementById('view_carico').innerHTML = `${testoPax}<br>${testoGrandi}<br>${testoMano}`;
     
     if (noteServizio && noteServizio.trim() !== '') {
         document.getElementById('view_note').textContent = noteServizio;
     } else {
-        document.getElementById('view_note').textContent = 'Nessuna nota o richiesta particolare inserita.';
+        document.getElementById('view_note').textContent = dict.js_nessuna_nota;
         document.getElementById('view_note').style.color = '#555555';
     }
 
