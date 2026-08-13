@@ -44,6 +44,55 @@ document.addEventListener("DOMContentLoaded", function() {
         const msgBox = document.getElementById('messaggio_cambio_email');
         if (msgBox) msgBox.classList.remove('hidden');
     }
+	
+    if (document.getElementById('formLogin') && window.location.hash.includes('access_token') && window.location.hash.includes('type=signup')) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        
+        if (accessToken) {
+            localStorage.setItem('driverbook_auth_token', accessToken);
+            if (refreshToken) localStorage.setItem('driverbook_refresh_token', refreshToken);
+            
+            window.history.replaceState(null, null, window.location.pathname);
+            
+            const btnSubmit = document.querySelector('#formLogin button[type="submit"]');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = localStorage.getItem('driverbook_lang') === 'en' ? "Access confirmed! Redirecting..." : "Accesso confermato! Reindirizzamento...";
+                btnSubmit.style.backgroundColor = "#28a745";
+                btnSubmit.style.color = "#ffffff";
+            }
+
+            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+            
+            fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
+            })
+            .then(res => res.json())
+            .then(userData => {
+                const userId = userData.id;
+                return fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero`, {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
+                });
+            })
+            .then(res => res.json())
+            .then(datiPasseggero => {
+                setTimeout(() => {
+                    if (datiPasseggero && datiPasseggero.length > 0) {
+                        window.location.href = 'dashboard-passeggero.html';
+                    } else {
+                        window.location.href = 'dashboard-autista-amministrativo.html';
+                    }
+                }, 2000);
+            })
+            .catch(errore => {
+                console.error(errore);
+                window.location.href = 'login-passeggero.html';
+            });
+            return;
+        }
+    }
 
     const contenitoreMenu = document.getElementById("menu-principale");
     if (contenitoreMenu) {
@@ -194,7 +243,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if (overlay) overlay.style.transition = '';
         
         if (document.getElementById('formLogin')) {
-            localStorage.removeItem('driverbook_auth_token');
+            if (!window.location.hash.includes('access_token')) {
+                localStorage.removeItem('driverbook_auth_token');
+            }
             if (event.persisted) {
                 window.location.reload();
             }
