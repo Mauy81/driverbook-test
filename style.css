@@ -521,6 +521,8 @@ textarea.input {
     justify-content: center;
     height: 40px;
     padding: 0 15px;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .nav-btn:hover {
