@@ -378,6 +378,8 @@ textarea.input {
     max-width: calc(100vw - 70px);
     box-sizing: border-box;
     left: 0 !important;
+    margin-left: 0 !important;
+    transform: none !important;
 }
 
 .iti__country {
