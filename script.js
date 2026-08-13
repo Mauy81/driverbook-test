@@ -14,6 +14,8 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    applicaTraduzioni();
+    
     const paginaCorrenteSicurezza = window.location.pathname.split('/').pop() || 'index.html';
     const blacklistPubblicaAccesso = [
         'index.html',
@@ -2398,6 +2400,33 @@ function applicaTraduzioni() {
     if (textareaAssistenzaInterna && traduzioni[linguaAttuale]) {
         textareaAssistenzaInterna.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
     }
+	
+	const elementiPlaceholders = [
+        { id: 'nome', chiave: 'ph_nome_reg' },
+        { id: 'profilo_nome', chiave: 'ph_nome_reg' },
+        { id: 'nome_passeggero', chiave: 'ph_nome_pax' },
+        { id: 'nome_referente', chiave: 'ph_nome_ref' },
+        { id: 'partenza', chiave: 'ph_indirizzo' },
+        { id: 'arrivo', chiave: 'ph_indirizzo' },
+        { id: 'itinerario_previsto', chiave: 'ph_itinerario' },
+        { id: 'info_trasporto', chiave: 'ph_trasporto' },
+        { id: 'note_servizio', chiave: 'ph_note' },
+        { id: 'ragioneSociale', chiave: 'ph_ragione_sociale' },
+        { id: 'profilo_ragioneSociale', chiave: 'ph_ragione_sociale' },
+        { id: 'codice_sdi', chiave: 'ph_sdi' },
+        { id: 'profilo_codice_sdi', chiave: 'ph_sdi' },
+        { id: 'indirizzo_via', chiave: 'ph_via' },
+        { id: 'profilo_indirizzo_via', chiave: 'ph_via' },
+        { id: 'indirizzo_citta', chiave: 'ph_citta' },
+        { id: 'profilo_indirizzo_citta', chiave: 'ph_citta' }
+    ];
+
+    elementiPlaceholders.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el && traduzioni[linguaAttuale] && traduzioni[linguaAttuale][item.chiave]) {
+            el.placeholder = traduzioni[linguaAttuale][item.chiave];
+        }
+    });
 
     const bloccoFatturazione = document.getElementById('blocco_fatturazione_registrazione');
     if (bloccoFatturazione) {
@@ -2420,7 +2449,5 @@ function cambiaLingua() {
     let linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     let nuovaLingua = linguaAttuale === 'it' ? 'en' : 'it';
     localStorage.setItem('driverbook_lang', nuovaLingua);
-    applicaTraduzioni();
+    window.location.reload();
 }
-
-document.addEventListener('DOMContentLoaded', applicaTraduzioni);

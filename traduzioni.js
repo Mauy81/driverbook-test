@@ -233,7 +233,18 @@ const traduzioni = {
         h1_reimposta_password: "Reimposta Password",
         label_nuova_password: "Nuova Password",
         label_conferma_nuova_password: "Conferma Nuova Password",
-        btn_salva_nuova_password: "Salva Nuova Password"
+        btn_salva_nuova_password: "Salva Nuova Password",
+        ph_nome_reg: "Mario Rossi",
+        ph_nome_pax: "Andrea Bianchi",
+        ph_nome_ref: "Studio Bianchi / Hotel Vista",
+        ph_indirizzo: "Cerca indirizzo, hotel, aeroporto...",
+        ph_itinerario: "Milano Centro -> Monza -> Ritorno a Milano",
+        ph_trasporto: "AZ204 / Frecciarossa 9512",
+        ph_note: "Richiesto seggiolino bimbo 15-36 kg...",
+        ph_ragione_sociale: "Hotel Roma SRL",
+        ph_sdi: "M5UXCR1 oppure 0000000",
+        ph_via: "Via Roma 10",
+        ph_citta: "Milano"
     },
     en: {
         titolo_pagina: "DriverBook - Chauffeur Service",
@@ -469,6 +480,17 @@ const traduzioni = {
         h1_reimposta_password: "Set New Password",
         label_nuova_password: "New Password",
         label_conferma_nuova_password: "Confirm New Password",
-        btn_salva_nuova_password: "Save New Password"
+        btn_salva_nuova_password: "Save New Password",
+        ph_nome_reg: "John Smith",
+        ph_nome_pax: "John Smith",
+        ph_nome_ref: "Smith Firm / Hotel Vista",
+        ph_indirizzo: "Search address, hotel, airport...",
+        ph_itinerario: "Milan Center -> Monza -> Return to Milan",
+        ph_trasporto: "Flight AZ204 / Train 9512",
+        ph_note: "Child seat required 15-36 kg...",
+        ph_ragione_sociale: "Hotel Rome LTD",
+        ph_sdi: "M5UXCR1 or 0000000",
+        ph_via: "10 Rome Street",
+        ph_citta: "Milan"
     }
 };
