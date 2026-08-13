@@ -1953,7 +1953,7 @@ function esciAccount() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (document.getElementById('formResetPassword')) {
+    if (document.getElementById('formResetPassword') || document.getElementById('btn_salva_password')) {
         const hash = window.location.hash;
         let accessToken = null;
         
@@ -2096,20 +2096,38 @@ async function inviaNuovaPassword(event) {
             throw new Error(dict.js_pass_err_update);
         }
 
-        localStorage.removeItem('driverbook_temp_recovery_token');
-        localStorage.setItem('driverbook_auth_token', accessToken);
-
-        btnSubmit.textContent = dict.js_pass_success;
-        btnSubmit.style.backgroundColor = "#28a745";
-
         const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
         });
         const userData = await userRes.json();
+        const emailUtente = userData.email;
         const userId = userData.id;
 
+        localStorage.removeItem('driverbook_temp_recovery_token');
+
+        const urlLogin = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/token?grant_type=password";
+        const loginRes = await fetch(urlLogin, {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: emailUtente, password: nuovaPassword })
+        });
+
+        if (loginRes.ok) {
+            const datiSessione = await loginRes.json();
+            localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
+            localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
+        } else {
+            localStorage.setItem('driverbook_auth_token', accessToken);
+        }
+
+        btnSubmit.textContent = dict.js_pass_success;
+        btnSubmit.style.backgroundColor = "#28a745";
+
         const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + localStorage.getItem('driverbook_auth_token') }
         });
         const datiPasseggero = await checkPasseggero.json();
 
