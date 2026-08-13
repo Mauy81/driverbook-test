@@ -374,7 +374,8 @@ textarea.input {
     color: #ffffff;
     white-space: normal;
     overflow-x: hidden;
-    width: min(400px, calc(100vw - 70px));
+    width: 460px;
+    max-width: calc(100vw - 70px);
     box-sizing: border-box;
 }
 
