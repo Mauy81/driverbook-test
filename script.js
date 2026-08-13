@@ -1259,9 +1259,9 @@ function caricaRiepilogo() {
     }
 
     let vetturaLeggibile = "-";
-    if (vetturaCodice === 'CLASSE_E') vetturaLeggibile = "Mercedes Classe E<br>(Berlina Comfort)";
-    if (vetturaCodice === 'CLASSE_S') vetturaLeggibile = "Mercedes Classe S<br>(Berlina Lusso)";
-    if (vetturaCodice === 'CLASSE_V') vetturaLeggibile = "Mercedes Classe V<br>(Van Comfort)";
+    if (vetturaCodice === 'CLASSE_E') vetturaLeggibile = dict.nome_classe_e + "<br>(" + dict.vettura_berlina_comfort + ")";
+    if (vetturaCodice === 'CLASSE_S') vetturaLeggibile = dict.nome_classe_s + "<br>(" + dict.vettura_berlina_lusso + ")";
+    if (vetturaCodice === 'CLASSE_V') vetturaLeggibile = dict.nome_classe_v + "<br>(" + dict.vettura_van_comfort + ")";
     document.getElementById('view_vettura').innerHTML = vetturaLeggibile;
 
     let dataFormattata = dataPartenza;
