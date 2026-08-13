@@ -14,8 +14,6 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    applicaTraduzioni();
-    
     const paginaCorrenteSicurezza = window.location.pathname.split('/').pop() || 'index.html';
     const blacklistPubblicaAccesso = [
         'index.html',
@@ -202,6 +200,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+    applicaTraduzioni();
 
     const swipeRange = document.getElementById('swipe_logout_range');
     if (swipeRange) {
