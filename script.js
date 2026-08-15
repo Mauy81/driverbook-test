@@ -14,11 +14,17 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const paginaCorrenteSicurezza = window.location.pathname.split('/').pop() || 'index.html';
+    if (window.location.pathname.includes('autista')) {
+        localStorage.setItem('driverbook_lang', 'it');
+    }
+
+    const paginaCorrenteSicurezza = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
     const blacklistPubblicaAccesso = [
         'index.html',
         'login-passeggero.html',
+        'login-autista-amministrativo.html',
         'registrazione-passeggero.html',
+        'registrazione-autista-amministrativo.html',
         'reset-password.html',
         'reimposta-password.html',
         'assistenza.html'
@@ -107,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function() {
             linkLogo = window.location.pathname.includes('autista') ? 'dashboard-autista-amministrativo.html' : 'dashboard-passeggero.html';
         }
 
-        const paginaCorrente = window.location.pathname.split('/').pop() || 'index.html';
+        const paginaCorrente = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
         const bloccaClickLogo = (linkLogo === paginaCorrente) || isResetPassword;
 
         const iconaUtente = !isIndexOrReset ? `
@@ -119,6 +125,8 @@ document.addEventListener("DOMContentLoaded", function() {
             </button>` : '';
             
         const btnInstallaApp = !isResetPassword ? `<button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>` : '';
+        const nascondiLingua = window.location.pathname.includes('autista') || window.location.search.includes('role=autista');
+        const selettoreLingua = nascondiLingua ? '' : `<div class="nav-btn lang-selector" style="border: none;" onclick="cambiaLingua()">IT / EN</div>`;
 
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
@@ -128,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function() {
             </a>
             <div class="menu-destra" style="gap: 5px;">
                 ${btnInstallaApp}
-                <div class="nav-btn lang-selector" style="border: none;" onclick="cambiaLingua()">IT / EN</div>
+                ${selettoreLingua}
                 ${iconaUtente}
             </div>
         </nav>`;
@@ -156,8 +164,8 @@ document.addEventListener("DOMContentLoaded", function() {
     if (overlay) overlay.addEventListener('click', chiudiMenu);
 
     const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
-    const percorsoCorrenteMenu = window.location.pathname.split('/').pop() || 'index.html';
-    const blacklistPubblica = ['login-passeggero.html', 'reset-password.html', 'registrazione-passeggero.html', 'assistenza.html'];
+    const percorsoCorrenteMenu = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const blacklistPubblica = ['login-passeggero.html', 'login-autista-amministrativo.html', 'reset-password.html', 'registrazione-passeggero.html', 'registrazione-autista-amministrativo.html', 'assistenza.html'];
     const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu);
 
     if (contenitoreMenuLaterale) {
@@ -187,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const menuLinks = document.querySelectorAll('.menu-item');
-    const percorsoAttuale = window.location.pathname.split('/').pop() || 'index.html';
+    const percorsoAttuale = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
     const mappaPagine = {
         'link_menu_home': 'dashboard-passeggero.html',
@@ -203,13 +211,23 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_reg': 'registrazione-passeggero.html',
         'link_menu_pub_assist': 'assistenza.html'
     };
+
+    if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
+        mappaPagine['link_menu_pub_login'] = 'login-autista-amministrativo.html';
+        mappaPagine['link_menu_pub_reg'] = 'registrazione-autista-amministrativo.html';
+        mappaPagine['link_menu_pub_reset'] = 'reset-password.html?role=autista';
+        mappaPagine['link_menu_pub_assist'] = 'assistenza.html?role=autista';
+    }
     
     menuLinks.forEach(link => {
         const idLink = link.id;
         const urlDestinazione = mappaPagine[idLink] || link.getAttribute('href');
         
-        if (urlDestinazione && urlDestinazione === percorsoAttuale) {
-            link.classList.add('hidden');
+        if (urlDestinazione) {
+            const destinazioneBase = urlDestinazione.split('?')[0].split('#')[0];
+            if (destinazioneBase === percorsoAttuale) {
+                link.classList.add('hidden');
+            }
         }
         
         link.addEventListener('click', function(e) {

@@ -19,7 +19,7 @@
             <div class="auth-header">
                 <h1>Accesso Autisti</h1>
             </div>
-
+            
             <div id="messaggio_cambio_email" class="hidden" style="color: #00FF66; text-align: center; margin-bottom: 15px; font-weight: bold; padding: 10px; border: 1px solid #00FF66; border-radius: 5px;">
                 Email confermata con successo. Effettua il login con le tue nuove credenziali.
             </div>
@@ -29,7 +29,6 @@
                     <label class="label" for="email">Email Accesso</label>
                     <input type="email" id="email" class="input" required placeholder="mario@example.com" autocomplete="username">
                 </div>
-
                 <div class="form-group">
                     <label class="label" for="password">Password</label>
                     <div class="pass-box">
@@ -39,35 +38,28 @@
                         </button>
                     </div>
                 </div>
-
-                <a href="reset-password.html" class="link">Password dimenticata?</a>
-
                 <button type="submit" class="btn btn-primary btn-full">Accedi</button>
+                <a href="registrazione-autista-amministrativo.html" class="link link-login">Non hai un account? <strong>Registrati</strong></a>
             </form>
-
-            <button type="button" class="btn btn-ghost btn-full" onclick="window.location.href='registrazione-autista-amministrativo.html'">Non hai un account? Registrati</button>
-
-            <button type="button" class="btn btn-ghost btn-full" onclick="toggleAssistenza()">Hai bisogno di assistenza?</button>
-
-            <form id="form_assistenza" class="hidden spaziatura-assistenza" onsubmit="inviaAssistenza(event)">
-                <div class="form-group">
-                    <label class="label" for="assistenza_email">La tua email</label>
-                    <input type="email" id="assistenza_email" class="input" required>
-                </div>
-                
-                <div class="form-group hidden">
-                    <input type="text" id="azienda_hp" name="azienda_hp" class="input" tabindex="-1" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="testo_assistenza">Descrivi il problema</label>
-                    <textarea id="testo_assistenza" class="input" required></textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-full">Invia Richiesta</button>
-            </form>
+            <div class="nota-informativa-login">
+                Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
+            </div>
         </div>
     </main>
+    
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
 
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
@@ -77,7 +69,8 @@
             <p>2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
         </div>
     </div>
-    
+
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

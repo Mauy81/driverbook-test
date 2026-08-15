@@ -760,6 +760,11 @@ textarea.input {
     margin-top: 46px;
 }
 
+#blocco_autocertificazione {
+    margin-top: 46px;
+    margin-bottom: 40px;
+}
+
 #blocco_chk_referente {
     margin-top: 43px;
     margin-bottom: 39px;
@@ -1014,4 +1019,9 @@ input[type="time"]:focus::-webkit-datetime-edit-minute-field {
 
 .checkout-submit-btn {
     margin-top: 30px;
+}
+
+#blocco_notifiche_autista {
+    margin-top: 43px;
+    margin-bottom: 40px;
 }

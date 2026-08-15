@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuovo Autista</title>
+    <title>Registrazione Autista</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,7 @@
     <main class="login-wrapper">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Nuovo Autista</h1>
+                <h1>Registrazione Autista</h1>
             </div>
 
             <form id="formRegistrazione" autocomplete="off" onsubmit="inviaRegistrazione(event)">
@@ -81,9 +81,10 @@
                 </div>
                 
                 <div class="form-group">
-                    <label class="label" for="iban">IBAN</label>
+                    <label class="label" for="iban">IBAN
+                        <div class="label-nota">Richiesto per ricevere i pagamenti dei servizi.</div>
+                    </label>
                     <input type="text" id="iban" class="input" required placeholder="IT00A0000000000000000000000" autocomplete="off">
-                    <div class="label-nota">Richiesto per ricevere i pagamenti dei servizi.</div>
                 </div>
 
                 <div class="form-group">
@@ -96,19 +97,20 @@
                     <input type="text" id="ruoloConducenti" class="input" required placeholder="Es. 1234 - Milano" autocomplete="off">
                 </div>
 
-                <div class="checkbox-group">
+                <div class="checkbox-group" id="blocco_autocertificazione">
                     <input type="checkbox" id="autocertificazioneKb" class="checkbox-input" required>
                     <label for="autocertificazioneKb" class="checkbox-label">Dichiaro di possedere patente B valida e abilitazione CAP/KB (Art. 46-47 DPR 445/2000)</label>
                 </div>
 
                 <div class="form-group">
-                    <label class="label" for="zonaOperativa">Zona Operativa</label>
+                    <label class="label" for="zonaOperativa">Zona Operativa
+                        <div class="label-nota">Indica l'area di lavoro, non l'autorizzazione o la sede.</div>
+                    </label>
                     <input type="text" id="zonaOperativa" class="input" required placeholder="Es. Milano" autocomplete="off">
-                    <div class="label-nota">Indica l'area di lavoro, non l'autorizzazione o la sede.</div>
                 </div>
 
-                <div class="form-group">
-                    <label class="label">Notifiche</label>
+                <div class="form-group" id="blocco_notifiche_autista">
+                    <label class="label">Come vuoi ricevere le notifiche?</label>
                     <div class="gruppo-dinamico">
                         <div class="checkbox-group">
                             <input type="checkbox" id="notificaPush" class="checkbox-input" checked onchange="validaNotifiche()">
@@ -150,11 +152,23 @@
                 <div id="messaggio_errore_server" class="error-message" style="margin-bottom: 20px;"></div>
 
                 <button type="submit" class="btn btn-primary btn-full">Registrati</button>
-            </form>
+        </form>
+    </div>
+</main>
 
-            <button type="button" class="btn btn-ghost btn-full" onclick="window.location.href='login-autista-amministrativo.html'">Hai già un account? Accedi</button>
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
-    </main>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
 
     <div id="ios_install_popup" class="ios-popup hidden">
         <div class="ios-popup-content">
@@ -167,6 +181,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYtn-SaUnB4JjkC9fKYEGBKfUDRxiVRMM&libraries=places"></script>
+    <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
