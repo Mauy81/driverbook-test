@@ -1886,7 +1886,10 @@ async function modificaPassword() {
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbook_auth_token');
-    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
+        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html?role=autista";
+    }
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -2066,7 +2069,10 @@ async function richiediResetPassword(event) {
     btn.disabled = true;
     btn.textContent = dict.js_rec_proc;
 
-    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
+        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html?role=autista";
+    }
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -2511,7 +2517,9 @@ function applicaTraduzioni() {
     elementiPlaceholders.forEach(item => {
         const el = document.getElementById(item.id);
         if (el && traduzioni[linguaAttuale] && traduzioni[linguaAttuale][item.chiave]) {
-            el.placeholder = traduzioni[linguaAttuale][item.chiave];
+            if (!window.location.pathname.includes('autista')) {
+                el.placeholder = traduzioni[linguaAttuale][item.chiave];
+            }
         }
     });
 
