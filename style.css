@@ -1019,6 +1019,7 @@ input[type="time"]:focus::-webkit-datetime-edit-minute-field {
 
 .checkout-submit-btn {
     margin-top: 30px;
+    width: 100%;
 }
 
 @media (min-width: 769px) {
