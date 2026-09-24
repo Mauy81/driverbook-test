@@ -171,25 +171,25 @@ document.addEventListener("DOMContentLoaded", function() {
     if (contenitoreMenuLaterale) {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
-                <a href="#" id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
-                <a href="#" id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Recupero Password</a>
-                <a href="#" id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
-                <a href="#" id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
+                <a id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
+                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Recupero Password</a>
+                <a id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
+                <a id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
             `;
             if (btnChiudi) {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
-            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a href="#" id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
+            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
             contenitoreMenuLaterale.innerHTML = `
-                <a href="#" id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                <a href="#" id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
+                <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
                 ${linkRiepilogo}
-                <a href="#" id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
-                <a href="#" id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
-                <a href="#" id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
-                <a href="#" id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                <a href="#" id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
+                <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
+                <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
+                <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
+                <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
+                <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
             `;
         }
     }
@@ -1173,14 +1173,15 @@ function inviaRichiesta(event) {
         let numRef = document.getElementById('tel_referente').value.trim();
         localStorage.setItem('db_tel_referente', (chkAttivo && numRef !== "") ? (numRef.startsWith('+') ? numRef : (prefissoRef + numRef)).replace(/\s+/g, '') : "");
         
-        localStorage.setItem('db_tipo_servizio', document.getElementById('tipo_servizio').value);
+        const tipoServizioImpostato = document.getElementById('tipo_servizio').value;
+        localStorage.setItem('db_tipo_servizio', tipoServizioImpostato);
         localStorage.setItem('db_partenza', document.getElementById('partenza').value);
-        localStorage.setItem('db_arrivo', document.getElementById('arrivo').value || '');
-        localStorage.setItem('db_itinerario_previsto', document.getElementById('itinerario_previsto').value);
+        localStorage.setItem('db_arrivo', tipoServizioImpostato === 'TRASFERIMENTO' ? (document.getElementById('arrivo').value || '') : '');
+        localStorage.setItem('db_itinerario_previsto', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('itinerario_previsto').value : '');
         
         localStorage.setItem('db_chk_hub', document.getElementById('chk_hub').checked);
         localStorage.setItem('db_info_trasporto', document.getElementById('info_trasporto').value);
-        localStorage.setItem('db_ore', document.getElementById('ore').value);
+        localStorage.setItem('db_ore', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('ore').value : '');
         
         localStorage.setItem('db_data_partenza', document.getElementById('data_partenza').value);
         localStorage.setItem('db_ora_partenza', document.getElementById('ora_partenza').value);
@@ -1355,8 +1356,8 @@ async function confermaPrenotazione() {
         tipo_servizio: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? 'TRANSFER' : (localStorage.getItem('db_tipo_servizio') || null),
         ore: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' && localStorage.getItem('db_ore') ? parseInt(localStorage.getItem('db_ore')) : null,
         partenza: localStorage.getItem('db_partenza') || null,
-        arrivo: localStorage.getItem('db_arrivo') || null,
-        itinerario_previsto: localStorage.getItem('db_itinerario_previsto') || null,
+        arrivo: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? (localStorage.getItem('db_arrivo') || null) : null,
+        itinerario_previsto: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' ? (localStorage.getItem('db_itinerario_previsto') || null) : null,
         chk_hub: localStorage.getItem('db_chk_hub') === 'true',
         info_trasporto: localStorage.getItem('db_info_trasporto') || null,
         data_partenza: localStorage.getItem('db_data_partenza') || null,
@@ -1793,6 +1794,16 @@ async function aggiornaProfilo(event) {
         if (!dbRes.ok) {
             throw new Error("Errore database");
         }
+
+        await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            method: "PUT",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
+        });
         
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
@@ -2378,16 +2389,32 @@ document.addEventListener("DOMContentLoaded", function() {
         moduloSporco = false;
     });
 
+    document.querySelectorAll('a').forEach(link => {
+        const destinazione = link.getAttribute('href');
+        if (destinazione && destinazione !== '#' && !destinazione.startsWith('mailto:')) {
+            link.setAttribute('data-href', destinazione);
+            link.removeAttribute('href');
+            link.style.cursor = 'pointer';
+        }
+    });
+
     document.body.addEventListener('click', function(e) {
         const link = e.target.closest('a');
         
-        if (!link || link.getAttribute('href') === '#' || link.getAttribute('href').startsWith('mailto:')) {
+        if (!link) return;
+        
+        const destinazione = link.getAttribute('data-href') || link.getAttribute('href');
+
+        if (!destinazione || destinazione === '#' || destinazione.startsWith('mailto:')) {
             return;
         }
 
-        if (moduloSporco) {
-            e.preventDefault();
-            mostraModaleSalvataggio(link.href);
+        e.preventDefault();
+
+        if (typeof moduloSporco !== 'undefined' && moduloSporco) {
+            mostraModaleSalvataggio(destinazione);
+        } else {
+            window.location.href = destinazione;
         }
     }, true);
 });

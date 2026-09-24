@@ -130,7 +130,10 @@
                 <div id="view_prezzo" class="checkout-total-value">-</div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-full checkout-submit-btn" onclick="confermaPrenotazione()" data-i18n="btn_invia_richiesta_checkout">Invia Richiesta</button>
+            <div class="action-buttons checkout-submit-btn">
+                <button type="button" class="btn btn-primary" onclick="confermaPrenotazione()" data-i18n="btn_invia_richiesta_checkout">Invia Richiesta</button>
+                <button type="button" class="btn btn-ghost" onclick="window.location.href='prenota-servizio-passeggero.html'" data-i18n="btn_modifica_checkout">Modifica</button>
+            </div>
         </div>
     </div>
 
