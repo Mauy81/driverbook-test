@@ -89,12 +89,19 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(datiPasseggero => {
                 setTimeout(() => {
-                    if (datiPasseggero && datiPasseggero.length > 0) {
+                    const pathAttuale = window.location.pathname.toLowerCase();
+                    if (pathAttuale.includes('/passeggeri/')) {
                         localStorage.setItem('driverbook_ruolo', 'passeggero');
-                        window.location.href = 'dashboard-passeggero.html';
+                        window.location.href = 'dashboard.html';
+                    } else if (pathAttuale.includes('/guidatori/')) {
+                        localStorage.setItem('driverbook_ruolo', 'autista-guidatore');
+                        window.location.href = 'dashboard.html';
+                    } else if (pathAttuale.includes('/admin/')) {
+                        localStorage.setItem('driverbook_ruolo', 'amministratore');
+                        window.location.href = 'dashboard.html';
                     } else {
                         localStorage.setItem('driverbook_ruolo', 'autista-amministrativo');
-                        window.location.href = 'dashboard-autista-amministrativo.html';
+                        window.location.href = 'dashboard.html';
                     }
                 }, 2000);
             })
@@ -1545,7 +1552,7 @@ async function confermaPrenotazione() {
         document.body.appendChild(overlay);
 
         document.getElementById('btn_chiudi_conferma').onclick = function() {
-            window.location.href = 'dashboard-passeggero.html';
+            window.location.href = 'dashboard.html';
         };
 
     } catch (errore) {
@@ -1751,6 +1758,12 @@ async function inviaRegistrazionePasseggero(event) {
         }
 
         document.getElementById('formRegistrazionePasseggero').style.display = 'none';
+        
+        const barraMenu = document.getElementById('menu-principale');
+        if (barraMenu) {
+            barraMenu.style.display = 'none';
+        }
+        
         const msgSuccesso = document.getElementById('messaggio_successo_registrazione');
         if (msgSuccesso) {
             msgSuccesso.classList.remove('hidden');
@@ -1945,7 +1958,7 @@ async function aggiornaProfilo(event) {
         
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
-            let paginaCorrente = window.location.pathname.split('/').pop() || 'dashboard-passeggero.html';
+            let paginaCorrente = window.location.pathname.split('/').pop() || 'dashboard.html';
             let urlRedirect = "https://mauy81.github.io/driverbook-test/" + paginaCorrente;
             
             if (window.location.protocol !== 'file:') {
@@ -2363,10 +2376,15 @@ async function inviaNuovaPassword(event) {
         const datiPasseggero = await checkPasseggero.json();
 
         setTimeout(() => {
-            if (datiPasseggero && datiPasseggero.length > 0) {
-                window.location.href = 'dashboard-passeggero.html';
+            const pathAttuale = window.location.pathname.toLowerCase();
+            if (pathAttuale.includes('/passeggeri/')) {
+                window.location.href = 'dashboard.html';
+            } else if (pathAttuale.includes('/guidatori/')) {
+                window.location.href = 'dashboard.html';
+            } else if (pathAttuale.includes('/admin/')) {
+                window.location.href = 'dashboard.html';
             } else {
-                window.location.href = 'dashboard-autista-amministrativo.html';
+                window.location.href = 'dashboard.html';
             }
         }, 2000);
 
