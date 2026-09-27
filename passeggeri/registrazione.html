@@ -21,7 +21,7 @@
                 <h1 data-i18n="h1_reg_passeggero">Registrazione Passeggero</h1>
             </div>
 
-            <form id="formRegistrazionePasseggero" autocomplete="off" onsubmit="inviaRegistrazionePasseggero(event)">
+            <form id="formRegistrazionePasseggero" onsubmit="inviaRegistrazionePasseggero(event)">
                 
                 <div class="form-group">
                     <label class="label" for="nome" data-i18n="label_nome_cognome">Nome e Cognome / Referente</label>
@@ -30,7 +30,7 @@
 
                 <div class="form-group">
                     <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
-                    <input type="email" id="email" class="input" required placeholder="mario@example.com" autocomplete="off">
+                    <input type="email" id="email" name="email" class="input" required placeholder="mario@example.com" autocomplete="username">
                 </div>
 
                 <div class="form-group">
@@ -109,7 +109,7 @@
                 <div class="form-group">
                     <label class="label" for="password" data-i18n="label_password">Password</label>
                     <div class="pass-box">
-                        <input type="password" id="password" class="input" required placeholder="••••••••" autocomplete="new-password" oninput="validaComplessitaPassword(); verificaCoincidenzaPassword();">
+                        <input type="password" id="password" name="password" class="input" required placeholder="••••••••" autocomplete="new-password" oninput="validaComplessitaPassword(); verificaCoincidenzaPassword();">
                         <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
@@ -120,7 +120,7 @@
                 <div class="form-group">
                     <label class="label" for="confermaPassword" data-i18n="label_conferma_password">Conferma Password</label>
                     <div class="pass-box">
-                        <input type="password" id="confermaPassword" class="input" required placeholder="••••••••" autocomplete="new-password" oninput="verificaCoincidenzaPassword()">
+                        <input type="password" id="confermaPassword" name="confermaPassword" class="input" required placeholder="••••••••" autocomplete="new-password" oninput="verificaCoincidenzaPassword()">
                         <button type="button" class="eye-btn" onclick="togglePassword('confermaPassword', this)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>

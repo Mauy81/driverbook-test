@@ -24,15 +24,15 @@
                 Email confermata con successo. Effettua il login con le tue nuove credenziali.
             </div>
 
-            <form id="formLogin" autocomplete="off" onsubmit="inviaLogin(event)">
+            <form id="formLogin" onsubmit="inviaLogin(event)">
                 <div class="form-group">
                     <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
-                    <input type="email" id="email" class="input" required placeholder="mario@example.com" autocomplete="username">
+                    <input type="email" id="email" name="email" class="input" required placeholder="mario@example.com" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label class="label" for="password" data-i18n="label_password">Password</label>
                     <div class="pass-box">
-                        <input type="password" id="password" class="input" required placeholder="••••••••" autocomplete="current-password">
+                        <input type="password" id="password" name="password" class="input" required placeholder="••••••••" autocomplete="current-password">
                         <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
