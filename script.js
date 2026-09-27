@@ -1675,7 +1675,7 @@ async function inviaRegistrazionePasseggero(event) {
         return;
     }
 
-    let urlRedirect = "https://mauy81.github.io/driverbook-test/login-passeggero.html";
+    let urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
     if (window.location.protocol !== 'file:') {
         urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
     }
@@ -2035,9 +2035,9 @@ async function modificaPassword() {
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbook_auth_token');
-    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/passeggeri/pwreimposta.html";
     if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
-        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html?role=autista";
+        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/autisti/pwreimposta.html";
     }
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
@@ -2225,9 +2225,9 @@ async function richiediResetPassword(event) {
     btn.disabled = true;
     btn.textContent = dict.js_rec_proc;
 
-    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html";
+    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/passeggeri/pwreimposta.html";
     if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
-        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/reimposta-password.html?role=autista";
+        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/autisti/pwreimposta.html";
     }
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
