@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="titolo_pagina">DriverBook - NCC Noleggio Con Conducente</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icon-progressive-web-app-bianco.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <div id="menu_overlay" class="overlay"></div>
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale chiudi-menu">
+                <span data-i18n="btn_chiudi_menu_testo" style="pointer-events: none;">CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="scrollable-menu"></div>
+    </div>
+
+    <main class="hero-section">
+        <h1 class="hero-title">
+            <span data-i18n="hero_title_1">Il tuo autista privato</span><br>
+            <span data-i18n="hero_title_2">per ogni tua destinazione</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_subtitle">
+            Prenota trasferimenti e disposizioni orarie per viaggi di piacere o di lavoro<br>
+            Il tuo servizio NCC (Noleggio con Conducente) affidabile e discreto
+        </p>
+        
+        <div class="action-buttons">
+            <a href="login.html" class="btn btn-primary" data-i18n="btn_entra">Entra in DriverBook</a>
+        </div>
+    </main>
+
+    <footer class="footer" data-i18n="footer_rights">
+        &copy; 2026 DriverBook. Tutti i diritti riservati.
+    </footer>
+
+    <div id="ios_install_popup" class="ios-popup hidden">
+        <div class="ios-popup-content">
+            <span class="close-popup" onclick="chiudiPopupIOS()">&times;</span>
+            <p data-i18n="ios_install_1">Per installare l'app su iPhone o iPad:</p>
+            <p data-i18n="ios_install_2">1. Tocca l'icona <strong>Condividi</strong> in basso nel browser.</p>
+            <p data-i18n="ios_install_3">2. Seleziona <strong>Aggiungi alla schermata Home</strong>.</p>
+        </div>
+    </div>
+    
+    <script src="../traduzioni.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>
