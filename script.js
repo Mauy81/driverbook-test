@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
-            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;">Installa App <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;"><span data-i18n="btn_installa_app">Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
             contenitoreMenuLaterale.innerHTML = btnInstallSidebar + contenitoreMenuLaterale.innerHTML;
         }
     }
