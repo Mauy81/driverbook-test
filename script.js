@@ -2556,7 +2556,7 @@ let moduloSporco = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'swipe_logout_range') {
+        if (e.target.id === 'swipe_logout_range' || e.target.closest('#formLogin')) {
             return;
         }
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
