@@ -531,10 +531,58 @@ textarea.input {
 }
 
 .btn-install-app {
-    display: none;
-    border: none !important;
-    height: 40px;
-}
+        display: none;
+        border: none !important;
+        height: 40px;
+    }
+
+    .lang-selector-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .lang-option {
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .lang-active {
+        color: #00FF66;
+        border-color: #00FF66;
+        background-color: rgba(0, 255, 102, 0.05);
+    }
+
+    .lang-inactive {
+        color: #777777;
+    }
+
+    .lang-inactive:hover {
+        color: #ffffff;
+    }
+
+    .lang-divider {
+        color: #333333;
+    }
+
+    @media (max-width: 768px) {
+        .lang-selector-container {
+            font-size: 11px;
+            gap: 2px;
+        }
+        .lang-option {
+            padding: 4px 6px;
+        }
+    }
 
 #menu-principale {
     position: sticky;

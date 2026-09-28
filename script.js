@@ -144,11 +144,19 @@ document.addEventListener("DOMContentLoaded", function() {
         const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggero';
         const utenteLoggato = localStorage.getItem('driverbook_auth_token') !== null;
         
-        const arrayPaginePubbliche = ['index.html', 'login.html', 'pwreset.html', 'registrazione.html', 'assistenza.html', ''];
-        const isPaginaPubblicaPerLingua = arrayPaginePubbliche.includes(paginaCorrente);
+        const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', ''];
+        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
+        
+        const linguaAttualeMenu = localStorage.getItem('driverbook_lang') || 'it';
+        const classeIt = linguaAttualeMenu === 'it' ? 'lang-active' : 'lang-inactive';
+        const classeEn = linguaAttualeMenu === 'en' ? 'lang-active' : 'lang-inactive';
 
-        const mostraLingua = isPaginaPubblicaPerLingua || (!utenteLoggato && !isAreaRiservata && !utenteNonPasseggero);
-        const selettoreLingua = mostraLingua ? `<div class="nav-btn lang-selector" style="border: none;" onclick="cambiaLingua()">IT / EN</div>` : '';
+        const selettoreLingua = mostraLingua ? `
+            <div class="lang-selector-container">
+                <span class="lang-option ${classeIt}" onclick="impostaLingua('it')">Italiano</span>
+                <span class="lang-divider">/</span>
+                <span class="lang-option ${classeEn}" onclick="impostaLingua('en')">English</span>
+            </div>` : '';
 
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
@@ -2732,9 +2740,7 @@ function applicaTraduzioni() {
     document.documentElement.lang = linguaAttuale;
 }
 
-function cambiaLingua() {
-    let linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    let nuovaLingua = linguaAttuale === 'it' ? 'en' : 'it';
+function impostaLingua(nuovaLingua) {
     localStorage.setItem('driverbook_lang', nuovaLingua);
     window.location.reload();
 }
