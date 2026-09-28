@@ -688,6 +688,14 @@ async function inviaLogin(event) {
             }
         }
 
+        if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+            const credenziali = new PasswordCredential({
+                id: email,
+                password: password
+            });
+            navigator.credentials.store(credenziali);
+        }
+
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
         localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
 
@@ -1755,6 +1763,15 @@ async function inviaRegistrazionePasseggero(event) {
 
         if (!dbResponse.ok) {
             throw new Error("Errore database");
+        }
+
+        if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+            const credenziali = new PasswordCredential({
+                id: email,
+                password: password,
+                name: document.getElementById('nome').value
+            });
+            navigator.credentials.store(credenziali);
         }
 
         document.getElementById('formRegistrazionePasseggero').style.display = 'none';
