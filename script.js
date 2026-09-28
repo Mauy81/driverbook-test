@@ -620,6 +620,7 @@ function togglePassword(inputId, button) {
 }
 
 async function inviaLogin(event) {
+    event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
@@ -686,14 +687,6 @@ async function inviaLogin(event) {
             }
         }
 
-        if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
-            const credenziali = new PasswordCredential({
-                id: email,
-                password: password
-            });
-            navigator.credentials.store(credenziali);
-        }
-
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
         localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
 
@@ -714,21 +707,19 @@ async function inviaLogin(event) {
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
         
-        setTimeout(() => {
-            if (pathAttuale.includes('/passeggeri/')) {
-                localStorage.setItem('driverbook_ruolo', 'passeggero');
-                window.location.href = 'dashboard.html';
-            } else if (pathAttuale.includes('/guidatori/')) {
-                localStorage.setItem('driverbook_ruolo', 'autista-guidatore');
-                window.location.href = 'dashboard.html';
-            } else if (pathAttuale.includes('/admin/')) {
-                localStorage.setItem('driverbook_ruolo', 'amministratore');
-                window.location.href = 'dashboard.html';
-            } else {
-                localStorage.setItem('driverbook_ruolo', 'autista-amministrativo');
-                window.location.href = 'dashboard.html';
-            }
-        }, 1000);
+        if (pathAttuale.includes('/passeggeri/')) {
+            localStorage.setItem('driverbook_ruolo', 'passeggero');
+            window.location.href = 'dashboard.html';
+        } else if (pathAttuale.includes('/guidatori/')) {
+            localStorage.setItem('driverbook_ruolo', 'autista-guidatore');
+            window.location.href = 'dashboard.html';
+        } else if (pathAttuale.includes('/admin/')) {
+            localStorage.setItem('driverbook_ruolo', 'amministratore');
+            window.location.href = 'dashboard.html';
+        } else {
+            localStorage.setItem('driverbook_ruolo', 'autista-amministrativo');
+            window.location.href = 'dashboard.html';
+        }
 
     } catch (errore) {
         btnSubmit.textContent = errore.message;
@@ -1673,6 +1664,7 @@ function toggleFatturazioneProfiloReale(stato) {
 }
 
 async function inviaRegistrazionePasseggero(event) {
+    event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
@@ -1681,6 +1673,9 @@ async function inviaRegistrazionePasseggero(event) {
         msgErroreServer.style.display = 'none';
     }
 
+    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
+        return;
+    }
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
         event.preventDefault();
         return;
@@ -1759,15 +1754,6 @@ async function inviaRegistrazionePasseggero(event) {
 
         if (!dbResponse.ok) {
             throw new Error("Errore database");
-        }
-
-        if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
-            const credenziali = new PasswordCredential({
-                id: email,
-                password: password,
-                name: document.getElementById('nome').value
-            });
-            navigator.credentials.store(credenziali);
         }
 
         document.getElementById('formRegistrazionePasseggero').style.display = 'none';
