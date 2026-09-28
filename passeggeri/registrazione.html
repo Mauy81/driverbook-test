@@ -21,7 +21,8 @@
                 <h1 data-i18n="h1_reg_passeggero">Registrazione Passeggero</h1>
             </div>
 
-            <form id="formRegistrazionePasseggero" onsubmit="inviaRegistrazionePasseggero(event)">
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+            <form id="formRegistrazionePasseggero" action="about:blank" target="hidden_iframe" method="POST" onsubmit="inviaRegistrazionePasseggero(event)">
                 
                 <div class="form-group">
                     <label class="label" for="nome" data-i18n="label_nome_cognome">Nome e Cognome / Referente</label>

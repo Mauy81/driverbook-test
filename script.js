@@ -620,8 +620,6 @@ function togglePassword(inputId, button) {
 }
 
 async function inviaLogin(event) {
-    event.preventDefault();
-
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
@@ -823,8 +821,6 @@ function validaNotificheDashboard() {
 }
 
 async function inviaRegistrazione(event) {
-    event.preventDefault();
-
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
@@ -834,6 +830,7 @@ async function inviaRegistrazione(event) {
     }
 
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
+        event.preventDefault();
         return;
     }
 
@@ -1676,8 +1673,6 @@ function toggleFatturazioneProfiloReale(stato) {
 }
 
 async function inviaRegistrazionePasseggero(event) {
-    event.preventDefault();
-
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
@@ -1687,6 +1682,7 @@ async function inviaRegistrazionePasseggero(event) {
     }
 
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
+        event.preventDefault();
         return;
     }
 

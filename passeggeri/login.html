@@ -24,7 +24,8 @@
                 Email confermata con successo. Effettua il login con le tue nuove credenziali.
             </div>
 
-            <form id="formLogin" onsubmit="inviaLogin(event)">
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+            <form id="formLogin" action="about:blank" target="hidden_iframe" method="POST" onsubmit="inviaLogin(event)">
                 <div class="form-group">
                     <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
                     <input type="email" id="email" name="email" class="input" required placeholder="mario@example.com" autocomplete="username">
