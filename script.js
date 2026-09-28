@@ -2590,7 +2590,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         e.preventDefault();
 
-        if (typeof moduloSporco !== 'undefined' && moduloSporco) {
+        const pathAttuale = window.location.pathname.split('/').pop();
+
+        if (typeof moduloSporco !== 'undefined' && moduloSporco && pathAttuale !== 'login.html') {
             mostraModaleSalvataggio(destinazione);
         } else {
             window.location.href = destinazione;
