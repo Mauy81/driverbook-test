@@ -136,8 +136,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
             </button>` : '';
-            
-        const btnInstallaApp = !isResetPassword ? `<button id="btn_installa_app" class="nav-btn btn-install-app">Installa App</button>` : '';
         
         const ruoloCorrente = localStorage.getItem('driverbook_ruolo');
         const isAreaRiservata = window.location.pathname.includes('autista') || window.location.pathname.includes('amministratore') || window.location.search.includes('role=autista') || window.location.search.includes('role=amministratore');
@@ -148,15 +146,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
         
         const linguaAttualeMenu = localStorage.getItem('driverbook_lang') || 'it';
-        const classeIt = linguaAttualeMenu === 'it' ? 'lang-active' : 'lang-inactive';
-        const classeEn = linguaAttualeMenu === 'en' ? 'lang-active' : 'lang-inactive';
+        const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
+        
+        const testoItaliano = linguaAttualeMenu === 'it' ? '<span class="lang-active">Italiano</span>' : '<span class="lang-inactive">Italiano</span>';
+        const testoEnglish = linguaAttualeMenu === 'en' ? '<span class="lang-active">English</span>' : '<span class="lang-inactive">English</span>';
 
         const selettoreLingua = mostraLingua ? `
-            <div class="lang-selector-container">
-                <span class="lang-option ${classeIt}" onclick="impostaLingua('it')">Italiano</span>
+            <button class="nav-btn lang-selector-container" onclick="impostaLingua('${linguaOpposta}')">
+                ${testoItaliano}
                 <span class="lang-divider">/</span>
-                <span class="lang-option ${classeEn}" onclick="impostaLingua('en')">English</span>
-            </div>` : '';
+                ${testoEnglish}
+            </button>` : '';
 
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
@@ -165,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 <img src="../logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
             <div class="menu-destra" style="gap: 5px;">
-                ${btnInstallaApp}
                 ${selettoreLingua}
                 ${iconaUtente}
             </div>
@@ -288,6 +287,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
                 `;
             }
+        }
+        
+        if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;">Installa App <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + contenitoreMenuLaterale.innerHTML;
         }
     }
 
@@ -2419,7 +2423,7 @@ let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 function mostraBottoneInstallazione() {
-    const btnDynamic = document.getElementById('btn_installa_app');
+    const btnDynamic = document.getElementById('btn_installa_app_sidebar');
     if (btnDynamic) btnDynamic.style.setProperty('display', 'flex', 'important');
 }
 
@@ -2439,7 +2443,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener('click', async (e) => {
-    if (e.target && e.target.id === 'btn_installa_app') {
+    const btnApp = e.target.closest('#btn_installa_app_sidebar');
+    if (btnApp) {
         if (isIOS) {
             const iosPopup = document.getElementById('ios_install_popup');
             if (iosPopup) iosPopup.classList.remove('hidden');

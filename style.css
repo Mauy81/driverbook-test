@@ -530,57 +530,50 @@ textarea.input {
     color: #000000;
 }
 
-.btn-install-app {
-        display: none;
-        border: none !important;
-        height: 40px;
-    }
-
-    .lang-selector-container {
+.lang-selector-container {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 14px;
+        gap: 6px;
+        font-size: 13px;
         font-weight: 600;
         letter-spacing: 1px;
         text-transform: uppercase;
         -webkit-user-select: none;
         user-select: none;
+        padding: 8px 14px;
+        border: 1px solid #ffffff;
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
 
-    .lang-option {
-        cursor: pointer;
-        padding: 6px 10px;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
+    .lang-selector-container:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     .lang-active {
         color: #00FF66;
-        border-color: #00FF66;
-        background-color: rgba(0, 255, 102, 0.05);
     }
 
     .lang-inactive {
         color: #777777;
+        transition: color 0.3s ease;
     }
 
-    .lang-inactive:hover {
+    .lang-selector-container:hover .lang-inactive {
         color: #ffffff;
     }
 
     .lang-divider {
-        color: #333333;
+        color: #555555;
     }
 
     @media (max-width: 768px) {
         .lang-selector-container {
             font-size: 11px;
-            gap: 2px;
-        }
-        .lang-option {
-            padding: 4px 6px;
+            gap: 4px;
+            padding: 6px 10px;
         }
     }
 
