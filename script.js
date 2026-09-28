@@ -2415,7 +2415,8 @@ async function inviaNuovaPassword(event) {
 }
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
+    let swPath = window.location.pathname.includes('driverbook-test') ? '/driverbook-test/service-worker.js' : '/service-worker.js';
+    navigator.serviceWorker.register(swPath)
         .catch(errore => console.log('Registrazione SW fallita: ', errore));
 }
 

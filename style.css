@@ -541,7 +541,7 @@ textarea.input {
         -webkit-user-select: none;
         user-select: none;
         padding: 8px 14px;
-        border: 1px solid #ffffff;
+        border: none;
         border-radius: 4px;
         background: transparent;
         cursor: pointer;
