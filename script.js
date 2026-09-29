@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
                 <a id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
-                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Recupero Password</a>
+                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Reset Password</a>
                 <a id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
                 <a id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
             `;
