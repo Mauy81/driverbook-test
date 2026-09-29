@@ -2727,7 +2727,7 @@ function applicaTraduzioni() {
     elementiPlaceholders.forEach(item => {
         const el = document.getElementById(item.id);
         if (el && traduzioni[linguaAttuale] && traduzioni[linguaAttuale][item.chiave]) {
-            if (!window.location.pathname.includes('autista')) {
+            if (!window.location.pathname.includes('autista') && !window.location.pathname.includes('partner')) {
                 el.placeholder = traduzioni[linguaAttuale][item.chiave];
             }
         }
