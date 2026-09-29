@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione Partner</title>
+    <title>Partner Registrazione</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="../style.css">
     <link rel="manifest" href="manifest.json">
@@ -40,7 +40,7 @@
 
                 <div class="form-group">
                     <label class="label" for="ragioneSociale">Ragione Sociale</label>
-                    <input type="text" id="ragioneSociale" class="input" required placeholder="Es. Rossi NCC / Driver SRL" autocomplete="off">
+                    <input type="text" id="ragioneSociale" class="input" required placeholder="Rossi NCC di ... / Driver SRL" autocomplete="off">
                 </div>
 
                 <div class="form-group">
@@ -109,9 +109,9 @@
                 <div class="form-group">
                     <label class="label" for="zonaOperativa">
                         <span>Zona Operativa</span>
-                        <div class="label-nota">Indica l'area di lavoro principale (es. Milano, Como, ecc).</div>
+                        <div class="label-nota">Indica l'area di lavoro principale, non l'autorizzazione o la sede.</div>
                     </label>
-                    <input type="text" id="zonaOperativa" class="input" required placeholder="Milano" autocomplete="off">
+                    <input type="text" id="zonaOperativa" class="input" required placeholder="Malpensa" autocomplete="off">
                 </div>
 
                 <div class="form-group" id="blocco_notifiche_autista">
@@ -158,6 +158,12 @@
 
                 <button type="submit" class="btn btn-primary btn-full">Registrati</button>
             </form>
+
+            <div id="messaggio_successo_registrazione" class="hidden" style="text-align: center; padding: 20px 0;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#00FF66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <h2 style="color: #00FF66; margin-bottom: 15px;">Registrazione Completata!</h2>
+                <p style="color: #ffffff; line-height: 1.5;">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>
+            </div>
         </div>
     </main>
 
