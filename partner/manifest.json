@@ -1,13 +1,13 @@
 {
-    "name": "DriverBook",
-    "short_name": "DriverBook",
+    "name": "Partner DriverBook",
+    "short_name": "Partner DB",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#000000",
     "icons": [
         {
-            "src": "../logo/icona-pwa.png",
+            "src": "../logo/icona-pwa-prt.png",
             "sizes": "192x192 512x512",
             "type": "image/png"
         }
