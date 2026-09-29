@@ -14,7 +14,7 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.includes('autista')) {
+    if (window.location.pathname.includes('autista') || window.location.pathname.includes('partner')) {
         localStorage.setItem('driverbook_lang', 'it');
     }
 
@@ -142,8 +142,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggero';
         const utenteLoggato = localStorage.getItem('driverbook_auth_token') !== null;
         
-        const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', ''];
-        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
+        const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
+        const pathPerLingua = window.location.pathname.toLowerCase();
+        const isAreaPartner = pathPerLingua.includes('/partner/');
+        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato && !isAreaPartner;
         
         const linguaAttualeMenu = localStorage.getItem('driverbook_lang') || 'it';
         const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
