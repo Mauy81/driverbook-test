@@ -1,6 +1,6 @@
 {
     "name": "Partner DriverBook",
-    "short_name": "Partner DB",
+    "short_name": "DB Partner",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#000000",
