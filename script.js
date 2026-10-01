@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (paginaCorrenteSicurezza === 'index.html') {
         document.querySelectorAll('a[href="login-passeggero.html"], a[data-href="login-passeggero.html"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'passeggero')));
-        document.querySelectorAll('a[href="login-autista-amministrativo.html"], a[data-href="login-autista-amministrativo.html"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autista-amministrativo')));
+        document.querySelectorAll('a[href="login.html"], a[data-href="login.html"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autista-amministrativo')));
     }
 
     const blacklistPubblicaAccesso = [
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (window.location.hash.includes('type=email_change')) {
         localStorage.removeItem('driverbook_auth_token');
         const urlAttuale = window.location.href.toLowerCase();
-        const destinazioneLogin = urlAttuale.includes('autista') ? 'login-autista-amministrativo.html' : 'login-passeggero.html';
+        const destinazioneLogin = urlAttuale.includes('autista') ? 'login.html' : 'login-passeggero.html';
         window.location.href = destinazioneLogin + '?email_changed=1';
         return;
     }
@@ -846,7 +846,7 @@ async function inviaRegistrazione(event) {
         return;
     }
 
-    let urlRedirect = "https://mauy81.github.io/driverbook-test/login-autista-amministrativo.html";
+    let urlRedirect = "https://mauy81.github.io/driverbook-test/login.html";
     if (window.location.protocol !== 'file:') {
         urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
     }
@@ -930,7 +930,7 @@ async function inviaRegistrazione(event) {
 
         setTimeout(() => {
             document.getElementById('formRegistrazione').reset();
-            window.location.href = 'login-autista-amministrativo.html';
+            window.location.href = 'login.html';
         }, 5000);
 
     } catch (errore) {
@@ -938,6 +938,8 @@ async function inviaRegistrazione(event) {
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
             testoErrore = dict.js_reg_err_exists;
+        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
+            testoErrore = dict.js_reg_err_email_send;
         } else {
             testoErrore = dict.js_reg_err_generic + testoErrore;
         }
@@ -1794,6 +1796,10 @@ async function inviaRegistrazionePasseggero(event) {
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
             testoErrore = dict.js_reg_err_exists;
+        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
+            testoErrore = dict.js_reg_err_email_send;
+        } else {
+            testoErrore = dict.js_reg_err_generic + testoErrore;
         }
         
         if (msgErroreServer) {
@@ -2013,7 +2019,7 @@ async function aggiornaProfilo(event) {
             setTimeout(() => {
                 localStorage.removeItem('driverbook_auth_token');
                 const urlAttuale = window.location.href.toLowerCase();
-                const destinazioneLogin = urlAttuale.includes('autista') ? 'login-autista-amministrativo.html' : 'login-passeggero.html';
+                const destinazioneLogin = urlAttuale.includes('autista') ? 'login.html' : 'login-passeggero.html';
                 window.location.href = destinazioneLogin;
             }, 5000);
             
