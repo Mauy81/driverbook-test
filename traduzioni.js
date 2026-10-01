@@ -268,7 +268,10 @@ const traduzioni = {
         ph_ragione_sociale: "Hotel Roma SRL",
         ph_sdi: "M5UXCR1 oppure 0000000",
         ph_via: "Via Roma 10",
-        ph_citta: "Milano"
+        ph_citta: "Milano",
+        js_assist_success_title: "Richiesta Inviata",
+        js_assist_success_msg: "Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.",
+        js_btn_torna_home: "Torna alla Home"
     },
     en: {
         titolo_pagina: "DriverBook - Chauffeur Service",
@@ -539,6 +542,9 @@ const traduzioni = {
         ph_ragione_sociale: "Hotel Rome LTD",
         ph_sdi: "M5UXCR1 or 0000000",
         ph_via: "10 Rome Street",
-        ph_citta: "Milan"
+        ph_citta: "Milan",
+        js_assist_success_title: "Request Sent",
+        js_assist_success_msg: "We have received your message. Our team will reply as soon as possible to the email address provided.",
+        js_btn_torna_home: "Back to Home"
     }
 };

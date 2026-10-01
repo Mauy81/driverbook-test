@@ -2172,20 +2172,30 @@ async function inviaAssistenza(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioUtente })
         });
 
-        btnSubmit.textContent = dict.js_assist_success;
-        btnSubmit.style.backgroundColor = "#00FF66";
-        btnSubmit.style.color = "#000000";
-        btnSubmit.style.borderColor = "#00FF66";
+        const wrapper = document.querySelector('.login-wrapper');
+        const menuPrincipale = document.getElementById('menu-principale');
         
-        setTimeout(() => {
-            document.getElementById('form_assistenza').reset();
+        if (menuPrincipale) {
+            menuPrincipale.style.display = 'none';
+        }
+
+        if (wrapper) {
+            const linguaImpostata = localStorage.getItem('driverbook_lang') || 'it';
+            const usaI18n = !window.location.pathname.includes('/partner/');
             
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.style.backgroundColor = "";
-            btnSubmit.style.color = "";
-            btnSubmit.style.borderColor = "";
-            btnSubmit.disabled = false;
-        }, 5000);
+            const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Inviata</h2>`;
+            const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
+            const bottone = usaI18n ? `<a href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
+
+            wrapper.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#00FF66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    ${titolo}
+                    ${messaggio}
+                    ${bottone}
+                </div>
+            `;
+        }
 
     } catch (errore) {
         alert(dict.js_assist_err);
@@ -2223,17 +2233,23 @@ document.addEventListener("DOMContentLoaded", function() {
             const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
             const dict = traduzioni[linguaAttuale] || traduzioni['it'];
             
-            const container = document.querySelector('.container') || document.querySelector('.login-wrapper');
-                    if (container) {
-                        container.innerHTML = `
-                            <div style="text-align: center; margin-top: 40px; width: 100%;">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                <h2 style="color: #ffffff; margin-bottom: 15px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>
-                                <p style="color: #aaaaaa; margin-bottom: 30px; line-height: 1.5;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>
-                                <a href="pwreset.html" class="btn" style="display: inline-block;" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>
-                            </div>
-                        `;
-                    }
+            const container = document.querySelector('.login-wrapper');
+            const menuPrincipale = document.getElementById('menu-principale');
+            
+            if (menuPrincipale) {
+                menuPrincipale.style.display = 'none';
+            }
+
+            if (container) {
+                container.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <h2 style="color: #ffffff; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>
+                        <p style="color: #aaaaaa; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>
+                        <a href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>
+                    </div>
+                `;
+            }
         }
     }
 });
