@@ -923,15 +923,17 @@ async function inviaRegistrazione(event) {
             throw new Error("Errore nel salvataggio del profilo");
         }
 
-        const btnSubmit = document.querySelector('#formRegistrazione button[type="submit"]');
-        btnSubmit.textContent = dict.js_reg_success;
-        btnSubmit.style.backgroundColor = "#28a745";
-        btnSubmit.disabled = true;
-
-        setTimeout(() => {
-            document.getElementById('formRegistrazione').reset();
-            window.location.href = 'login.html';
-        }, 5000);
+        document.getElementById('formRegistrazione').style.display = 'none';
+        
+        const barraMenu = document.getElementById('menu-principale');
+        if (barraMenu) {
+            barraMenu.style.display = 'none';
+        }
+        
+        const msgSuccesso = document.getElementById('messaggio_successo_registrazione');
+        if (msgSuccesso) {
+            msgSuccesso.classList.remove('hidden');
+        }
 
     } catch (errore) {
         let testoErrore = errore.message;
