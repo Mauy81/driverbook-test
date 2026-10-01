@@ -832,6 +832,7 @@ function validaNotificheDashboard() {
 }
 
 async function inviaRegistrazione(event) {
+    event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
