@@ -21,8 +21,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const paginaCorrenteSicurezza = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
     if (paginaCorrenteSicurezza === 'index.html') {
-        document.querySelectorAll('a[href="login-passeggero.html"], a[data-href="login-passeggero.html"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'passeggero')));
-        document.querySelectorAll('a[href="login.html"], a[data-href="login.html"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autista-amministrativo')));
+        document.querySelectorAll('a[href*="/passeggeri/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'passeggeri')));
+        document.querySelectorAll('a[href*="/partner/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'partner')));
+        document.querySelectorAll('a[href*="/autisti/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autisti')));
+        document.querySelectorAll('a[href*="/admin/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'admin')));
     }
 
     const blacklistPubblicaAccesso = [
@@ -44,9 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (window.location.hash.includes('type=email_change')) {
         localStorage.removeItem('driverbook_auth_token');
-        const urlAttuale = window.location.href.toLowerCase();
-        const destinazioneLogin = urlAttuale.includes('autista') ? 'login.html' : 'login-passeggero.html';
-        window.location.href = destinazioneLogin + '?email_changed=1';
+        window.location.href = 'login.html?email_changed=1';
         return;
     }
 
@@ -90,24 +90,17 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(datiPasseggero => {
                 setTimeout(() => {
                     const pathAttuale = window.location.pathname.toLowerCase();
-                    if (pathAttuale.includes('/passeggeri/')) {
-                        localStorage.setItem('driverbook_ruolo', 'passeggero');
-                        window.location.href = 'dashboard.html';
-                    } else if (pathAttuale.includes('/guidatori/')) {
-                        localStorage.setItem('driverbook_ruolo', 'autista-guidatore');
-                        window.location.href = 'dashboard.html';
-                    } else if (pathAttuale.includes('/admin/')) {
-                        localStorage.setItem('driverbook_ruolo', 'amministratore');
-                        window.location.href = 'dashboard.html';
-                    } else {
-                        localStorage.setItem('driverbook_ruolo', 'autista-amministrativo');
-                        window.location.href = 'dashboard.html';
-                    }
+                    if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
+                    else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
+                    else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
+                    else localStorage.setItem('driverbook_ruolo', 'passeggeri');
+                    
+                    window.location.href = 'dashboard.html';
                 }, 2000);
             })
             .catch(errore => {
                 console.error(errore);
-                window.location.href = 'login-passeggero.html';
+                window.location.href = 'login.html';
             });
             return;
         }
@@ -138,8 +131,8 @@ document.addEventListener("DOMContentLoaded", function() {
             </button>` : '';
         
         const ruoloCorrente = localStorage.getItem('driverbook_ruolo');
-        const isAreaRiservata = window.location.pathname.includes('autista') || window.location.pathname.includes('amministratore') || window.location.search.includes('role=autista') || window.location.search.includes('role=amministratore');
-        const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggero';
+        const isAreaRiservata = window.location.pathname.includes('/admin/') || window.location.pathname.includes('/autisti/') || window.location.pathname.includes('/partner/');
+        const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggeri';
         const utenteLoggato = localStorage.getItem('driverbook_auth_token') !== null;
         
         const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
@@ -237,7 +230,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const pathCartella = window.location.pathname.toLowerCase();
     let ruoloMenu = localStorage.getItem('driverbook_ruolo');
     if (pathCartella.includes('/passeggeri/')) {
-        ruoloMenu = 'passeggero';
+        ruoloMenu = 'passeggeri';
+    } else if (pathCartella.includes('/admin/')) {
+        ruoloMenu = 'admin';
+    } else if (pathCartella.includes('/autisti/')) {
+        ruoloMenu = 'autisti';
+    } else if (pathCartella.includes('/partner/')) {
+        ruoloMenu = 'partner';
     }
 
     if (contenitoreMenuLaterale) {
@@ -252,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
-            if (ruoloMenu === 'autista-amministrativo') {
+            if (ruoloMenu === 'partner') {
                 contenitoreMenuLaterale.innerHTML = `
                     <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Autista</a>
                     <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi Assegnati</a>
@@ -262,14 +261,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
                     <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
                 `;
-            } else if (ruoloMenu === 'autista-guidatore') {
+            } else if (ruoloMenu === 'autisti') {
                 contenitoreMenuLaterale.innerHTML = `
                     <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Guidatore</a>
                     <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi Assegnati</a>
                     <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
                     <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
                 `;
-            } else if (ruoloMenu === 'amministratore') {
+            } else if (ruoloMenu === 'admin') {
                 contenitoreMenuLaterale.innerHTML = `
                     <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Amministratore</a>
                     <a id="link_menu_utenti" class="menu-item" data-i18n="menu_utenti">Gestione Utenti</a>
@@ -727,19 +726,12 @@ async function inviaLogin(event) {
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
         
-        if (pathAttuale.includes('/passeggeri/')) {
-            localStorage.setItem('driverbook_ruolo', 'passeggero');
-            window.location.href = 'dashboard.html';
-        } else if (pathAttuale.includes('/guidatori/')) {
-            localStorage.setItem('driverbook_ruolo', 'autista-guidatore');
-            window.location.href = 'dashboard.html';
-        } else if (pathAttuale.includes('/admin/')) {
-            localStorage.setItem('driverbook_ruolo', 'amministratore');
-            window.location.href = 'dashboard.html';
-        } else {
-            localStorage.setItem('driverbook_ruolo', 'autista-amministrativo');
-            window.location.href = 'dashboard.html';
-        }
+        if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
+        else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
+        else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
+        else localStorage.setItem('driverbook_ruolo', 'passeggeri');
+        
+        window.location.href = 'dashboard.html';
 
     } catch (errore) {
         btnSubmit.textContent = errore.message;
@@ -846,10 +838,8 @@ async function inviaRegistrazione(event) {
         return;
     }
 
-    let urlRedirect = "https://mauy81.github.io/driverbook-test/login.html";
-    if (window.location.protocol !== 'file:') {
-        urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
-    }
+    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
+    let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
 
     const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
     const urlAutisti = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti";
@@ -1706,10 +1696,8 @@ async function inviaRegistrazionePasseggero(event) {
         return;
     }
 
-    let urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
-    if (window.location.protocol !== 'file:') {
-        urlRedirect = window.location.origin + window.location.pathname.replace('registrazione', 'login');
-    }
+    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
+    let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
 
     const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
     const urlPasseggeri = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri";
@@ -1891,7 +1879,7 @@ async function caricaDatiDashboardPasseggero() {
         }
     } catch (error) {
         localStorage.removeItem('driverbook_auth_token');
-        window.location.href = 'login-passeggero.html';
+        window.location.href = 'login.html';
     }
 }
 
@@ -2020,9 +2008,7 @@ async function aggiornaProfilo(event) {
 
             setTimeout(() => {
                 localStorage.removeItem('driverbook_auth_token');
-                const urlAttuale = window.location.href.toLowerCase();
-                const destinazioneLogin = urlAttuale.includes('autista') ? 'login.html' : 'login-passeggero.html';
-                window.location.href = destinazioneLogin;
+                window.location.href = 'login.html';
             }, 5000);
             
             return;
@@ -2076,10 +2062,9 @@ async function modificaPassword() {
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbook_auth_token');
-    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/passeggeri/pwreimposta.html";
-    if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
-        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/autisti/pwreimposta.html";
-    }
+    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
+    let redirectUrl = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/pwreimposta.html';
+    const urlRecover = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=${encodeURIComponent(redirectUrl)}`;
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -2120,7 +2105,7 @@ async function modificaPassword() {
             if (typeof esciAccount === 'function') {
                 esciAccount();
             } else {
-                window.location.href = 'login-passeggero.html';
+                window.location.href = 'login.html';
             }
         }, 3000);
 
@@ -2266,10 +2251,9 @@ async function richiediResetPassword(event) {
     btn.disabled = true;
     btn.textContent = dict.js_rec_proc;
 
-    let urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/passeggeri/pwreimposta.html";
-    if (window.location.pathname.includes('autista') || window.location.search.includes('role=autista')) {
-        urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=https://mauy81.github.io/driverbook-test/autisti/pwreimposta.html";
-    }
+    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
+    let redirectUrl = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/pwreimposta.html';
+    const urlRecover = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=${encodeURIComponent(redirectUrl)}`;
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -2404,16 +2388,7 @@ async function inviaNuovaPassword(event) {
         const datiPasseggero = await checkPasseggero.json();
 
         setTimeout(() => {
-            const pathAttuale = window.location.pathname.toLowerCase();
-            if (pathAttuale.includes('/passeggeri/')) {
-                window.location.href = 'dashboard.html';
-            } else if (pathAttuale.includes('/guidatori/')) {
-                window.location.href = 'dashboard.html';
-            } else if (pathAttuale.includes('/admin/')) {
-                window.location.href = 'dashboard.html';
-            } else {
-                window.location.href = 'dashboard.html';
-            }
+            window.location.href = 'dashboard.html';
         }, 2000);
 
     } catch (errore) {
