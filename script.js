@@ -694,7 +694,13 @@ async function inviaLogin(event) {
             const datiAutista = await checkResponse.json();
 
             if (!datiAutista || datiAutista.length === 0) {
-                throw new Error(dict.js_login_err_driver);
+                if (pathAttuale.includes('/partner/')) {
+                    throw new Error(dict.js_login_err_partner);
+                } else if (pathAttuale.includes('/admin/')) {
+                    throw new Error(dict.js_login_err_admin);
+                } else {
+                    throw new Error(dict.js_login_err_driver);
+                }
             }
             if (datiAutista[0].linguaggio) {
                 localStorage.setItem('driverbook_lang', datiAutista[0].linguaggio);
