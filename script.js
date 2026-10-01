@@ -2266,19 +2266,22 @@ async function richiediResetPassword(event) {
             body: JSON.stringify({ email: email })
         });
 
-        btn.textContent = dict.js_rec_email_sent;
-        btn.style.backgroundColor = "#00FF66";
-        btn.style.color = "#000000";
-        btn.style.borderColor = "#00FF66";
-
-        setTimeout(() => {
-            document.getElementById('formRecuperoPassword').reset();
-            btn.textContent = testoOriginale;
-            btn.style.backgroundColor = "";
-            btn.style.color = "";
-            btn.style.borderColor = "";
-            btn.disabled = false;
-        }, 5000);
+        document.getElementById('formRecuperoPassword').style.display = 'none';
+        
+        const headerTesto = document.querySelector('.auth-header');
+        if (headerTesto) {
+            headerTesto.style.display = 'none';
+        }
+        
+        const barraMenu = document.getElementById('menu-principale');
+        if (barraMenu) {
+            barraMenu.style.display = 'none';
+        }
+        
+        const msgSuccesso = document.getElementById('messaggio_successo_recupero');
+        if (msgSuccesso) {
+            msgSuccesso.classList.remove('hidden');
+        }
 
     } catch (errore) {
         btn.textContent = dict.js_rec_conn_err;
