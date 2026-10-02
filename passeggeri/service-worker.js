@@ -2,8 +2,9 @@ const CACHE_NAME = 'driverbook-cache';
 const urlsToCache = [
     './',
     './index.html',
-    './style.css',
-    './script.js'
+    '../style.css',
+    '../script.js',
+    '../traduzioni.js'
 ];
 
 self.addEventListener('install', event => {

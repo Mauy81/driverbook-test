@@ -33,7 +33,8 @@ document.addEventListener("DOMContentLoaded", function() {
         'registrazione.html',
         'pwreset.html',
         'pwreimposta.html',
-        'assistenza.html'
+        'assistenza.html',
+        'preview-schermate.html'
     ];
 
     if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza) && !localStorage.getItem('driverbook_auth_token')) {
@@ -913,17 +914,7 @@ async function inviaRegistrazione(event) {
             throw new Error("Errore nel salvataggio del profilo");
         }
 
-        document.getElementById('formRegistrazione').style.display = 'none';
-        
-        const barraMenu = document.getElementById('menu-principale');
-        if (barraMenu) {
-            barraMenu.style.display = 'none';
-        }
-        
-        const msgSuccesso = document.getElementById('messaggio_successo_registrazione');
-        if (msgSuccesso) {
-            msgSuccesso.classList.remove('hidden');
-        }
+        mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
         let testoErrore = errore.message;
@@ -1382,17 +1373,7 @@ function caricaRiepilogo() {
     const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
 
     if (!tipoServizio || !partenza) {
-        document.body.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #000000; padding: 20px;">
-                <div class="logo-container" style="pointer-events: none; margin-bottom: 20px;">
-                    <img src="../logo/logo-bianco.png" alt="Logo DriverBook" class="logo-icon">
-                    <img src="../logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
-                </div>
-                <div class="alert-redirect">
-                    ${dict.js_check_redirect}
-                </div>
-            </div>
-        `;
+        mostraUiRedirectCheckout('body');
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 5000);
@@ -1549,38 +1530,17 @@ async function confermaPrenotazione() {
         ];
         chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
 
-        let overlay = document.createElement('div');
-        overlay.className = 'modale-overlay';
-        overlay.innerHTML = `
-            <div class="modale-box">
-                <h3 class="modale-titolo" style="color: #00FF66; margin-bottom: 15px;">${dict.js_check_success_title}</h3>
-                <p class="modale-testo">${dict.js_check_success_text}<strong style="color: #00FF66;">${codiceGenerato}</strong></p>
-                <div class="modale-bottoni-container">
-                    <button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${dict.js_check_btn_dash}</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
+        mostraUiPrenotazioneOk('body', codiceGenerato);
+        
         document.getElementById('btn_chiudi_conferma').onclick = function() {
             window.location.href = 'dashboard.html';
         };
 
     } catch (errore) {
-        let overlayErrore = document.createElement('div');
-        overlayErrore.className = 'modale-overlay';
-        overlayErrore.innerHTML = `
-            <div class="modale-box">
-                <h3 class="modale-titolo" style="color: #FF4444; margin-bottom: 15px;">${dict.js_check_err_title}</h3>
-                <p class="modale-testo">${dict.js_check_err_text}</p>
-                <div class="modale-bottoni-container">
-                    <button id="btn_chiudi_errore" class="btn-modale-bianco">${dict.js_check_btn_close}</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlayErrore);
-        document.getElementById('btn_chiudi_errore').onclick = function() {
-            document.body.removeChild(overlayErrore);
+        mostraUiPrenotazioneErrore('body');
+        
+        document.getElementById('btn_riprova_errore').onclick = function() {
+            window.location.reload();
         };
     }
 }
@@ -1769,17 +1729,7 @@ async function inviaRegistrazionePasseggero(event) {
             throw new Error("Errore database");
         }
 
-        document.getElementById('formRegistrazionePasseggero').style.display = 'none';
-        
-        const barraMenu = document.getElementById('menu-principale');
-        if (barraMenu) {
-            barraMenu.style.display = 'none';
-        }
-        
-        const msgSuccesso = document.getElementById('messaggio_successo_registrazione');
-        if (msgSuccesso) {
-            msgSuccesso.classList.remove('hidden');
-        }
+        mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
         let testoErrore = errore.message;
@@ -2172,30 +2122,7 @@ async function inviaAssistenza(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioUtente })
         });
 
-        const wrapper = document.querySelector('.login-wrapper');
-        const menuPrincipale = document.getElementById('menu-principale');
-        
-        if (menuPrincipale) {
-            menuPrincipale.style.display = 'none';
-        }
-
-        if (wrapper) {
-            const linguaImpostata = localStorage.getItem('driverbook_lang') || 'it';
-            const usaI18n = !window.location.pathname.includes('/partner/');
-            
-            const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Inviata</h2>`;
-            const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
-            const bottone = usaI18n ? `<a href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
-
-            wrapper.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#00FF66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    ${titolo}
-                    ${messaggio}
-                    ${bottone}
-                </div>
-            `;
-        }
+        mostraUiAssistenzaOk('.login-wrapper');
 
     } catch (errore) {
         alert(dict.js_assist_err);
@@ -2233,23 +2160,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
             const dict = traduzioni[linguaAttuale] || traduzioni['it'];
             
-            const container = document.querySelector('.login-wrapper');
-            const menuPrincipale = document.getElementById('menu-principale');
-            
-            if (menuPrincipale) {
-                menuPrincipale.style.display = 'none';
-            }
-
-            if (container) {
-                container.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        <h2 style="color: #ffffff; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>
-                        <p style="color: #aaaaaa; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>
-                        <a href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>
-                    </div>
-                `;
-            }
+            mostraUiLinkScaduto('.login-wrapper');
         }
     }
 });
@@ -2282,22 +2193,7 @@ async function richiediResetPassword(event) {
             body: JSON.stringify({ email: email })
         });
 
-        document.getElementById('formRecuperoPassword').style.display = 'none';
-        
-        const headerTesto = document.querySelector('.auth-header');
-        if (headerTesto) {
-            headerTesto.style.display = 'none';
-        }
-        
-        const barraMenu = document.getElementById('menu-principale');
-        if (barraMenu) {
-            barraMenu.style.display = 'none';
-        }
-        
-        const msgSuccesso = document.getElementById('messaggio_successo_recupero');
-        if (msgSuccesso) {
-            msgSuccesso.classList.remove('hidden');
-        }
+        mostraUiResetRicevuto('.login-wrapper');
 
     } catch (errore) {
         btn.textContent = dict.js_rec_conn_err;
@@ -2433,6 +2329,7 @@ if ('serviceWorker' in navigator) {
 
 let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isMacSafari = /Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
 function mostraBottoneInstallazione() {
     const btnDynamic = document.getElementById('btn_installa_app_sidebar');
@@ -2448,7 +2345,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 document.addEventListener("DOMContentLoaded", () => {
     if (deferredPrompt) mostraBottoneInstallazione();
     
-    if (isIOS) {
+    if (isIOS || isMacSafari) {
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         if (!isStandalone) mostraBottoneInstallazione();
     }
@@ -2457,9 +2354,8 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener('click', async (e) => {
     const btnApp = e.target.closest('#btn_installa_app_sidebar');
     if (btnApp) {
-        if (isIOS) {
-            const iosPopup = document.getElementById('ios_install_popup');
-            if (iosPopup) iosPopup.classList.remove('hidden');
+        if (isIOS || isMacSafari) {
+            mostraPopupInstallazioneApple(isMacSafari);
         } else if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
@@ -2469,9 +2365,30 @@ document.addEventListener('click', async (e) => {
     }
 });
 
-function chiudiPopupIOS() {
-    const iosPopup = document.getElementById('ios_install_popup');
-    if (iosPopup) iosPopup.classList.add('hidden');
+function mostraPopupInstallazioneApple(isMac) {
+    let popup = document.getElementById('ios_install_popup');
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'ios_install_popup';
+        popup.className = 'ios-popup';
+        document.body.appendChild(popup);
+    }
+
+    const chiaveTesto = isMac ? 'js_install_mac' : 'js_install_ios';
+
+    popup.innerHTML = `
+        <span class="close-popup" id="btn_chiudi_apple_popup">&times;</span>
+        <p data-i18n="${chiaveTesto}">${dict[chiaveTesto]}</p>
+    `;
+
+    popup.style.display = 'block';
+
+    document.getElementById('btn_chiudi_apple_popup').onclick = function() {
+        popup.style.display = 'none';
+    };
 }
 
 async function inviaAssistenzaInterna(event) {
@@ -2625,11 +2542,11 @@ function mostraModaleSalvataggio(destinazione) {
         modal.className = 'modale-box';
         
         modal.innerHTML = `
-            <h3 class="modale-titolo">${dict.modale_uscita_titolo}</h3>
-            <p class="modale-testo">${dict.modale_uscita_testo}</p>
+            <h3 class="modale-titolo" data-i18n="modale_uscita_titolo">${dict.modale_uscita_titolo}</h3>
+            <p class="modale-testo" data-i18n="modale_uscita_testo">${dict.modale_uscita_testo}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco">${dict.modale_uscita_btn_resta}</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco">${dict.modale_uscita_btn_esci}</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_resta">${dict.modale_uscita_btn_resta}</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_esci">${dict.modale_uscita_btn_esci}</button>
             </div>
         `;
         
@@ -2762,4 +2679,102 @@ function applicaTraduzioni() {
 function impostaLingua(nuovaLingua) {
     localStorage.setItem('driverbook_lang', nuovaLingua);
     window.location.reload();
+}
+
+function mostraUiRegistrazioneOk(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const usaI18n = !window.location.pathname.includes('/partner/');
+    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Registrazione Completata!</h2>`;
+    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
+    mostraSchermataFeedback('successo', containerId, titolo, messaggio);
+}
+
+function mostraUiResetRicevuto(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const usaI18n = !window.location.pathname.includes('/partner/');
+    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Ricevuta</h2>`;
+    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
+    mostraSchermataFeedback('successo', containerId, titolo, messaggio);
+}
+
+function mostraUiAssistenzaOk(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const usaI18n = !window.location.pathname.includes('/partner/');
+    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Inviata</h2>`;
+    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
+    const bottone = usaI18n ? `<a href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
+    mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
+}
+
+function mostraUiLinkScaduto(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
+    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
+    const bottone = `<a href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
+    mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
+}
+
+function mostraUiPrenotazioneOk(containerId, codiceGenerato = "DB-A1B2C") {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const btnPannelloStr = dict.js_btn_pannello_utente || (linguaAttuale === 'en' ? 'Go to Dashboard' : 'Vai al Pannello Utente');
+    const titolo = `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_check_success_title">${dict.js_check_success_title}</h2>`;
+    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;"><span data-i18n="js_check_success_text">${dict.js_check_success_text}</span><strong style="color: #00FF66; display: block; margin-top: 10px; font-size: 1.2rem;">${codiceGenerato}</strong></p>`;
+    const bottone = `<button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${btnPannelloStr}</button>`;
+    mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
+}
+
+function mostraUiPrenotazioneErrore(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const btnRiprovaStr = dict.js_btn_riprova || (linguaAttuale === 'en' ? 'Try Again' : 'Riprova');
+    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
+    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
+    const bottone = `<button id="btn_riprova_errore" class="btn btn-primary btn-full">${btnRiprovaStr}</button>`;
+    mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
+}
+
+function mostraUiRedirectCheckout(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_redirect_title">${dict.js_redirect_title}</h2>`;
+    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_check_redirect">${dict.js_check_redirect}</p>`;
+    mostraSchermataFeedback('errore', containerId, titolo, messaggio);
+}
+
+function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, htmlBottone = '') {
+    const menuPrincipale = document.getElementById('menu-principale');
+    if (menuPrincipale) {
+        menuPrincipale.style.display = 'none';
+    }
+
+    let colore = tipo === 'errore' ? '#dc3545' : '#00FF66';
+    let icona = tipo === 'errore' 
+        ? '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'
+        : '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+
+    let layoutHtml = `
+        <div class="login-wrapper">
+            <div class="schermata-feedback">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${colore}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">${icona}</svg>
+                ${htmlTitolo}
+                ${htmlMessaggio}
+                ${htmlBottone}
+            </div>
+        </div>
+    `;
+
+    if (containerId === 'body') {
+        document.body.innerHTML = layoutHtml;
+    } else {
+        const wrapper = document.querySelector(containerId);
+        if (wrapper) {
+            wrapper.innerHTML = layoutHtml;
+            wrapper.style.display = 'block';
+        }
+    }
 }

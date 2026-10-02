@@ -471,32 +471,40 @@ textarea.input {
 
 .ios-popup {
     position: fixed;
-    bottom: 20px;
+    bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #ffffff;
-    color: #000000;
-    padding: 15px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    z-index: 1000;
     width: 90%;
-    max-width: 400px;
+    max-width: 380px;
+    background-color: rgba(28, 28, 30, 0.85);
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 22px 20px;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
     text-align: center;
-}
-
-.ios-popup p {
-    margin: 10px 0;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
 }
 
 .close-popup {
     position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 1.5rem;
+    top: 8px;
+    right: 14px;
+    font-size: 24px;
+    color: #8e8e93;
     cursor: pointer;
-    color: #888888;
+    line-height: 1;
+    font-weight: 300;
+    transition: color 0.2s ease;
+}
+
+.close-popup:hover {
+    color: #ffffff;
 }
 
 .menu-destra {
@@ -1102,4 +1110,23 @@ input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px #000000 inset !important;
     -webkit-text-fill-color: #ffffff !important;
     transition: background-color 5000s ease-in-out 0s;
+}
+
+.schermata-feedback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 60px 20px 20px 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: transparent;
+}
+
+@media (max-width: 768px) {
+    .schermata-feedback {
+        padding-top: 40px;
+    }
 }

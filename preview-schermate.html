@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Schermate Dinamiche DriverBook</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { margin: 0; background-color: #000000; overflow-x: hidden; }
+        .preview-nav {
+            position: fixed; top: 0; left: 0; width: 100%; background: #111;
+            padding: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; z-index: 99999;
+            border-bottom: 1px solid #333;
+        }
+        .preview-nav button {
+            background: #333; color: #fff; border: 1px solid #555; padding: 6px 10px;
+            cursor: pointer; border-radius: 4px; font-size: 0.85rem; font-weight: bold; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .preview-nav button:hover, .preview-nav button.attivo { background: #00FF66; color: #000; border-color: #00FF66; }
+        .btn-traduzione { background: #007bff !important; border-color: #007bff !important; margin-left: 15px; }
+        .btn-traduzione:hover { background: #0056b3 !important; color: #fff !important; }
+        #preview-area { margin-top: 60px; height: calc(100vh - 60px); width: 100%; position: relative; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="preview-nav">
+        <button onclick="mostra('s1', this)">1. Registrazione</button>
+        <button onclick="mostra('s2', this)">2. Reset Pass</button>
+        <button onclick="mostra('s3', this)">3. Assistenza</button>
+        <button onclick="mostra('s4', this)">4. Link Scaduto</button>
+        <button onclick="mostra('s5', this)">5. Prenotazione OK</button>
+        <button onclick="mostra('s6', this)">6. Prenotazione Errore</button>
+        <button onclick="mostra('s7', this)">7. Redirect Checkout</button>
+        <button onclick="mostra('s8', this)">8. Uscita Dati</button>
+        <button onclick="mostra('s9', this)">9. Popup iOS</button>
+        <button id="btn_lang_toggle" class="btn-traduzione" onclick="cambiaLinguaPreview()">🌍 Passa all'Inglese</button>
+    </div>
+
+    <div id="preview-area"></div>
+    <div id="menu-principale" style="display:none;"></div>
+
+    <script src="traduzioni.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        function mostra(id, element = null) {
+            const area = document.getElementById('preview-area');
+            area.innerHTML = ''; 
+            
+            const modale = document.getElementById('modale_uscita_dati');
+            if (modale) modale.style.display = 'none';
+
+            const popupApple = document.getElementById('ios_install_popup');
+            if (popupApple) popupApple.style.display = 'none';
+
+            const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+            const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+            if (id === 's1') {
+                mostraUiRegistrazioneOk('#preview-area');
+            } else if (id === 's2') {
+                mostraUiResetRicevuto('#preview-area');
+            } else if (id === 's3') {
+                mostraUiAssistenzaOk('#preview-area');
+            } else if (id === 's4') {
+                mostraUiLinkScaduto('#preview-area');
+            } else if (id === 's5') {
+                mostraUiPrenotazioneOk('#preview-area');
+            } else if (id === 's6') {
+                mostraUiPrenotazioneErrore('#preview-area');
+            } else if (id === 's7') {
+                mostraUiRedirectCheckout('#preview-area');
+            } else if (id === 's8') {
+                mostraModaleSalvataggio('#');
+            } else if (id === 's9') {
+                mostraPopupInstallazioneApple(false);
+            }
+
+            if (element) {
+                document.querySelectorAll('.preview-nav button:not(#btn_lang_toggle)').forEach(btn => btn.classList.remove('attivo'));
+                element.classList.add('attivo');
+            } else {
+                const buttons = document.querySelectorAll('.preview-nav button:not(#btn_lang_toggle)');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(id)) {
+                        btn.classList.add('attivo');
+                    } else {
+                        btn.classList.remove('attivo');
+                    }
+                });
+            }
+            localStorage.setItem('preview_current_screen', id);
+        }
+
+        function cambiaLinguaPreview() {
+            let langAttuale = localStorage.getItem('driverbook_lang') || 'it';
+            let nuovaLingua = langAttuale === 'it' ? 'en' : 'it';
+            
+            localStorage.setItem('driverbook_lang', nuovaLingua);
+            
+            let screenCorrente = localStorage.getItem('preview_current_screen') || 's1';
+            mostra(screenCorrente);
+            aggiornaBottoneLingua();
+            if (typeof applicaTraduzioni === 'function') applicaTraduzioni();
+        }
+
+        function aggiornaBottoneLingua() {
+            let langAttuale = localStorage.getItem('driverbook_lang') || 'it';
+            document.getElementById('btn_lang_toggle').innerText = langAttuale === 'en' ? "🌍 Passa all'Italiano" : "🌍 Passa all'Inglese";
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            let screenCorrente = localStorage.getItem('preview_current_screen') || 's1';
+            mostra(screenCorrente);
+            aggiornaBottoneLingua();
+        });
+    </script>
+</body>
+</html>
