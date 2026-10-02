@@ -2467,7 +2467,7 @@ async function inviaAssistenzaInterna(event) {
         });
 
         const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
-        const messaggio = `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>`;
+        const messaggio = `<p class="feedback-testo" data-i18n="js_assist_int_success_msg">${dict.js_assist_int_success_msg}</p>`;
         const bottone = `<a href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio, bottone);

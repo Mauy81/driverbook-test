@@ -274,7 +274,8 @@ const traduzioni = {
         js_btn_torna_home: "Torna alla Home",
         js_btn_pannello_utente: "Vai al Pannello Utente",
         js_btn_riprova: "Riprova",
-        js_rec_int_success_msg: "Riceverai a breve un'email con il link da cliccare per creare la nuova password."
+        js_rec_int_success_msg: "Riceverai a breve un'email con il link da cliccare per creare la nuova password.",
+        js_assist_int_success_msg: "Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto al tuo indirizzo email."
     },
     en: {
         titolo_pagina: "DriverBook - Chauffeur Service",
@@ -551,6 +552,7 @@ const traduzioni = {
         js_btn_torna_home: "Back to Home",
         js_btn_pannello_utente: "Go to Dashboard",
         js_btn_riprova: "Try Again",
-        js_rec_int_success_msg: "You will shortly receive an email with a link to click to create your new password."
+        js_rec_int_success_msg: "You will shortly receive an email with a link to click to create your new password.",
+        js_assist_int_success_msg: "We have received your message. Our team will reply to your email address as soon as possible."
     }
 };
