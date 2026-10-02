@@ -2048,16 +2048,18 @@ async function modificaPassword() {
             throw new Error("Errore durante l'invio della richiesta");
         }
 
-        btn.textContent = dict.js_rec_success;
-        btn.style.backgroundColor = "#28a745"; 
+        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>`;
+        const messaggio = `<p class="feedback-testo" data-i18n="js_rec_int_success_msg">${dict.js_rec_int_success_msg}</p>`;
+        
+        mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio);
 
         setTimeout(() => {
             if (typeof esciAccount === 'function') {
                 esciAccount();
             } else {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             }
-        }, 3000);
+        }, 5000);
 
     } catch (errore) {
         console.error(errore);
@@ -2464,14 +2466,11 @@ async function inviaAssistenzaInterna(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioArricchito })
         });
 
-        btnSubmit.textContent = dict.js_assist_success;
-        btnSubmit.style.backgroundColor = "#00FF66";
-        btnSubmit.style.color = "#000000";
-        btnSubmit.style.borderColor = "#00FF66";
+        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
+        const messaggio = `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>`;
+        const bottone = `<a href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
         
-        setTimeout(() => {
-            window.history.back();
-        }, 5000);
+        mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio, bottone);
 
     } catch (errore) {
         alert(dict.js_assist_err);
@@ -2685,8 +2684,8 @@ function mostraUiRegistrazioneOk(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Registrazione Completata!</h2>`;
-    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
+    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Registrazione Completata!</h2>`;
+    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>` : `<p class="feedback-testo">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
@@ -2694,8 +2693,8 @@ function mostraUiResetRicevuto(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Ricevuta</h2>`;
-    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
+    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Ricevuta</h2>`;
+    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>` : `<p class="feedback-testo">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
@@ -2703,8 +2702,8 @@ function mostraUiAssistenzaOk(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;">Richiesta Inviata</h2>`;
-    const messaggio = usaI18n ? `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
+    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
+    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
     const bottone = usaI18n ? `<a href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
@@ -2712,8 +2711,8 @@ function mostraUiAssistenzaOk(containerId) {
 function mostraUiLinkScaduto(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
-    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
     const bottone = `<a href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
@@ -2722,8 +2721,8 @@ function mostraUiPrenotazioneOk(containerId, codiceGenerato = "DB-A1B2C") {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const btnPannelloStr = dict.js_btn_pannello_utente || (linguaAttuale === 'en' ? 'Go to Dashboard' : 'Vai al Pannello Utente');
-    const titolo = `<h2 style="color: #00FF66; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_check_success_title">${dict.js_check_success_title}</h2>`;
-    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;"><span data-i18n="js_check_success_text">${dict.js_check_success_text}</span><strong style="color: #00FF66; display: block; margin-top: 10px; font-size: 1.2rem;">${codiceGenerato}</strong></p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_check_success_title">${dict.js_check_success_title}</h2>`;
+    const messaggio = `<p class="feedback-testo"><span data-i18n="js_check_success_text">${dict.js_check_success_text}</span><strong class="feedback-evidenza">${codiceGenerato}</strong></p>`;
     const bottone = `<button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${btnPannelloStr}</button>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
@@ -2732,8 +2731,8 @@ function mostraUiPrenotazioneErrore(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const btnRiprovaStr = dict.js_btn_riprova || (linguaAttuale === 'en' ? 'Try Again' : 'Riprova');
-    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
-    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
     const bottone = `<button id="btn_riprova_errore" class="btn btn-primary btn-full">${btnRiprovaStr}</button>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
@@ -2741,8 +2740,8 @@ function mostraUiPrenotazioneErrore(containerId) {
 function mostraUiRedirectCheckout(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const titolo = `<h2 style="color: #dc3545; margin-bottom: 15px; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px;" data-i18n="js_redirect_title">${dict.js_redirect_title}</h2>`;
-    const messaggio = `<p style="color: #ffffff; margin-bottom: 40px; line-height: 1.5; font-size: 1rem;" data-i18n="js_check_redirect">${dict.js_check_redirect}</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_redirect_title">${dict.js_redirect_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_check_redirect">${dict.js_check_redirect}</p>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio);
 }
 
@@ -2760,7 +2759,7 @@ function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, h
     let layoutHtml = `
         <div class="login-wrapper">
             <div class="schermata-feedback">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${colore}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">${icona}</svg>
+                <svg class="feedback-icona" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${colore}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icona}</svg>
                 ${htmlTitolo}
                 ${htmlMessaggio}
                 ${htmlBottone}

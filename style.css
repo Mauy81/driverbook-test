@@ -1130,3 +1130,36 @@ input:-webkit-autofill:active {
         padding-top: 40px;
     }
 }
+
+.feedback-titolo {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.feedback-titolo-successo {
+    color: #00FF66;
+}
+
+.feedback-titolo-errore {
+    color: #dc3545;
+}
+
+.feedback-testo {
+    color: #ffffff;
+    margin-bottom: 40px;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.feedback-evidenza {
+    color: #00FF66;
+    display: block;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.feedback-icona {
+    margin-bottom: 20px;
+}
