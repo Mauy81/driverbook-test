@@ -688,12 +688,12 @@ async function inviaLogin(event) {
                 localStorage.setItem('driverbook_lang', datiPasseggero[0].linguaggio);
             }
         } else {
-            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti?id_autista=eq.${userId}&select=id_autista,linguaggio`, {
+            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner,linguaggio`, {
                 headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
             });
-            const datiAutista = await checkResponse.json();
+            const datiPartner = await checkResponse.json();
 
-            if (!datiAutista || datiAutista.length === 0) {
+            if (!datiPartner || datiPartner.length === 0) {
                 if (pathAttuale.includes('/partner/')) {
                     throw new Error(dict.js_login_err_partner);
                 } else if (pathAttuale.includes('/admin/')) {
@@ -702,8 +702,8 @@ async function inviaLogin(event) {
                     throw new Error(dict.js_login_err_driver);
                 }
             }
-            if (datiAutista[0].linguaggio) {
-                localStorage.setItem('driverbook_lang', datiAutista[0].linguaggio);
+            if (datiPartner[0].linguaggio) {
+                localStorage.setItem('driverbook_lang', datiPartner[0].linguaggio);
             }
         }
 
@@ -843,7 +843,7 @@ async function inviaRegistrazione(event) {
     let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
 
     const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
-    const urlAutisti = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti";
+    const urlPartner = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
@@ -877,10 +877,10 @@ async function inviaRegistrazione(event) {
         }
 
         const corpoDati = {
-            id_autista: authUserId,
+            id_partner: authUserId,
             nome_cognome: document.getElementById('nome').value,
             email: email,
-            tel_autista: telefonoFinale,
+            tel_partner: telefonoFinale,
             ragione_sociale: document.getElementById('ragioneSociale').value,
             piva: document.getElementById('piva').value,
             codice_sdi: document.getElementById('codice_sdi').value || null,
@@ -899,7 +899,7 @@ async function inviaRegistrazione(event) {
             linguaggio: linguaAttuale
         };
 
-        const dbResponse = await fetch(urlAutisti, {
+        const dbResponse = await fetch(urlPartner, {
             method: "POST",
             headers: {
                 "apikey": chiaveAnon,
@@ -2435,13 +2435,13 @@ async function inviaAssistenzaInterna(event) {
             nomeUtente = datiPasseggero[0].nome_cognome || "N/A";
             codiceCliente = datiPasseggero[0].codice_passeggero || "N/A";
         } else {
-            const checkAutista = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/autisti?id_autista=eq.${userId}&select=nome_cognome,codice_autista`, {
+            const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
                 headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
             });
-            const datiAutista = await checkAutista.json();
-            if (datiAutista && datiAutista.length > 0) {
-                nomeUtente = datiAutista[0].nome_cognome || "N/A";
-                codiceCliente = datiAutista[0].codice_autista || "N/A";
+            const datiPartner = await checkPartner.json();
+            if (datiPartner && datiPartner.length > 0) {
+                nomeUtente = datiPartner[0].nome_cognome || "N/A";
+                codiceCliente = datiPartner[0].codice_partner || "N/A";
             }
         }
 
