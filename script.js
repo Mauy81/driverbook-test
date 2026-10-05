@@ -2349,6 +2349,12 @@ async function inviaNuovaPassword(event) {
             localStorage.setItem('driverbook_auth_token', accessToken);
         }
 
+        const pathAttuale = window.location.pathname.toLowerCase();
+        if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
+        else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
+        else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
+        else localStorage.setItem('driverbook_ruolo', 'passeggeri');
+
         btnSubmit.textContent = dict.js_pass_success;
         btnSubmit.style.backgroundColor = "#28a745";
 
