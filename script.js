@@ -2506,7 +2506,7 @@ async function inviaAssistenzaInterna(event) {
 
         const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
         const messaggio = `<p class="feedback-testo" data-i18n="js_assist_int_success_msg">${dict.js_assist_int_success_msg}</p>`;
-        const bottone = `<a href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
+        const bottone = `<a data-href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio, bottone);
 
@@ -2742,7 +2742,7 @@ function mostraUiAssistenzaOk(containerId) {
     const usaI18n = !window.location.pathname.includes('/partner/');
     const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
     const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
-    const bottone = usaI18n ? `<a href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
+    const bottone = usaI18n ? `<a data-href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a data-href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
 
@@ -2751,7 +2751,7 @@ function mostraUiLinkScaduto(containerId) {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
     const messaggio = `<p class="feedback-testo" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
-    const bottone = `<a href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
+    const bottone = `<a data-href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
 
