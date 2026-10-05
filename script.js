@@ -1829,6 +1829,8 @@ async function caricaDatiDashboardPasseggero() {
 
                 document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
                 document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
+            } else {
+                esciAccount();
             }
         }
     } catch (error) {
@@ -1864,6 +1866,8 @@ async function caricaDatiDashboardPartner() {
             if (document.getElementById('dash_codice_partner')) {
                 document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
             }
+        } else {
+            esciAccount();
         }
     } catch (error) {
         localStorage.removeItem('driverbook_auth_token');
@@ -2041,6 +2045,13 @@ async function aggiornaProfilo(event) {
 async function modificaPassword() {
     const btn = document.getElementById('btn_modifica_password');
     if (!btn) return;
+
+    const pathAttuale = window.location.pathname.toLowerCase();
+    const ruoloSalvato = localStorage.getItem('driverbook_ruolo');
+    if ((pathAttuale.includes('/partner/') && ruoloSalvato !== 'partner') || (pathAttuale.includes('/passeggeri/') && ruoloSalvato !== 'passeggeri') || (pathAttuale.includes('/autisti/') && ruoloSalvato !== 'autisti') || (pathAttuale.includes('/admin/') && ruoloSalvato !== 'admin')) {
+        esciAccount();
+        return;
+    }
     
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
@@ -2336,11 +2347,6 @@ async function inviaNuovaPassword(event) {
 
         btnSubmit.textContent = dict.js_pass_success;
         btnSubmit.style.backgroundColor = "#28a745";
-
-        const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + localStorage.getItem('driverbook_auth_token') }
-        });
-        const datiPasseggero = await checkPasseggero.json();
 
         setTimeout(() => {
             window.location.href = 'dashboard.html';
