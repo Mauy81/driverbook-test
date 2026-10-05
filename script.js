@@ -515,6 +515,10 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaDatiDashboardPasseggero();
     }
 
+    if (document.getElementById('dash_nome_partner')) {
+        caricaDatiDashboardPartner();
+    }
+
     const btnPrenota = document.getElementById('btn_prenota_servizio');
     if (btnPrenota) {
         btnPrenota.addEventListener('click', function() {
@@ -1825,6 +1829,40 @@ async function caricaDatiDashboardPasseggero() {
 
                 document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
                 document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
+            }
+        }
+    } catch (error) {
+        localStorage.removeItem('driverbook_auth_token');
+        window.location.href = 'login.html';
+    }
+}
+
+async function caricaDatiDashboardPartner() {
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const userData = await userRes.json();
+        if (!userRes.ok) throw new Error("Token non valido");
+
+        const userId = userData.id;
+
+        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const dbData = await dbRes.json();
+
+        if (dbData && dbData.length > 0) {
+            const partner = dbData[0];
+            
+            if (document.getElementById('dash_nome_partner')) {
+                document.getElementById('dash_nome_partner').textContent = partner.nome_cognome;
+            }
+            if (document.getElementById('dash_codice_partner')) {
+                document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
             }
         }
     } catch (error) {
