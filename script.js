@@ -511,12 +511,16 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaRiepilogo();
     }
 
-    if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
-        caricaDatiDashboardPasseggero();
-    }
-
-    if (document.getElementById('dash_nome_partner')) {
-        caricaDatiDashboardPartner();
+    const ruoloDashboard = localStorage.getItem('driverbook_ruolo');
+    
+    if (ruoloDashboard === 'partner') {
+        if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
+            caricaDatiDashboardPartner();
+        }
+    } else {
+        if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
+            caricaDatiDashboardPasseggero();
+        }
     }
 
     const btnPrenota = document.getElementById('btn_prenota_servizio');
