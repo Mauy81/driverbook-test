@@ -400,15 +400,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const inputZonaOperativa = document.getElementById('zonaOperativa');
-    if (inputZonaOperativa && typeof google !== 'undefined' && google.maps && google.maps.places) {
+    const inputProfiloZonaOperativa = document.getElementById('profilo_zonaOperativa');
+    
+    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
         const confiniArea = new google.maps.LatLngBounds(
             new google.maps.LatLng(36.0, -2.0),
             new google.maps.LatLng(52.0, 18.0)
         );
-        new google.maps.places.Autocomplete(inputZonaOperativa, {
-            bounds: confiniArea,
-            strictBounds: true
-        });
+        if (inputZonaOperativa) {
+            new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
+        }
+        if (inputProfiloZonaOperativa) {
+            new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
+        }
     }
 
     const inputTelPasseggero = document.getElementById('tel_passeggero');
@@ -1870,6 +1874,32 @@ async function caricaDatiDashboardPartner() {
             if (document.getElementById('dash_codice_partner')) {
                 document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
             }
+
+            if (document.getElementById('profilo_nome')) {
+                document.getElementById('profilo_nome').value = partner.nome_cognome || '';
+                document.getElementById('profilo_email').value = partner.email || '';
+                if (itiProfiloPasseggero && partner.tel_partner) {
+                    itiProfiloPasseggero.setNumber(partner.tel_partner);
+                }
+                
+                if (document.getElementById('profilo_ragioneSociale')) document.getElementById('profilo_ragioneSociale').value = partner.ragione_sociale || '';
+                if (document.getElementById('profilo_piva')) document.getElementById('profilo_piva').value = partner.piva || '';
+                if (document.getElementById('profilo_codice_sdi')) document.getElementById('profilo_codice_sdi').value = partner.codice_sdi || '';
+                if (document.getElementById('profilo_pec')) document.getElementById('profilo_pec').value = partner.pec || '';
+                if (document.getElementById('profilo_indirizzo_via')) document.getElementById('profilo_indirizzo_via').value = partner.indirizzo_via || '';
+                if (document.getElementById('profilo_indirizzo_cap')) document.getElementById('profilo_indirizzo_cap').value = partner.indirizzo_cap || '';
+                if (document.getElementById('profilo_indirizzo_citta')) document.getElementById('profilo_indirizzo_citta').value = partner.indirizzo_citta || '';
+                if (document.getElementById('profilo_indirizzo_provincia')) document.getElementById('profilo_indirizzo_provincia').value = partner.indirizzo_provincia || '';
+                
+                if (document.getElementById('profilo_iban')) document.getElementById('profilo_iban').value = partner.iban || '';
+                if (document.getElementById('profilo_intestatario_conto')) document.getElementById('profilo_intestatario_conto').value = partner.intestatario_conto || '';
+                if (document.getElementById('profilo_ruoloConducenti')) document.getElementById('profilo_ruoloConducenti').value = partner.ruolo_conducenti || '';
+                if (document.getElementById('profilo_autocertificazioneKb')) document.getElementById('profilo_autocertificazioneKb').checked = partner.autocertificazione_kb;
+                if (document.getElementById('profilo_zonaOperativa')) document.getElementById('profilo_zonaOperativa').value = partner.zona_operativa || '';
+
+                if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
+                if (document.getElementById('profilo_notificaEmail')) document.getElementById('profilo_notificaEmail').checked = partner.notifica_email;
+            }
         } else {
             esciAccount();
         }
@@ -1921,29 +1951,57 @@ async function aggiornaProfilo(event) {
         });
         const userData = await userRes.json();
         const userId = userData.id;
+        const ruolo = localStorage.getItem('driverbook_ruolo');
 
-        const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
         let prefissoTel = "+" + itiProfiloPasseggero.getSelectedCountryData().dialCode;
         let numeroDigitato = document.getElementById('profilo_telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
-        const corpoDati = {
-            nome_cognome: document.getElementById('profilo_nome').value,
-            telefono: telefonoFinale,
-            richiede_fattura: richiedeFattura,
-            ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
-            piva_cf: richiedeFattura ? document.getElementById('profilo_piva_cf').value : null,
-            codice_sdi: richiedeFattura ? document.getElementById('profilo_codice_sdi').value : null,
-            pec: richiedeFattura ? document.getElementById('profilo_pec').value : null,
-            indirizzo_via: richiedeFattura ? document.getElementById('profilo_indirizzo_via').value : null,
-            indirizzo_cap: richiedeFattura ? document.getElementById('profilo_indirizzo_cap').value : null,
-            indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
-            indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
-            notifica_push: document.getElementById('profilo_notificaPush').checked,
-            notifica_email: document.getElementById('profilo_notificaEmail').checked
-        };
+        let urlPatch = "";
+        let corpoDati = {};
 
-        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`, {
+        if (ruolo === 'partner') {
+            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
+            corpoDati = {
+                nome_cognome: document.getElementById('profilo_nome').value,
+                tel_partner: telefonoFinale,
+                ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
+                piva: document.getElementById('profilo_piva').value,
+                codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
+                pec: document.getElementById('profilo_pec').value || null,
+                indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
+                indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
+                indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
+                indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
+                iban: document.getElementById('profilo_iban').value,
+                intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
+                ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
+                autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
+                zona_operativa: document.getElementById('profilo_zonaOperativa').value,
+                notifica_push: document.getElementById('profilo_notificaPush').checked,
+                notifica_email: document.getElementById('profilo_notificaEmail').checked
+            };
+        } else {
+            const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
+            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
+            corpoDati = {
+                nome_cognome: document.getElementById('profilo_nome').value,
+                telefono: telefonoFinale,
+                richiede_fattura: richiedeFattura,
+                ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
+                piva_cf: richiedeFattura ? document.getElementById('profilo_piva_cf').value : null,
+                codice_sdi: richiedeFattura ? document.getElementById('profilo_codice_sdi').value : null,
+                pec: richiedeFattura ? document.getElementById('profilo_pec').value : null,
+                indirizzo_via: richiedeFattura ? document.getElementById('profilo_indirizzo_via').value : null,
+                indirizzo_cap: richiedeFattura ? document.getElementById('profilo_indirizzo_cap').value : null,
+                indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
+                indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
+                notifica_push: document.getElementById('profilo_notificaPush').checked,
+                notifica_email: document.getElementById('profilo_notificaEmail').checked
+            };
+        }
+
+        const dbRes = await fetch(urlPatch, {
             method: "PATCH",
             headers: {
                 "apikey": chiaveAnon,
@@ -2022,7 +2080,11 @@ async function aggiornaProfilo(event) {
                 btnSubmit.disabled = false;
             }, 5000);
             
-            caricaDatiDashboardPasseggero();
+            if (localStorage.getItem('driverbook_ruolo') === 'partner') {
+                caricaDatiDashboardPartner();
+            } else {
+                caricaDatiDashboardPasseggero();
+            }
         }
     } catch (errore) {
         let msgErrore = dict.js_prof_err_save;
