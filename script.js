@@ -1833,9 +1833,9 @@ async function caricaDatiDashboardPasseggero() {
 
                 document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
                 document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
-            } else {
-                esciAccount();
             }
+        } else {
+            esciAccount();
         }
     } catch (error) {
         localStorage.removeItem('driverbook_auth_token');
