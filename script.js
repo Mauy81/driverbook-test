@@ -56,54 +56,16 @@ document.addEventListener("DOMContentLoaded", function() {
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
+        
+        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
 
         if (hashParams.has('error') || hashParams.has('error_description')) {
-            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
             window.location.href = 'login.html?email_err=1';
             return;
         }
 
-        const token = hashParams.get('access_token');
-        if (token) {
-            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-            fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            })
-            .then(res => res.json())
-            .then(userData => {
-                if (userData && userData.email) {
-                    const userId = userData.id;
-                    const ruolo = localStorage.getItem('driverbook_ruolo');
-                    let urlPatch = "";
-                    if (ruolo === 'partner') {
-                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
-                    } else if (ruolo === 'passeggeri') {
-                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
-                    }
-
-                    if (urlPatch) {
-                        return fetch(urlPatch, {
-                            method: "PATCH",
-                            headers: {
-                                "apikey": chiaveAnon,
-                                "Authorization": "Bearer " + token,
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({ email: userData.email })
-                        });
-                    }
-                }
-            })
-            .finally(() => {
-                chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-                window.location.href = 'login.html?email_changed=1';
-            });
-            return;
-        } else {
-            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-            window.location.href = 'login.html?email_changed=1';
-            return;
-        }
+        window.location.href = 'login.html?email_changed=1';
+        return;
     }
 
     if (window.location.search.includes('email_changed=1')) {
@@ -2035,6 +1997,7 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
+                email: document.getElementById('profilo_email').value,
                 tel_partner: telefonoFinale,
                 ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
                 piva: document.getElementById('profilo_piva').value,
@@ -2057,6 +2020,7 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
+                email: document.getElementById('profilo_email').value,
                 telefono: telefonoFinale,
                 richiede_fattura: richiedeFattura,
                 ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
@@ -2099,13 +2063,11 @@ async function aggiornaProfilo(event) {
         
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
-            let urlRedirect = "https://mauy81.github.io/driverbook-test/partner/login.html";
-            if (ruolo === 'passeggeri') {
-                urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
-            }
+            let paginaCorrente = window.location.pathname.split('/').pop() || 'dashboard.html';
+            let urlRedirect = "https://mauy81.github.io/driverbook-test/" + paginaCorrente;
+            
             if (window.location.protocol !== 'file:') {
-                let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-                urlRedirect = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/login.html';
+                urlRedirect = window.location.origin + window.location.pathname;
             }
             
             const emailRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user?redirect_to=${encodeURIComponent(urlRedirect)}`, {
