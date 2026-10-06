@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cambio Email</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #111; color: #fff; padding: 20px; }
+        .box { background: #222; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; }
+        input, button { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        button { background: #00FF66; color: #000; font-weight: bold; border: none; cursor: pointer; }
+        #console-log { background: #000; color: #00FF66; padding: 10px; font-family: monospace; height: 300px; overflow-y: auto; border: 1px solid #333; margin-top: 20px;}
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>Laboratorio Test Email</h2>
+        <p>1. Inserisci la nuova email</p>
+        <input type="email" id="nuova_email" placeholder="nuova_email@esempio.com">
+        <button onclick="richiediCambioEmail()">Invia Richiesta Cambio Email</button>
+    </div>
+
+    <div class="box" style="margin-top: 20px;">
+        <h3>Console Eventi:</h3>
+        <div id="console-log">Attesa comandi...<br></div>
+    </div>
+
+    <script>
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        const urlRedirect = "https://mauy81.github.io/driverbook-test/partner/test-email.html"; // Torna qui
+
+        function logga(messaggio) {
+            const consoleDiv = document.getElementById('console-log');
+            consoleDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${messaggio}<br>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // FASE 1: CONTROLLO SE SEI LOGGATO
+        const tokenIniziale = localStorage.getItem('driverbook_auth_token');
+        if (!tokenIniziale) {
+            logga("⚠️ NESSUN TOKEN TROVATO. Vai prima a fare il login normale sul sito.");
+        } else {
+            logga("✅ Token trovato. Pronti a testare.");
+        }
+
+        // FASE 2: INVIO DELLA RICHIESTA
+        async function richiediCambioEmail() {
+            const nuovaEmail = document.getElementById('nuova_email').value;
+            if(!nuovaEmail) return logga("Inserisci una mail!");
+
+            logga(`Invio richiesta a Supabase per: ${nuovaEmail}...`);
+
+            try {
+                const response = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user?redirect_to=${encodeURIComponent(urlRedirect)}`, {
+                    method: "PUT",
+                    headers: {
+                        "apikey": chiaveAnon,
+                        "Authorization": "Bearer " + tokenIniziale,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: nuovaEmail })
+                });
+
+                if (response.ok) {
+                    logga("✅ Richiesta inviata con successo! (Nessun logout forzato eseguito).");
+                    logga("Vai ad aprire la nuova casella di posta e clicca il link.");
+                } else {
+                    const err = await response.json();
+                    logga("❌ ERRORE Supabase: " + JSON.stringify(err));
+                }
+            } catch (error) {
+                logga("❌ ERRORE di rete: " + error.message);
+            }
+        }
+
+        // FASE 3: INTERCETTAZIONE DEL LINK QUANDO CI CLICCHI SOPRA
+        window.addEventListener('DOMContentLoaded', async () => {
+            const hashCheck = window.location.hash.substring(1);
+            const hashParams = new URLSearchParams(hashCheck);
+
+            if (hashParams.has('error_description')) {
+                logga(`❌ ERRORE RICEVUTO DAL LINK: ${hashParams.get('error_description')}`);
+                return;
+            }
+
+            if (hashParams.get('type') === 'email_change' && hashParams.has('access_token')) {
+                logga("✅ RITORNO DAL LINK INTERCETTATO CORRETTAMENTE!");
+                
+                const tokenDalLink = hashParams.get('access_token');
+                logga("🔄 Interrogo Supabase per avere conferma...");
+
+                try {
+                    const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + tokenDalLink }
+                    });
+                    
+                    if (userRes.ok) {
+                        const userData = await userRes.json();
+                        logga(`✅ SUPABASE CONFERMA! L'utente è ora: ${userData.email}`);
+                        logga(`🔄 Vado ad aggiornare la tabella partner per l'ID: ${userData.id}...`);
+
+                        // Aggiorniamo la tabella
+                        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}`, {
+                            method: "PATCH",
+                            headers: {
+                                "apikey": chiaveAnon,
+                                "Authorization": "Bearer " + tokenDalLink,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ email: userData.email })
+                        });
+
+                        if(dbRes.ok) {
+                            logga("🎉 BINGO! Tabella aggiornata. Il flusso isolato funziona al 100%.");
+                        } else {
+                            logga("❌ Errore aggiornamento tabella.");
+                        }
+
+                    } else {
+                        logga("❌ Token dal link non valido per Supabase.");
+                    }
+                } catch(e) {
+                    logga("❌ Eccezione: " + e.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
