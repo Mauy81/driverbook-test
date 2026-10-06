@@ -344,7 +344,8 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_login': 'login.html',
         'link_menu_pub_reset': 'pwreset.html',
         'link_menu_pub_reg': 'registrazione.html',
-        'link_menu_pub_assist': 'assistenza.html'
+        'link_menu_pub_assist': 'assistenza.html',
+        'link_menu_flotta': 'flotta.html'
     };
     
     menuLinks.forEach(link => {
@@ -2089,8 +2090,8 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
-            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Richiesta Inviata!"}</h2>`;
-            const msgFeedback = `<p class="feedback-testo">${linguaAttuale === 'en' ? "Check your new email inbox and click the link to confirm the address. For your security, you have been logged out." : "Controlla la tua nuova casella di posta e clicca il link per confermare l'indirizzo. Per sicurezza, sei stato scollegato."}</p>`;
+            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title}</h2>`;
+            const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg}</p>`;
             
             mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
