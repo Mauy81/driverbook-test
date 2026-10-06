@@ -2035,7 +2035,6 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
-                email: document.getElementById('profilo_email').value,
                 tel_partner: telefonoFinale,
                 ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
                 piva: document.getElementById('profilo_piva').value,
@@ -2058,7 +2057,6 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
-                email: document.getElementById('profilo_email').value,
                 telefono: telefonoFinale,
                 richiede_fattura: richiedeFattura,
                 ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
