@@ -45,7 +45,10 @@ document.addEventListener("DOMContentLoaded", function() {
         setInterval(rinnovaSessioneSilenziosa, 50 * 60 * 1000); 
     }
 
-    if (window.location.hash.includes('type=email_change')) {
+    const hashCheck = window.location.hash.substring(1);
+    const hashParams = new URLSearchParams(hashCheck);
+
+    if (hashParams.get('type') === 'email_change' || hashParams.has('error_description')) {
         const chiaviDaCancellare = [
             'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
             'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
@@ -53,14 +56,75 @@ document.addEventListener("DOMContentLoaded", function() {
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
-        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-        window.location.href = 'login.html?email_changed=1';
-        return;
+
+        if (hashParams.has('error') || hashParams.has('error_description')) {
+            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+            window.location.href = 'login.html?email_err=1';
+            return;
+        }
+
+        const token = hashParams.get('access_token');
+        if (token) {
+            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+            fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            })
+            .then(res => res.json())
+            .then(userData => {
+                if (userData && userData.email) {
+                    const userId = userData.id;
+                    const ruolo = localStorage.getItem('driverbook_ruolo');
+                    let urlPatch = "";
+                    if (ruolo === 'partner') {
+                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
+                    } else if (ruolo === 'passeggeri') {
+                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
+                    }
+
+                    if (urlPatch) {
+                        return fetch(urlPatch, {
+                            method: "PATCH",
+                            headers: {
+                                "apikey": chiaveAnon,
+                                "Authorization": "Bearer " + token,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ email: userData.email })
+                        });
+                    }
+                }
+            })
+            .finally(() => {
+                chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+                window.location.href = 'login.html?email_changed=1';
+            });
+            return;
+        } else {
+            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+            window.location.href = 'login.html?email_changed=1';
+            return;
+        }
     }
 
     if (window.location.search.includes('email_changed=1')) {
         const msgBox = document.getElementById('messaggio_cambio_email');
-        if (msgBox) msgBox.classList.remove('hidden');
+        if (msgBox) {
+            msgBox.classList.remove('hidden');
+            const lang = localStorage.getItem('driverbook_lang') || 'it';
+            msgBox.innerHTML = traduzioni[lang].msg_email_confermata || "Email confermata con successo. Effettua il login con le tue nuove credenziali.";
+        }
+    }
+
+    if (window.location.search.includes('email_err=1')) {
+        const msgBox = document.getElementById('messaggio_cambio_email');
+        if (msgBox) {
+            msgBox.classList.remove('hidden');
+            msgBox.style.backgroundColor = "#ffebee";
+            msgBox.style.color = "#c62828";
+            msgBox.style.borderColor = "#c62828";
+            const lang = localStorage.getItem('driverbook_lang') || 'it';
+            msgBox.innerHTML = traduzioni[lang].msg_email_errore || "Il link di conferma è scaduto o non valido. Ripeti la procedura dal tuo profilo.";
+        }
     }
 	
     if (document.getElementById('formLogin') && window.location.hash.includes('access_token') && window.location.hash.includes('type=signup')) {
@@ -1971,7 +2035,6 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
-                email: document.getElementById('profilo_email').value,
                 tel_partner: telefonoFinale,
                 ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
                 piva: document.getElementById('profilo_piva').value,
@@ -1994,7 +2057,6 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
-                email: document.getElementById('profilo_email').value,
                 telefono: telefonoFinale,
                 richiede_fattura: richiedeFattura,
                 ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
@@ -2037,11 +2099,13 @@ async function aggiornaProfilo(event) {
         
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
-            let paginaCorrente = window.location.pathname.split('/').pop() || 'dashboard.html';
-            let urlRedirect = "https://mauy81.github.io/driverbook-test/" + paginaCorrente;
-            
+            let urlRedirect = "https://mauy81.github.io/driverbook-test/partner/login.html";
+            if (ruolo === 'passeggeri') {
+                urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
+            }
             if (window.location.protocol !== 'file:') {
-                urlRedirect = window.location.origin + window.location.pathname;
+                let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
+                urlRedirect = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/login.html';
             }
             
             const emailRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user?redirect_to=${encodeURIComponent(urlRedirect)}`, {
@@ -2064,13 +2128,21 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
-            const titoloFeedback = linguaAttuale === 'en' ? '<h2 class="feedback-titolo feedback-titolo-successo">Request Sent!</h2>' : '<h2 class="feedback-titolo feedback-titolo-successo">Richiesta inviata!</h2>';
-            const msgFeedback = linguaAttuale === 'en' ? '<p class="feedback-testo">Check your new email inbox and click the link to confirm the address. For security reasons, you will be logged out.</p>' : '<p class="feedback-testo">Controlla la tua nuova casella di posta e clicca il link per confermare l\'indirizzo. Per sicurezza, verrai scollegato.</p>';
+            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Richiesta Inviata!"}</h2>`;
+            const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg || "Controlla la nuova casella di posta e clicca il link per confermare l'indirizzo. Per sicurezza, verrai scollegato."}</p>`;
             
             mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
             setTimeout(() => {
-                esciAccount();
+                const chiaviDaCancellare = [
+                    'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
+                    'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                    'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+                    'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+                    'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+                ];
+                chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+                window.location.href = 'login.html';
             }, 5000);
             
             return;
