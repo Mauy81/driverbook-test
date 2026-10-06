@@ -57,53 +57,14 @@ document.addEventListener("DOMContentLoaded", function() {
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
 
+        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+
         if (hashParams.has('error') || hashParams.has('error_description')) {
-            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
             window.location.href = 'login.html?email_err=1';
-            return;
-        }
-
-        const token = hashParams.get('access_token');
-        if (token) {
-            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-            fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            })
-            .then(res => res.json())
-            .then(userData => {
-                if (userData && userData.email) {
-                    const userId = userData.id;
-                    const pathAttuale = window.location.pathname.toLowerCase();
-                    let urlPatch = "";
-                    if (pathAttuale.includes('/partner/')) {
-                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
-                    } else if (pathAttuale.includes('/passeggeri/')) {
-                        urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
-                    }
-
-                    if (urlPatch) {
-                        return fetch(urlPatch, {
-                            method: "PATCH",
-                            headers: {
-                                "apikey": chiaveAnon,
-                                "Authorization": "Bearer " + token,
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({ email: userData.email })
-                        });
-                    }
-                }
-            })
-            .finally(() => {
-                chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-                window.location.href = 'login.html?email_changed=1';
-            });
-            return;
         } else {
-            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
             window.location.href = 'login.html?email_changed=1';
-            return;
         }
+        return;
     }
 
     if (window.location.search.includes('email_changed=1')) {
@@ -2129,13 +2090,18 @@ async function aggiornaProfilo(event) {
             }
             
             const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Richiesta Inviata!"}</h2>`;
-            const msgFeedback = `<p class="feedback-testo">${linguaAttuale === 'en' ? "Check your new email inbox and click the link to confirm the address." : "Controlla la tua nuova casella di posta e clicca il link per confermare l'indirizzo."}</p>`;
+            const msgFeedback = `<p class="feedback-testo">${linguaAttuale === 'en' ? "Check your new email inbox and click the link to confirm the address. For your security, you have been logged out." : "Controlla la tua nuova casella di posta e clicca il link per confermare l'indirizzo. Per sicurezza, sei stato scollegato."}</p>`;
             
             mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 5000);
+            const chiaviDaCancellare = [
+                'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
+                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+                'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+                'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+            ];
+            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
             
             return;
         } else {
