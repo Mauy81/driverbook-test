@@ -2129,20 +2129,12 @@ async function aggiornaProfilo(event) {
             }
             
             const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Richiesta Inviata!"}</h2>`;
-            const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg || "Controlla la nuova casella di posta e clicca il link per confermare l'indirizzo. Per sicurezza, verrai scollegato."}</p>`;
+            const msgFeedback = `<p class="feedback-testo">${linguaAttuale === 'en' ? "Check your new email inbox and click the link to confirm the address." : "Controlla la tua nuova casella di posta e clicca il link per confermare l'indirizzo."}</p>`;
             
             mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
             setTimeout(() => {
-                const chiaviDaCancellare = [
-                    'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
-                    'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                    'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
-                    'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
-                    'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
-                ];
-                chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-                window.location.href = 'login.html';
+                window.location.href = 'dashboard.html';
             }, 5000);
             
             return;
