@@ -46,7 +46,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (window.location.hash.includes('type=email_change')) {
-        localStorage.removeItem('driverbook_auth_token');
+        const chiaviDaCancellare = [
+            'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
+            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+            'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+            'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+        ];
+        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
         window.location.href = 'login.html?email_changed=1';
         return;
     }
@@ -1964,6 +1971,7 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
+                email: document.getElementById('profilo_email').value,
                 tel_partner: telefonoFinale,
                 ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
                 piva: document.getElementById('profilo_piva').value,
@@ -1986,6 +1994,7 @@ async function aggiornaProfilo(event) {
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
             corpoDati = {
                 nome_cognome: document.getElementById('profilo_nome').value,
+                email: document.getElementById('profilo_email').value,
                 telefono: telefonoFinale,
                 richiede_fattura: richiedeFattura,
                 ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
@@ -2055,14 +2064,13 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
-            btnSubmit.textContent = dict.js_prof_email_success;
-            btnSubmit.style.backgroundColor = "#00FF66";
-            btnSubmit.style.color = "#000000";
-            btnSubmit.style.borderColor = "#00FF66";
+            const titoloFeedback = linguaAttuale === 'en' ? '<h2 class="feedback-titolo feedback-titolo-successo">Request Sent!</h2>' : '<h2 class="feedback-titolo feedback-titolo-successo">Richiesta inviata!</h2>';
+            const msgFeedback = linguaAttuale === 'en' ? '<p class="feedback-testo">Check your new email inbox and click the link to confirm the address. For security reasons, you will be logged out.</p>' : '<p class="feedback-testo">Controlla la tua nuova casella di posta e clicca il link per confermare l\'indirizzo. Per sicurezza, verrai scollegato.</p>';
+            
+            mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
             setTimeout(() => {
-                localStorage.removeItem('driverbook_auth_token');
-                window.location.href = 'login.html';
+                esciAccount();
             }, 5000);
             
             return;
