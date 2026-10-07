@@ -13,6 +13,30 @@
 <body>
     <div id="menu-principale"></div>
 
+    <style>
+        body, .login-wrapper, #card_flotta { 
+            padding-bottom: 0 !important; 
+            margin-bottom: 0 !important; 
+        }
+        .btn-elimina-veicolo {
+            background: transparent;
+            border: none;
+            color: #888888;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            height: 28px;
+            width: 28px;
+            padding: 0;
+        }
+        .btn-elimina-veicolo:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+    </style>
     <main class="login-wrapper">
         <div class="auth-card" id="card_flotta">
             
@@ -22,50 +46,190 @@
 
             <div id="sezione_elenco_veicoli" class="sezione-vetture">
                 
-                <div class="vettura-card" style="padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                    <div style="display: flex; gap: 15px; font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        <span>CLASSE V</span>
-                        <span>7 POSTI</span>
+                <div class="vettura-card" data-targa="AB 123 CD" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
                     </div>
-                    <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        AB 123 CD
-                    </div>
-                </div>
-
-                <div class="vettura-card" style="padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                    <div style="display: flex; gap: 15px; font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        <span>CLASSE V</span>
-                        <span>6 POSTI</span>
-                    </div>
-                    <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        XY 987 ZK
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            AB 123 CD
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('AB 123 CD')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
                     </div>
                 </div>
 
-                <div class="vettura-card" style="padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                    <div style="display: flex; gap: 15px; font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        <span>CLASSE E</span>
+                <div class="vettura-card" data-targa="EF 456 GH" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
                     </div>
-                    <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        EF 987 GH
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            EF 456 GH
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('EF 456 GH')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
                     </div>
                 </div>
 
-                <div class="vettura-card" style="padding: 12px 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                    <div style="display: flex; gap: 15px; font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        <span>CLASSE S</span>
+                <div class="vettura-card" data-targa="LM 789 OP" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
                     </div>
-                    <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
-                        ZA 456 XX
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            LM 789 OP
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('LM 789 OP')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
                     </div>
                 </div>
+
+                <div class="vettura-card" data-targa="XY 987 ZK" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 6 POSTI</div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            XY 987 ZK
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('XY 987 ZK')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="WZ 654 YX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 6 POSTI</div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            WZ 654 YX
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('WZ 654 YX')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="TR 321 SQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 5 POSTI</div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            TR 321 SQ
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('TR 321 SQ')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="PL 159 MN" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
+                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 4 POSTI</div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            PL 159 MN
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('PL 159 MN')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="BN 753 VM" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            BN 753 VM
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('BN 753 VM')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="CX 852 ZQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            CX 852 ZQ
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('CX 852 ZQ')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="DW 951 RT" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            DW 951 RT
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('DW 951 RT')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="ZA 456 XX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">S</span></div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            ZA 456 XX
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('ZA 456 XX')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vettura-card" data-targa="YB 789 KW" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
+                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">S</span></div>
+                    </div>
+                    <div style="display: flex; gap: 35px; align-items: center;">
+                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                            YB 789 KW
+                        </div>
+                        <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('YB 789 KW')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <button type="button" class="btn btn-primary btn-full" id="btn_apri_aggiungi">+ Aggiungi Veicolo</button>
+            <div id="barra_aggiungi_veicolo" style="position: sticky; bottom: 0; background-color: #000000; padding: 16px 0 26px 0; text-align: center; z-index: 10;">
+                <button type="button" class="btn btn-primary" style="width: auto; padding: 12px 40px; margin: 0;">Aggiungi veicolo</button>
+            </div>
 
-            <div id="form_container_veicolo" class="hidden" style="margin-top: 25px; border-top: 1px solid #333333; padding-top: 25px;">
+            <div id="form_container_veicolo" class="hidden" style="margin-top: 15px; border-top: 1px solid #333333; padding-top: 25px;">
                 <div class="auth-header">
-                    <h2>Nuovo Veicolo</h2>
+                    <h2 id="titolo_form_veicolo">Nuovo Veicolo</h2>
                 </div>
                 
                 <form id="formGestioneVeicolo">
@@ -81,11 +245,12 @@
 
                     <div class="form-group hidden" id="gruppo_posti_v">
                         <label class="label" for="veicolo_posti">Posti Passeggeri effettivi</label>
-                        <select id="veicolo_posti" class="input">
-                            <option value="4">4 Posti (Configurazione VIP)</option>
-                            <option value="5">5 Posti</option>
-                            <option value="6">6 Posti</option>
-                            <option value="7" selected>7 Posti (Standard)</option>
+                        <select id="veicolo_posti" class="input" required>
+                            <option value="" disabled selected>Seleziona posti...</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
                         </select>
                     </div>
 
@@ -111,8 +276,10 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-full" id="btn_salva_veicolo">Verifica e Salva</button>
-                    <button type="button" class="btn btn-ghost btn-full" id="btn_annulla_veicolo" style="margin-top: 15px;">Annulla</button>
+                    <div style="display: flex; gap: 10px; margin-top: 30px;">
+                        <button type="submit" class="btn btn-primary" id="btn_salva_veicolo" style="flex: 1; margin: 0;">SALVA</button>
+                        <button type="button" class="btn btn-ghost" id="btn_annulla_veicolo" style="flex: 1; margin: 0;">ANNULLA</button>
+                    </div>
                 </form>
             </div>
 
@@ -141,20 +308,39 @@
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const btnApri = document.getElementById('btn_apri_aggiungi');
+            const btnApri = document.getElementById('barra_aggiungi_veicolo');
             const btnAnnulla = document.getElementById('btn_annulla_veicolo');
             const formContainer = document.getElementById('form_container_veicolo');
+            const elencoVeicoli = document.getElementById('sezione_elenco_veicoli');
             const selectModello = document.getElementById('veicolo_modello');
             const gruppoPostiV = document.getElementById('gruppo_posti_v');
+            const selectPosti = document.getElementById('veicolo_posti');
+            const titoloForm = document.getElementById('titolo_form_veicolo');
+            const formGestione = document.getElementById('formGestioneVeicolo');
 
-            btnApri.addEventListener('click', () => {
+            function apriForm() {
                 formContainer.classList.remove('hidden');
                 btnApri.classList.add('hidden');
+                elencoVeicoli.classList.add('hidden');
+                document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '40px', 'important');
+            }
+
+            function chiudiForm() {
+                formContainer.classList.add('hidden');
+                btnApri.classList.remove('hidden');
+                elencoVeicoli.classList.remove('hidden');
+                document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
+            }
+
+            btnApri.addEventListener('click', () => {
+                formGestione.reset();
+                titoloForm.textContent = 'Nuovo Veicolo';
+                gruppoPostiV.classList.add('hidden');
+                apriForm();
             });
 
             btnAnnulla.addEventListener('click', () => {
-                formContainer.classList.add('hidden');
-                btnApri.classList.remove('hidden');
+                chiudiForm();
             });
 
             selectModello.addEventListener('change', function() {
@@ -162,9 +348,57 @@
                     gruppoPostiV.classList.remove('hidden');
                 } else {
                     gruppoPostiV.classList.add('hidden');
+                    selectPosti.value = "";
                 }
             });
         });
+
+        function chiediConfermaEliminazioneVeicolo(targa) {
+            let overlay = document.getElementById('modale_eliminazione_veicolo');
+            const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+            
+            const titoloTesto = linguaAttuale === 'en' ? 'Delete Vehicle' : 'Elimina Veicolo';
+            const domandaTesto = linguaAttuale === 'en' ? 'Are you sure you want to delete this vehicle?' : 'Vuoi davvero eliminare questo veicolo dalla flotta?';
+            const btnAnnullaTesto = linguaAttuale === 'en' ? 'NO' : 'NO';
+            const btnEliminaTesto = linguaAttuale === 'en' ? 'YES' : 'SI';
+
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'modale_eliminazione_veicolo';
+                overlay.className = 'modale-overlay';
+                
+                let modal = document.createElement('div');
+                modal.className = 'modale-box';
+                
+                modal.innerHTML = `
+                    <h3 class="modale-titolo">${titoloTesto}</h3>
+                    <p class="modale-testo">${domandaTesto}<br><strong style="color: #ffffff; font-size: 1.1rem; display: block; margin-top: 10px;">${targa}</strong></p>
+                    <div class="modale-bottoni-container">
+                        <button id="btn_annulla_eliminazione" class="btn-modale-bianco">${btnAnnullaTesto}</button>
+                        <button id="btn_conferma_eliminazione" class="btn-modale-bianco">${btnEliminaTesto}</button>
+                    </div>
+                `;
+                
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                document.getElementById('btn_annulla_eliminazione').addEventListener('click', function() {
+                    overlay.style.display = 'none';
+                });
+            } else {
+                overlay.querySelector('.modale-testo strong').innerText = targa;
+            }
+            
+            overlay.style.display = 'flex';
+            
+            document.getElementById('btn_conferma_eliminazione').onclick = function() {
+                overlay.style.display = 'none';
+                const cardDaRimuovere = document.querySelector(`.vettura-card[data-targa="${targa}"]`);
+                if(cardDaRimuovere) {
+                    cardDaRimuovere.style.display = 'none';
+                }
+            };
+        }
     </script>
     <script src="../traduzioni.js"></script>
     <script src="../script.js"></script>
