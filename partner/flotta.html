@@ -36,7 +36,28 @@
             background-color: #ffffff;
             color: #000000;
         }
+        .card-flex-container {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+            text-transform: uppercase;
+        }
+        .testo-card-veicolo, .testo-card-veicolo span {
+            font-size: 1rem;
+        }
+        @media (max-width: 450px) {
+            .card-flex-container {
+                gap: 10px !important;
+            }
+            .testo-card-veicolo, .testo-card-veicolo span {
+                font-size: 0.75rem !important;
+            }
+            .vettura-card {
+                padding: 6px 8px !important;
+            }
+        }
     </style>
+	
     <main class="login-wrapper">
         <div class="auth-card" id="card_flotta">
             
@@ -46,13 +67,13 @@
 
             <div id="sezione_elenco_veicoli" class="sezione-vetture">
                 
-                <div class="vettura-card" data-targa="AB 123 CD" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
+                <div class="vettura-card" data-targa="AB 123 CD" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 7 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             AB 123 CD
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('AB 123 CD')">
@@ -61,13 +82,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="EF 456 GH" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
+                <div class="vettura-card" data-targa="EF 456 GH" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 7 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             EF 456 GH
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('EF 456 GH')">
@@ -76,13 +97,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="LM 789 OP" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 7 POSTI</div>
+                <div class="vettura-card" data-targa="LM 789 OP" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 7 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             LM 789 OP
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('LM 789 OP')">
@@ -91,13 +112,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="XY 987 ZK" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 6 POSTI</div>
+                <div class="vettura-card" data-targa="XY 987 ZK" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 6 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             XY 987 ZK
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('XY 987 ZK')">
@@ -106,13 +127,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="WZ 654 YX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 6 POSTI</div>
+                <div class="vettura-card" data-targa="WZ 654 YX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 6 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             WZ 654 YX
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('WZ 654 YX')">
@@ -121,13 +142,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="TR 321 SQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 5 POSTI</div>
+                <div class="vettura-card" data-targa="TR 321 SQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 5 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             TR 321 SQ
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('TR 321 SQ')">
@@ -136,13 +157,13 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="PL 159 MN" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">V</span></div>
-                        <div style="color: #888888; font-weight: normal; font-size: 1rem;">VAN 4 POSTI</div>
+                <div class="vettura-card" data-targa="PL 159 MN" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">V</span></div>
+                        <div class="testo-card-veicolo" style="color: #888888; font-weight: normal;">VAN 4 POSTI</div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             PL 159 MN
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('PL 159 MN')">
@@ -151,12 +172,12 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="BN 753 VM" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                <div class="vettura-card" data-targa="BN 753 VM" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">E</span></div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             BN 753 VM
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('BN 753 VM')">
@@ -165,12 +186,12 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="CX 852 ZQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                <div class="vettura-card" data-targa="CX 852 ZQ" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">E</span></div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             CX 852 ZQ
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('CX 852 ZQ')">
@@ -179,12 +200,12 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="DW 951 RT" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">E</span></div>
+                <div class="vettura-card" data-targa="DW 951 RT" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">E</span></div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             DW 951 RT
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('DW 951 RT')">
@@ -193,12 +214,12 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="ZA 456 XX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">S</span></div>
+                <div class="vettura-card" data-targa="ZA 456 XX" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">S</span></div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             ZA 456 XX
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('ZA 456 XX')">
@@ -207,12 +228,12 @@
                     </div>
                 </div>
 
-                <div class="vettura-card" data-targa="YB 789 KW" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 35px; align-items: center; text-transform: uppercase;">
-                        <div><span style="color: #888888; font-weight: normal; font-size: 1rem;">CLASSE</span> <span style="color: #ffffff; font-weight: bold; font-size: 1rem;">S</span></div>
+                <div class="vettura-card" data-targa="YB 789 KW" style="padding: 6px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo"><span style="color: #888888; font-weight: normal;">CLASSE</span> <span style="color: #ffffff; font-weight: bold;">S</span></div>
                     </div>
-                    <div style="display: flex; gap: 35px; align-items: center;">
-                        <div style="font-weight: bold; font-size: 1rem; color: #ffffff; text-transform: uppercase;">
+                    <div class="card-flex-container">
+                        <div class="testo-card-veicolo" style="font-weight: bold; color: #ffffff;">
                             YB 789 KW
                         </div>
                         <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('YB 789 KW')">
@@ -227,7 +248,7 @@
                 <button type="button" class="btn btn-primary" style="width: auto; padding: 12px 40px; margin: 0;">Aggiungi veicolo</button>
             </div>
 
-            <div id="form_container_veicolo" class="hidden" style="margin-top: 15px; border-top: 1px solid #333333; padding-top: 25px;">
+            <div id="form_container_veicolo" class="hidden" style="margin-top: 60px;">
                 <div class="auth-header">
                     <h2 id="titolo_form_veicolo">Nuovo Veicolo</h2>
                 </div>
@@ -260,19 +281,19 @@
                     </div>
 
                     <div class="form-group" style="margin-top: 30px; margin-bottom: 25px;">
-                        <label class="label" style="font-weight: bold; border-bottom: 1px solid #333333; padding-bottom: 10px; margin-bottom: 15px;">Autocertificazioni Obbligatorie</label>
+                        <label class="label" style="font-weight: bold; margin-bottom: 30px;">Autocertificazioni Obbligatorie</label>
                         
                         <div class="checkbox-group">
                             <input type="checkbox" id="autocert_destinazione" class="checkbox-input" required>
-                            <label for="autocert_destinazione" class="checkbox-label">Dichiaro che il veicolo ha destinazione d'uso "Locazione con conducente" (NCC) sulla Carta di Circolazione.</label>
+                            <label for="autocert_destinazione" class="checkbox-label">Dichiaro che il veicolo è immatricolato per "uso di terzi da locazione con conducente" (NCC), come indicato sulla Carta di Circolazione.</label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="autocert_assicurazione" class="checkbox-input" required>
-                            <label for="autocert_assicurazione" class="checkbox-label">Dichiaro copertura assicurativa idonea per NCC e revisione periodica in regola.</label>
+                            <label for="autocert_assicurazione" class="checkbox-label">Dichiaro che il veicolo è in regola con la revisione annuale e dispone di specifica assicurazione per il trasporto passeggeri (NCC).</label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="autocert_autorizzazione" class="checkbox-input" required>
-                            <label for="autocert_autorizzazione" class="checkbox-label">Dichiaro regolare autorizzazione NCC e manlevo DriverBook da ogni responsabilità.</label>
+                            <label for="autocert_autorizzazione" class="checkbox-label">Dichiaro che il veicolo è associato a una regolare autorizzazione NCC in corso di validità.</label>
                         </div>
                     </div>
 
@@ -291,14 +312,14 @@
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
             <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
-                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
+                <span>CHIUDI MENU</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
             <div class="swipe-logout-container">
                 <div class="swipe-logout-track">
-                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span></span>
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span></span>
                     <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
                 </div>
             </div>
@@ -323,6 +344,7 @@
                 btnApri.classList.add('hidden');
                 elencoVeicoli.classList.add('hidden');
                 document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '40px', 'important');
+                window.scrollTo(0, 0);
             }
 
             function chiudiForm() {
@@ -330,6 +352,9 @@
                 btnApri.classList.remove('hidden');
                 elencoVeicoli.classList.remove('hidden');
                 document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
+                window.scrollTo(0, 0);
+                formGestione.reset();
+                moduloSporco = false;
             }
 
             btnApri.addEventListener('click', () => {
@@ -355,12 +380,6 @@
 
         function chiediConfermaEliminazioneVeicolo(targa) {
             let overlay = document.getElementById('modale_eliminazione_veicolo');
-            const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-            
-            const titoloTesto = linguaAttuale === 'en' ? 'Delete Vehicle' : 'Elimina Veicolo';
-            const domandaTesto = linguaAttuale === 'en' ? 'Are you sure you want to delete this vehicle?' : 'Vuoi davvero eliminare questo veicolo dalla flotta?';
-            const btnAnnullaTesto = linguaAttuale === 'en' ? 'NO' : 'NO';
-            const btnEliminaTesto = linguaAttuale === 'en' ? 'YES' : 'SI';
 
             if (!overlay) {
                 overlay = document.createElement('div');
@@ -371,11 +390,11 @@
                 modal.className = 'modale-box';
                 
                 modal.innerHTML = `
-                    <h3 class="modale-titolo">${titoloTesto}</h3>
-                    <p class="modale-testo">${domandaTesto}<br><strong style="color: #ffffff; font-size: 1.1rem; display: block; margin-top: 10px;">${targa}</strong></p>
+                    <h3 class="modale-titolo">Elimina Veicolo</h3>
+                    <p class="modale-testo">Vuoi davvero eliminare questo veicolo dalla flotta?<br><strong style="color: #ffffff; font-size: 1.1rem; display: block; margin-top: 10px;">${targa}</strong></p>
                     <div class="modale-bottoni-container">
-                        <button id="btn_annulla_eliminazione" class="btn-modale-bianco">${btnAnnullaTesto}</button>
-                        <button id="btn_conferma_eliminazione" class="btn-modale-bianco">${btnEliminaTesto}</button>
+                        <button id="btn_annulla_eliminazione" class="btn-modale-bianco">NO</button>
+                        <button id="btn_conferma_eliminazione" class="btn-modale-bianco">SI</button>
                     </div>
                 `;
                 
@@ -400,7 +419,6 @@
             };
         }
     </script>
-    <script src="../traduzioni.js"></script>
     <script src="../script.js"></script>
 </body>
 </html>
