@@ -1163,3 +1163,127 @@ input:-webkit-autofill:active {
 .feedback-icona {
     margin-bottom: 20px;
 }
+
+body.page-flotta, 
+.page-flotta .login-wrapper, 
+#card_flotta { 
+    padding-bottom: 0 !important; 
+    margin-bottom: 0 !important; 
+}
+
+.btn-elimina-veicolo {
+    background: transparent;
+    border: none;
+    color: #888888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    height: 28px;
+    width: 28px;
+    padding: 0;
+}
+
+.btn-elimina-veicolo:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.card-flex-container {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    text-transform: uppercase;
+}
+
+.vettura-card-mini {
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.testo-card-veicolo, 
+.testo-card-veicolo span {
+    font-size: 1rem;
+}
+
+.testo-card-veicolo .testo-label {
+    color: #888888;
+    font-weight: normal;
+}
+
+.testo-card-veicolo .testo-valore {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+@media (max-width: 450px) {
+    .card-flex-container {
+        gap: 10px !important;
+    }
+    
+    .testo-card-veicolo, 
+    .testo-card-veicolo span {
+        font-size: 0.75rem !important;
+    }
+    
+    .vettura-card-mini {
+        padding: 6px 8px !important;
+    }
+}
+
+#barra_aggiungi_veicolo {
+    position: sticky;
+    bottom: 0;
+    background-color: #000000;
+    padding: 16px 0 26px 0;
+    text-align: center;
+    z-index: 10;
+}
+
+#barra_aggiungi_veicolo .btn-primary {
+    width: auto;
+    padding: 12px 40px;
+    margin: 0;
+}
+
+#form_container_veicolo {
+    margin-top: 60px;
+}
+
+.form-group-autocert {
+    margin-top: 30px;
+    margin-bottom: 25px;
+}
+
+.label-autocert {
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.form-bottoni-veicolo {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn-veicolo-azione {
+    flex: 1;
+    margin: 0;
+}
+
+.targa-evidenza {
+    color: #ffffff;
+    font-size: 1.1rem;
+    display: block;
+    margin-top: 10px;
+}
+
+.input-targa {
+    text-transform: uppercase;
+}

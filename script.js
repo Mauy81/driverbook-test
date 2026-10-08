@@ -2932,3 +2932,274 @@ function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, h
         }
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const btnApri = document.getElementById('barra_aggiungi_veicolo');
+    if (!btnApri) return;
+
+    const btnAnnulla = document.getElementById('btn_annulla_veicolo');
+    const formContainer = document.getElementById('form_container_veicolo');
+    const elencoVeicoli = document.getElementById('sezione_elenco_veicoli');
+    const selectModello = document.getElementById('veicolo_modello');
+    const gruppoPostiV = document.getElementById('gruppo_posti_v');
+    const selectPosti = document.getElementById('veicolo_posti');
+    const titoloForm = document.getElementById('titolo_form_veicolo');
+    const formGestione = document.getElementById('formGestioneVeicolo');
+
+    caricaFlotta();
+
+    function apriForm() {
+        formContainer.classList.remove('hidden');
+        btnApri.classList.add('hidden');
+        elencoVeicoli.classList.add('hidden');
+        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '40px', 'important');
+        window.scrollTo(0, 0);
+    }
+
+    function chiudiForm() {
+        formContainer.classList.add('hidden');
+        btnApri.classList.remove('hidden');
+        elencoVeicoli.classList.remove('hidden');
+        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
+        window.scrollTo(0, 0);
+        formGestione.reset();
+        if (typeof moduloSporco !== 'undefined') moduloSporco = false;
+    }
+
+    btnApri.addEventListener('click', () => {
+        formGestione.reset();
+        titoloForm.textContent = 'Nuovo Veicolo';
+        gruppoPostiV.classList.add('hidden');
+        apriForm();
+    });
+
+    btnAnnulla.addEventListener('click', () => {
+        chiudiForm();
+    });
+
+    selectModello.addEventListener('change', function() {
+        if (this.value === 'CLASSE_V') {
+            gruppoPostiV.classList.remove('hidden');
+        } else {
+            gruppoPostiV.classList.add('hidden');
+            selectPosti.value = "";
+        }
+    });
+
+    formGestione.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btnSalva = document.getElementById('btn_salva_veicolo');
+        const testoOriginale = btnSalva.textContent;
+        btnSalva.disabled = true;
+        btnSalva.textContent = "SALVATAGGIO...";
+
+        const token = localStorage.getItem('driverbook_auth_token');
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        
+        try {
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            const userData = await userRes.json();
+            
+            const corpoDati = {
+                id_partner: userData.id,
+                modello: selectModello.value,
+                posti: selectModello.value === 'CLASSE_V' ? parseInt(selectPosti.value) : null,
+                targa: document.getElementById('veicolo_targa').value.toUpperCase().trim(),
+                autocert_destinazione: document.getElementById('autocert_destinazione').checked,
+                autocert_assicurazione: document.getElementById('autocert_assicurazione').checked,
+                autocert_autorizzazione: document.getElementById('autocert_autorizzazione').checked
+            };
+
+            const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(corpoDati)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                if (JSON.stringify(err).includes("unique") || JSON.stringify(err).includes("targa")) {
+                    throw new Error("Targa già registrata nel sistema.");
+                }
+                throw new Error("Errore nel salvataggio.");
+            }
+
+            chiudiForm();
+            caricaFlotta();
+            
+        } catch (errore) {
+            btnSalva.textContent = errore.message.includes("Targa") ? "TARGA ESISTENTE" : "ERRORE";
+            btnSalva.style.backgroundColor = "#dc3545";
+            btnSalva.style.borderColor = "#dc3545";
+            
+            setTimeout(() => {
+                btnSalva.textContent = testoOriginale;
+                btnSalva.style.backgroundColor = "";
+                btnSalva.style.borderColor = "";
+                btnSalva.disabled = false;
+            }, 3000);
+            return;
+        }
+        
+        btnSalva.textContent = testoOriginale;
+        btnSalva.disabled = false;
+    });
+});
+
+async function caricaFlotta() {
+    const contenitore = document.getElementById('sezione_elenco_veicoli');
+    if (!contenitore) return;
+    
+    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Caricamento flotta in corso...</div>';
+    
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const userData = await userRes.json();
+
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&order=modello.asc`, {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+        
+        if (!res.ok) throw new Error("Errore lettura flotta");
+        
+        const veicoli = await res.json();
+        contenitore.innerHTML = '';
+        
+        if (veicoli.length === 0) {
+            contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun veicolo presente nella flotta.</div>';
+            return;
+        }
+        
+        veicoli.forEach(v => {
+            generaCardVeicolo(v.modello, v.posti, v.targa);
+        });
+        
+    } catch (errore) {
+        contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 20px;">Impossibile caricare la flotta. Riprova più tardi.</div>';
+    }
+}
+
+function chiediConfermaEliminazioneVeicolo(targa) {
+    let overlay = document.getElementById('modale_eliminazione_veicolo');
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_eliminazione_veicolo';
+        overlay.className = 'modale-overlay';
+        
+        let modal = document.createElement('div');
+        modal.className = 'modale-box';
+        
+        modal.innerHTML = `
+            <h3 class="modale-titolo">Elimina Veicolo</h3>
+            <p class="modale-testo">Vuoi davvero eliminare questo veicolo dalla flotta?<br><strong class="targa-evidenza">${targa}</strong></p>
+            <div class="modale-bottoni-container">
+                <button id="btn_annulla_eliminazione" class="btn-modale-bianco">NO</button>
+                <button id="btn_conferma_eliminazione" class="btn-modale-bianco">SI</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_annulla_eliminazione').addEventListener('click', function() {
+            overlay.style.display = 'none';
+        });
+    } else {
+        overlay.querySelector('.targa-evidenza').innerText = targa;
+    }
+    
+    overlay.style.display = 'flex';
+    
+    const btnConferma = document.getElementById('btn_conferma_eliminazione');
+    
+    const nuovoBtnConferma = btnConferma.cloneNode(true);
+    btnConferma.parentNode.replaceChild(nuovoBtnConferma, btnConferma);
+    
+    nuovoBtnConferma.addEventListener('click', async function() {
+        nuovoBtnConferma.disabled = true;
+        nuovoBtnConferma.textContent = "...";
+        
+        const token = localStorage.getItem('driverbook_auth_token');
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        
+        try {
+            const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?targa=eq.${encodeURIComponent(targa)}`, {
+                method: "DELETE",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token
+                }
+            });
+            
+            if (res.ok) {
+                overlay.style.display = 'none';
+                const cardDaRimuovere = document.querySelector(`.vettura-card[data-targa="${targa}"]`);
+                if(cardDaRimuovere) {
+                    cardDaRimuovere.remove();
+                }
+                const contenitore = document.getElementById('sezione_elenco_veicoli');
+                if (contenitore && contenitore.children.length === 0) {
+                    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun veicolo presente nella flotta.</div>';
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        
+        nuovoBtnConferma.disabled = false;
+        nuovoBtnConferma.textContent = "SI";
+    });
+}
+
+function generaCardVeicolo(modello, posti, targa) {
+    const contenitore = document.getElementById('sezione_elenco_veicoli');
+    if (!contenitore) return;
+
+    let classeVettura = '';
+    let testoPosti = '';
+    
+    if (modello === 'CLASSE_V') {
+        classeVettura = 'V';
+        testoPosti = `VAN ${posti} POSTI`;
+    } else if (modello === 'CLASSE_E') {
+        classeVettura = 'E';
+    } else if (modello === 'CLASSE_S') {
+        classeVettura = 'S';
+    }
+
+    const divPosti = classeVettura === 'V' 
+        ? `<div class="testo-card-veicolo"><span class="testo-label">${testoPosti}</span></div>` 
+        : '';
+
+    const htmlCard = `
+        <div class="vettura-card vettura-card-mini" data-targa="${targa}">
+            <div class="card-flex-container">
+                <div class="testo-card-veicolo"><span class="testo-label">CLASSE</span> <span class="testo-valore">${classeVettura}</span></div>
+                ${divPosti}
+            </div>
+            <div class="card-flex-container">
+                <div class="testo-card-veicolo testo-valore">${targa}</div>
+                <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('${targa}')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </div>
+            </div>
+        </div>
+    `;
+
+    contenitore.insertAdjacentHTML('beforeend', htmlCard);
+}
