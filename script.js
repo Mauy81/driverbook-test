@@ -3000,15 +3000,19 @@ document.addEventListener("DOMContentLoaded", function() {
         const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
         
         try {
+            let targaPulita = document.getElementById('veicolo_targa').value.toUpperCase().replace(/\s+/g, '');
+            const regexTarga = /^[A-Z]{2}[0-9]{3}[A-Z]{2}$/;
+            
+            if (!regexTarga.test(targaPulita)) {
+                throw new Error("FORMATO_TARGA_ERRATO");
+            }
+            
             const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
                 headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
             });
             const userData = await userRes.json();
             
-            let targaValue = document.getElementById('veicolo_targa').value.toUpperCase().replace(/\s+/g, '');
-            if (targaValue.length === 7) {
-                targaValue = targaValue.substring(0, 2) + ' ' + targaValue.substring(2, 5) + ' ' + targaValue.substring(5, 7);
-            }
+            let targaValue = targaPulita.substring(0, 2) + ' ' + targaPulita.substring(2, 5) + ' ' + targaPulita.substring(5, 7);
 
             const corpoDati = {
                 id_partner: userData.id,
@@ -3033,26 +3037,44 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!res.ok) {
                 const err = await res.json();
                 if (JSON.stringify(err).includes("unique") || JSON.stringify(err).includes("targa")) {
-                    throw new Error("Targa già registrata nel sistema.");
+                    throw new Error("TARGA_ESISTENTE");
                 }
-                throw new Error("Errore nel salvataggio.");
+                throw new Error("ERRORE_SALVATAGGIO");
             }
 
             chiudiForm();
             caricaFlotta();
             
         } catch (errore) {
-            const msgErrore = (errore && errore.message) ? errore.message : String(errore);
-            btnSalva.textContent = msgErrore.includes("Targa") ? "TARGA ESISTENTE" : "ERRORE";
-            btnSalva.style.backgroundColor = "#dc3545";
-            btnSalva.style.borderColor = "#dc3545";
+            let testoErrore = "Si è verificato un errore durante il salvataggio.";
+            if (errore.message === "TARGA_ESISTENTE") {
+                testoErrore = "Questa targa è già presente nel sistema.";
+            } else if (errore.message === "FORMATO_TARGA_ERRATO") {
+                testoErrore = "Formato targa non valido.<br><span style='font-size: 0.85em; color: #aaaaaa;'>Inserisci 2 lettere, 3 numeri e 2 lettere (es. AB 123 CD).</span>";
+            }
+            
+            let overlay = document.getElementById('modale_errore_veicolo');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'modale_errore_veicolo';
+                overlay.className = 'modale-overlay';
+                overlay.innerHTML = `
+                    <div class="modale-box">
+                        <h3 class="modale-titolo">Attenzione</h3>
+                        <p class="modale-testo" id="testo_errore_veicolo"></p>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+            document.getElementById('testo_errore_veicolo').innerHTML = testoErrore;
+            overlay.style.display = 'flex';
             
             setTimeout(() => {
-                btnSalva.textContent = testoOriginale;
-                btnSalva.style.backgroundColor = "";
-                btnSalva.style.borderColor = "";
-                btnSalva.disabled = false;
-            }, 3000);
+                overlay.style.display = 'none';
+            }, 5000);
+
+            btnSalva.textContent = testoOriginale;
+            btnSalva.disabled = false;
             return;
         }
         
@@ -3076,7 +3098,7 @@ async function caricaFlotta() {
         });
         const userData = await userRes.json();
 
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&order=modello.asc`, {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}`, {
             headers: {
                 "apikey": chiaveAnon,
                 "Authorization": "Bearer " + token
@@ -3093,6 +3115,17 @@ async function caricaFlotta() {
             return;
         }
         
+        veicoli.sort((a, b) => {
+            const ordineModello = { 'CLASSE_V': 1, 'CLASSE_E': 2, 'CLASSE_S': 3 };
+            if (ordineModello[a.modello] !== ordineModello[b.modello]) {
+                return ordineModello[a.modello] - ordineModello[b.modello];
+            }
+            if (a.modello === 'CLASSE_V' && a.posti !== b.posti) {
+                return b.posti - a.posti;
+            }
+            return a.targa.localeCompare(b.targa);
+        });
+
         veicoli.forEach(v => {
             generaCardVeicolo(v.modello, v.posti, v.targa);
         });
