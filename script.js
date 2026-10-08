@@ -2970,6 +2970,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formGestione.reset();
         titoloForm.textContent = 'Nuovo Veicolo';
         gruppoPostiV.classList.add('hidden');
+        selectPosti.required = false;
         apriForm();
     });
 
@@ -2980,9 +2981,11 @@ document.addEventListener("DOMContentLoaded", function() {
     selectModello.addEventListener('change', function() {
         if (this.value === 'CLASSE_V') {
             gruppoPostiV.classList.remove('hidden');
+            selectPosti.required = true;
         } else {
             gruppoPostiV.classList.add('hidden');
             selectPosti.value = "";
+            selectPosti.required = false;
         }
     });
 
