@@ -1,3 +1,33 @@
+(function() {
+    const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user'];
+    
+    function getPrefissoApp() {
+        const path = window.location.pathname.toLowerCase();
+        if (path.includes('/partner/')) return 'prt_';
+        if (path.includes('/autisti/')) return 'aut_';
+        if (path.includes('/admin/')) return 'adm_';
+        return 'pax_';
+    }
+    
+    const originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+        if (chiaviIsolate.includes(key)) key = getPrefissoApp() + key;
+        originalSetItem.call(this, key, value);
+    };
+    
+    const originalGetItem = Storage.prototype.getItem;
+    Storage.prototype.getItem = function(key) {
+        if (chiaviIsolate.includes(key)) key = getPrefissoApp() + key;
+        return originalGetItem.call(this, key);
+    };
+    
+    const originalRemoveItem = Storage.prototype.removeItem;
+    Storage.prototype.removeItem = function(key) {
+        if (chiaviIsolate.includes(key)) key = getPrefissoApp() + key;
+        originalRemoveItem.call(this, key);
+    };
+})();
+
 let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero;
 let latLngPartenza = null;
