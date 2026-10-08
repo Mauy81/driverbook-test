@@ -1911,6 +1911,9 @@ async function caricaDatiDashboardPasseggero() {
                 document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
                 document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
             }
+            
+            if (typeof applicaBozze === 'function') applicaBozze();
+
         } else {
             esciAccount();
         }
@@ -1973,6 +1976,9 @@ async function caricaDatiDashboardPartner() {
                 if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
                 if (document.getElementById('profilo_notificaEmail')) document.getElementById('profilo_notificaEmail').checked = partner.notifica_email;
             }
+            
+            if (typeof applicaBozze === 'function') applicaBozze();
+
         } else {
             esciAccount();
         }
@@ -3286,7 +3292,7 @@ function generaCardVeicolo(modello, posti, targa) {
     contenitore.insertAdjacentHTML('beforeend', htmlCard);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+window.applicaBozze = function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
@@ -3303,6 +3309,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         });
+    }
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+    const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
+    const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+
+    if (!blacklistPagineAutosave.includes(paginaAutosave)) {
+        applicaBozze();
 
         document.body.addEventListener('input', function(e) {
             const campo = e.target;
