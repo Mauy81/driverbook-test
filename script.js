@@ -2816,6 +2816,7 @@ function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
 }
 
 function applicaTraduzioni() {
+    if (!window.location.pathname.toLowerCase().includes('/passeggeri/')) return;
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     
     document.querySelectorAll('[data-i18n]').forEach(elemento => {

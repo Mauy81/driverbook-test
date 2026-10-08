@@ -3,8 +3,7 @@ const urlsToCache = [
     './',
     './index.html',
     '../style.css',
-    '../script.js',
-    '../traduzioni.js'
+    '../script.js'
 ];
 
 self.addEventListener('install', event => {
