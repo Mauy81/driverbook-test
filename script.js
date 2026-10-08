@@ -999,6 +999,7 @@ async function inviaRegistrazione(event) {
             throw new Error("Errore nel salvataggio del profilo");
         }
 
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
@@ -1814,6 +1815,7 @@ async function inviaRegistrazionePasseggero(event) {
             throw new Error("Errore database");
         }
 
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
@@ -2136,6 +2138,7 @@ async function aggiornaProfilo(event) {
                 throw new Error("Errore email generico");
             }
             
+            if (typeof svuotaBozze === 'function') svuotaBozze();
             const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title}</h2>`;
             const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg}</p>`;
             
@@ -2152,6 +2155,7 @@ async function aggiornaProfilo(event) {
             
             return;
         } else {
+            if (typeof svuotaBozze === 'function') svuotaBozze();
             btnSubmit.textContent = dict.js_prof_success;
             btnSubmit.style.backgroundColor = "#00FF66";
             btnSubmit.style.color = "#000000";
@@ -2324,6 +2328,7 @@ async function inviaAssistenza(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioUtente })
         });
 
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         mostraUiAssistenzaOk('.login-wrapper');
 
     } catch (errore) {
@@ -2667,6 +2672,7 @@ async function inviaAssistenzaInterna(event) {
             body: JSON.stringify({ email: emailUtente, messaggio: messaggioArricchito })
         });
 
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
         const messaggio = `<p class="feedback-testo" data-i18n="js_assist_int_success_msg">${dict.js_assist_int_success_msg}</p>`;
         const bottone = `<a data-href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
@@ -3295,16 +3301,24 @@ function generaCardVeicolo(modello, posti, targa) {
 window.applicaBozze = function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const path = window.location.pathname.toLowerCase();
+    let prefix = 'pax_';
+    if (path.includes('/partner/')) prefix = 'prt_';
+    else if (path.includes('/autisti/')) prefix = 'aut_';
+    else if (path.includes('/admin/')) prefix = 'adm_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]), textarea, select').forEach(campo => {
             if (campo.id) {
-                const valoreSalvato = localStorage.getItem(`db_draft_${paginaAutosave}_${campo.id}`);
+                const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
                 if (valoreSalvato !== null) {
                     if (campo.type === 'checkbox' || campo.type === 'radio') {
                         campo.checked = (valoreSalvato === 'true');
                     } else {
                         campo.value = valoreSalvato;
+                    }
+                    if (typeof moduloSporco !== 'undefined') {
+                        moduloSporco = true;
                     }
                 }
             }
@@ -3315,27 +3329,41 @@ window.applicaBozze = function() {
 document.addEventListener("DOMContentLoaded", function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const path = window.location.pathname.toLowerCase();
+    let prefix = 'pax_';
+    if (path.includes('/partner/')) prefix = 'prt_';
+    else if (path.includes('/autisti/')) prefix = 'aut_';
+    else if (path.includes('/admin/')) prefix = 'adm_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
-        applicaBozze();
+        if (typeof applicaBozze === 'function') applicaBozze();
 
         document.body.addEventListener('input', function(e) {
             const campo = e.target;
             if (campo.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(campo.tagName) && campo.id) {
                 if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file') {
                     const valore = (campo.type === 'checkbox' || campo.type === 'radio') ? campo.checked : campo.value;
-                    localStorage.setItem(`db_draft_${paginaAutosave}_${campo.id}`, valore);
+                    localStorage.setItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`, valore);
                 }
             }
         });
-
-        document.body.addEventListener('submit', function(e) {
-            const form = e.target;
-            form.querySelectorAll('input, textarea, select').forEach(campo => {
-                if (campo.id) {
-                    localStorage.removeItem(`db_draft_${paginaAutosave}_${campo.id}`);
-                }
-            });
-        });
     }
 });
+
+window.svuotaBozze = function() {
+    const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const path = window.location.pathname.toLowerCase();
+    let prefix = 'pax_';
+    if (path.includes('/partner/')) prefix = 'prt_';
+    else if (path.includes('/autisti/')) prefix = 'aut_';
+    else if (path.includes('/admin/')) prefix = 'adm_';
+
+    document.querySelectorAll('input, textarea, select').forEach(campo => {
+        if (campo.id) {
+            localStorage.removeItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
+        }
+    });
+    if (typeof moduloSporco !== 'undefined') {
+        moduloSporco = false;
+    }
+};
