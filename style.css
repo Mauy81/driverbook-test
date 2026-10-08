@@ -1274,7 +1274,7 @@ body.page-flotta,
 
 .btn-veicolo-azione {
     flex: 1;
-    margin: 0;
+    margin: 0 !important;
 }
 
 .targa-evidenza {
