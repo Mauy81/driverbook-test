@@ -3285,3 +3285,42 @@ function generaCardVeicolo(modello, posti, targa) {
 
     contenitore.insertAdjacentHTML('beforeend', htmlCard);
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
+    const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+
+    if (!blacklistPagineAutosave.includes(paginaAutosave)) {
+        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]), textarea, select').forEach(campo => {
+            if (campo.id) {
+                const valoreSalvato = localStorage.getItem(`db_draft_${paginaAutosave}_${campo.id}`);
+                if (valoreSalvato !== null) {
+                    if (campo.type === 'checkbox' || campo.type === 'radio') {
+                        campo.checked = (valoreSalvato === 'true');
+                    } else {
+                        campo.value = valoreSalvato;
+                    }
+                }
+            }
+        });
+
+        document.body.addEventListener('input', function(e) {
+            const campo = e.target;
+            if (campo.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(campo.tagName) && campo.id) {
+                if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file') {
+                    const valore = (campo.type === 'checkbox' || campo.type === 'radio') ? campo.checked : campo.value;
+                    localStorage.setItem(`db_draft_${paginaAutosave}_${campo.id}`, valore);
+                }
+            }
+        });
+
+        document.body.addEventListener('submit', function(e) {
+            const form = e.target;
+            form.querySelectorAll('input, textarea, select').forEach(campo => {
+                if (campo.id) {
+                    localStorage.removeItem(`db_draft_${paginaAutosave}_${campo.id}`);
+                }
+            });
+        });
+    }
+});
