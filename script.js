@@ -3002,11 +3002,16 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             const userData = await userRes.json();
             
+            let targaValue = document.getElementById('veicolo_targa').value.toUpperCase().replace(/\s+/g, '');
+            if (targaValue.length === 7) {
+                targaValue = targaValue.substring(0, 2) + ' ' + targaValue.substring(2, 5) + ' ' + targaValue.substring(5, 7);
+            }
+
             const corpoDati = {
                 id_partner: userData.id,
                 modello: selectModello.value,
                 posti: selectModello.value === 'CLASSE_V' ? parseInt(selectPosti.value) : null,
-                targa: document.getElementById('veicolo_targa').value.toUpperCase().trim(),
+                targa: targaValue,
                 autocert_destinazione: document.getElementById('autocert_destinazione').checked,
                 autocert_assicurazione: document.getElementById('autocert_assicurazione').checked,
                 autocert_autorizzazione: document.getElementById('autocert_autorizzazione').checked
@@ -3034,7 +3039,8 @@ document.addEventListener("DOMContentLoaded", function() {
             caricaFlotta();
             
         } catch (errore) {
-            btnSalva.textContent = errore.message.includes("Targa") ? "TARGA ESISTENTE" : "ERRORE";
+            const msgErrore = (errore && errore.message) ? errore.message : String(errore);
+            btnSalva.textContent = msgErrore.includes("Targa") ? "TARGA ESISTENTE" : "ERRORE";
             btnSalva.style.backgroundColor = "#dc3545";
             btnSalva.style.borderColor = "#dc3545";
             
@@ -3193,7 +3199,7 @@ function generaCardVeicolo(modello, posti, targa) {
                 ${divPosti}
             </div>
             <div class="card-flex-container">
-                <div class="testo-card-veicolo testo-valore">${targa}</div>
+                <div class="testo-card-veicolo"><span class="testo-valore">${targa}</span></div>
                 <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('${targa}')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </div>
