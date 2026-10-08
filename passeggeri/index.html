@@ -9,6 +9,20 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="../logo/icona-pwa.png">
+    <script>
+        (function() {
+            const path = window.location.pathname.toLowerCase();
+            let prefix = 'pax_';
+            if (path.includes('/partner/')) prefix = 'prt_';
+            else if (path.includes('/autisti/')) prefix = 'aut_';
+            else if (path.includes('/admin/')) prefix = 'adm_';
+            
+            if (localStorage.getItem(prefix + 'driverbook_auth_token')) {
+                const lastPage = localStorage.getItem(prefix + 'driverbook_last_page') || 'dashboard.html';
+                window.location.replace(lastPage);
+            }
+        })();
+    </script>
 </head>
 <body>
 

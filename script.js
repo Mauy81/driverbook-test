@@ -1,5 +1,5 @@
 (function() {
-    const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user'];
+    const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page'];
     
     function getPrefissoApp() {
         const path = window.location.pathname.toLowerCase();
@@ -67,12 +67,22 @@ document.addEventListener("DOMContentLoaded", function() {
         'preview-schermate.html'
     ];
 
+    if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza)) {
+        localStorage.setItem('driverbook_last_page', window.location.href);
+    }
+
     if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza) && !localStorage.getItem('driverbook_auth_token')) {
         window.location.href = 'login.html';
         return;
     } else if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza)) {
         rinnovaSessioneSilenziosa(); 
         setInterval(rinnovaSessioneSilenziosa, 50 * 60 * 1000); 
+    }
+    
+    if (paginaCorrenteSicurezza === 'index.html' && localStorage.getItem('driverbook_auth_token')) {
+        const ultimaPagina = localStorage.getItem('driverbook_last_page') || 'dashboard.html';
+        window.location.replace(ultimaPagina);
+        return;
     }
 
     const hashCheck = window.location.hash.substring(1);
@@ -2319,7 +2329,7 @@ async function inviaAssistenza(event) {
 
 function esciAccount() {
     const chiaviDaCancellare = [
-        'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
+        'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
         'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
