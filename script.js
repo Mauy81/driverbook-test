@@ -326,24 +326,25 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (localStorage.getItem('driverbook_auth_token')) {
             if (ruoloMenu === 'partner') {
                 contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Autista</a>
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi Assegnati</a>
+                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                    <a id="link_menu_calendario" class="menu-item" data-i18n="menu_calendario">Calendario Servizi</a>
+                    <a id="link_menu_guidatori" class="menu-item" data-i18n="menu_guidatori">Gestione Autisti</a>
+                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">I Miei Servizi</a>
                     <a id="link_menu_flotta" class="menu-item" data-i18n="menu_flotta">Gestione Flotta</a>
-                    <a id="link_menu_guidatori" class="menu-item" data-i18n="menu_guidatori">Gestione Guidatori</a>
                     <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
                     <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
                     <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
                 `;
             } else if (ruoloMenu === 'autisti') {
                 contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Guidatore</a>
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi Assegnati</a>
+                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">I Miei Servizi</a>
                     <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
                     <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
                 `;
             } else if (ruoloMenu === 'admin') {
                 contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Amministratore</a>
+                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
                     <a id="link_menu_utenti" class="menu-item" data-i18n="menu_utenti">Gestione Utenti</a>
                     <a id="link_menu_impostazioni" class="menu-item" data-i18n="menu_impostazioni">Impostazioni Sistema</a>
                     <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
@@ -385,7 +386,9 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_reset': 'pwreset.html',
         'link_menu_pub_reg': 'registrazione.html',
         'link_menu_pub_assist': 'assistenza.html',
-        'link_menu_flotta': 'flotta.html'
+        'link_menu_flotta': 'flotta.html',
+        'link_menu_guidatori': 'autisti.html',
+        'link_menu_calendario': '#'
     };
     
     menuLinks.forEach(link => {
