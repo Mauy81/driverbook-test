@@ -2,10 +2,6 @@
     const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page'];
     
     function getPrefissoApp() {
-        const path = window.location.pathname.toLowerCase();
-        if (path.includes('/partner/')) return 'prt_';
-        if (path.includes('/autisti/')) return 'aut_';
-        if (path.includes('/admin/')) return 'adm_';
         return 'pax_';
     }
     
@@ -32,8 +28,6 @@ let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero;
 let latLngPartenza = null;
 let latLngArrivo = null;
-let latLngZonaOperativa = null;
-let latLngProfiloZonaOperativa = null;
 
 const CONFIG_TARIFFE = {
     CLASSE_E: { allAlKm: 2.00, oraDisposizione: 70.00, corsaMinima: 70.00 },
@@ -46,18 +40,7 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.includes('autista') || window.location.pathname.includes('partner')) {
-        localStorage.setItem('driverbook_lang', 'it');
-    }
-
     const paginaCorrenteSicurezza = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-
-    if (paginaCorrenteSicurezza === 'index.html') {
-        document.querySelectorAll('a[href*="/passeggeri/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'passeggeri')));
-        document.querySelectorAll('a[href*="/partner/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'partner')));
-        document.querySelectorAll('a[href*="/autisti/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autisti')));
-        document.querySelectorAll('a[href*="/admin/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'admin')));
-    }
 
     const blacklistPubblicaAccesso = [
         'index.html',
@@ -164,12 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(datiPasseggero => {
                 setTimeout(() => {
-                    const pathAttuale = window.location.pathname.toLowerCase();
-                    if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
-                    else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
-                    else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
-                    else localStorage.setItem('driverbook_ruolo', 'passeggeri');
-                    
+                    localStorage.setItem('driverbook_ruolo', 'passeggeri');
                     window.location.href = 'dashboard.html';
                 }, 2000);
             })
@@ -205,15 +183,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 </svg>
             </button>` : '';
         
-        const ruoloCorrente = localStorage.getItem('driverbook_ruolo');
-        const isAreaRiservata = window.location.pathname.includes('/admin/') || window.location.pathname.includes('/autisti/') || window.location.pathname.includes('/partner/');
-        const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggeri';
         const utenteLoggato = localStorage.getItem('driverbook_auth_token') !== null;
         
         const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
-        const pathPerLingua = window.location.pathname.toLowerCase();
-        const isAreaPartner = pathPerLingua.includes('/partner/');
-        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato && !isAreaPartner;
+        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
         
         const linguaAttualeMenu = localStorage.getItem('driverbook_lang') || 'it';
         const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
@@ -302,18 +275,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const blacklistPubblica = ['login.html', 'registrazione.html', 'pwreset.html', 'pwreimposta.html', 'assistenza.html'];
     const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu) || percorsoCorrenteMenu === 'index.html' || percorsoCorrenteMenu === '';
     
-    const pathCartella = window.location.pathname.toLowerCase();
-    let ruoloMenu = localStorage.getItem('driverbook_ruolo');
-    if (pathCartella.includes('/passeggeri/')) {
-        ruoloMenu = 'passeggeri';
-    } else if (pathCartella.includes('/admin/')) {
-        ruoloMenu = 'admin';
-    } else if (pathCartella.includes('/autisti/')) {
-        ruoloMenu = 'autisti';
-    } else if (pathCartella.includes('/partner/')) {
-        ruoloMenu = 'partner';
-    }
-
     if (contenitoreMenuLaterale) {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
@@ -326,45 +287,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
-            if (ruoloMenu === 'partner') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item">Pannello Utente</a>
-                    <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
-                    <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
-                    <a id="link_menu_guidatori" class="menu-item">Gestione Autisti</a>
-                    <a id="link_menu_viaggi" class="menu-item">I Miei Servizi</a>
-                    <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
-                    <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
-                    <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
-                `;
-            } else if (ruoloMenu === 'autisti') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">I Miei Servizi</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
-                `;
-            } else if (ruoloMenu === 'admin') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_utenti" class="menu-item" data-i18n="menu_utenti">Gestione Utenti</a>
-                    <a id="link_menu_impostazioni" class="menu-item" data-i18n="menu_impostazioni">Impostazioni Sistema</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                `;
-            } else {
-                const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
-                    ${linkRiepilogo}
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
-                    <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
-                    <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
-                `;
-            }
+            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
+                ${linkRiepilogo}
+                <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
+                <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
+                <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
+                <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
+                <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
+            `;
         }
         
         if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
@@ -378,7 +311,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const mappaPagine = {
         'link_menu_home': 'dashboard.html',
-        'link_menu_bacheca': 'bacheca.html',
         'link_menu_prenota': 'prenotazione.html',
         'link_menu_riepilogo': 'checkout.html',
         'link_menu_viaggi': 'viaggiprogrammati.html',
@@ -389,10 +321,7 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_login': 'login.html',
         'link_menu_pub_reset': 'pwreset.html',
         'link_menu_pub_reg': 'registrazione.html',
-        'link_menu_pub_assist': 'assistenza.html',
-        'link_menu_flotta': 'flotta.html',
-        'link_menu_guidatori': 'autisti.html',
-        'link_menu_calendario': '#'
+        'link_menu_pub_assist': 'assistenza.html'
     };
     
     menuLinks.forEach(link => {
@@ -477,34 +406,6 @@ document.addEventListener("DOMContentLoaded", function() {
             preferredCountries: ['it'],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
-    }
-
-    const inputZonaOperativa = document.getElementById('zonaOperativa');
-    const inputProfiloZonaOperativa = document.getElementById('profilo_zonaOperativa');
-    
-    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
-        const confiniArea = new google.maps.LatLngBounds(
-            new google.maps.LatLng(36.0, -2.0),
-            new google.maps.LatLng(52.0, 18.0)
-        );
-        if (inputZonaOperativa) {
-            const acZona = new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
-            acZona.addListener('place_changed', function() {
-                const place = acZona.getPlace();
-                if (place && place.geometry) {
-                    latLngZonaOperativa = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                }
-            });
-        }
-        if (inputProfiloZonaOperativa) {
-            const acProfZona = new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
-            acProfZona.addListener('place_changed', function() {
-                const place = acProfZona.getPlace();
-                if (place && place.geometry) {
-                    latLngProfiloZonaOperativa = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                }
-            });
-        }
     }
 
     const inputTelPasseggero = document.getElementById('tel_passeggero');
@@ -607,16 +508,8 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaRiepilogo();
     }
 
-    const ruoloDashboard = localStorage.getItem('driverbook_ruolo');
-    
-    if (ruoloDashboard === 'partner') {
-        if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
-            caricaDatiDashboardPartner();
-        }
-    } else {
-        if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
-            caricaDatiDashboardPasseggero();
-        }
+    if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
+        caricaDatiDashboardPasseggero();
     }
 
     const btnPrenota = document.getElementById('btn_prenota_servizio');
@@ -779,36 +672,16 @@ async function inviaLogin(event) {
 
         const pathAttuale = window.location.pathname.toLowerCase();
         
-        if (pathAttuale.includes('/passeggeri/')) {
-            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero,linguaggio`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
-            });
-            const datiPasseggero = await checkResponse.json();
+        const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero,linguaggio`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
+        });
+        const datiPasseggero = await checkResponse.json();
 
-            if (!datiPasseggero || datiPasseggero.length === 0) {
-                throw new Error(dict.js_login_err_pax);
-            }
-            if (datiPasseggero[0].linguaggio) {
-                localStorage.setItem('driverbook_lang', datiPasseggero[0].linguaggio);
-            }
-        } else {
-            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner,linguaggio`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
-            });
-            const datiPartner = await checkResponse.json();
-
-            if (!datiPartner || datiPartner.length === 0) {
-                if (pathAttuale.includes('/partner/')) {
-                    throw new Error(dict.js_login_err_partner);
-                } else if (pathAttuale.includes('/admin/')) {
-                    throw new Error(dict.js_login_err_admin);
-                } else {
-                    throw new Error(dict.js_login_err_driver);
-                }
-            }
-            if (datiPartner[0].linguaggio) {
-                localStorage.setItem('driverbook_lang', datiPartner[0].linguaggio);
-            }
+        if (!datiPasseggero || datiPasseggero.length === 0) {
+            throw new Error(dict.js_login_err_pax);
+        }
+        if (datiPasseggero[0].linguaggio) {
+            localStorage.setItem('driverbook_lang', datiPasseggero[0].linguaggio);
         }
 
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
@@ -925,119 +798,6 @@ function validaNotificheDashboard() {
     } else {
         msgErrore.style.display = 'none';
         return true;
-    }
-}
-
-async function inviaRegistrazione(event) {
-    event.preventDefault();
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
-    const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) {
-        msgErroreServer.style.display = 'none';
-    }
-
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
-        event.preventDefault();
-        return;
-    }
-
-    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-    let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
-
-    const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
-    const urlPartner = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner";
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
-    let numeroDigitato = document.getElementById('telefono').value.trim();
-    let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-    try {
-        const authResponse = await fetch(urlAuth, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email: email, password: password })
-        });
-
-        if (!authResponse.ok) {
-            const authError = await authResponse.json();
-            throw new Error(authError.msg || authError.message || "Errore nella registrazione delle credenziali");
-        }
-
-        const authData = await authResponse.json();
-        const authUserId = authData.id || (authData.user && authData.user.id);
-
-        if (!authUserId) {
-            throw new Error("ID utente non ricevuto da Supabase.");
-        }
-
-        const corpoDati = {
-            id_partner: authUserId,
-            nome_cognome: document.getElementById('nome').value,
-            email: email,
-            tel_partner: telefonoFinale,
-            ragione_sociale: document.getElementById('ragioneSociale').value,
-            piva: document.getElementById('piva').value,
-            codice_sdi: document.getElementById('codice_sdi').value || null,
-            pec: document.getElementById('pec').value || null,
-            indirizzo_via: document.getElementById('indirizzo_via').value,
-            indirizzo_cap: document.getElementById('indirizzo_cap').value,
-            indirizzo_citta: document.getElementById('indirizzo_citta').value,
-            indirizzo_provincia: document.getElementById('indirizzo_provincia').value,
-            iban: document.getElementById('iban').value,
-            intestatario_conto: document.getElementById('intestatario_conto').value,
-            ruolo_conducenti: document.getElementById('ruoloConducenti').value,
-            autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
-            zona_operativa: document.getElementById('zonaOperativa').value,
-            zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
-            zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
-            linguaggio: linguaAttuale
-        };
-
-        const dbResponse = await fetch(urlPartner, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!dbResponse.ok) {
-            throw new Error("Errore nel salvataggio del profilo");
-        }
-
-        if (typeof svuotaBozze === 'function') svuotaBozze();
-        mostraUiRegistrazioneOk('.login-wrapper');
-
-    } catch (errore) {
-        let testoErrore = errore.message;
-        
-        if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = dict.js_reg_err_exists;
-        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
-            testoErrore = dict.js_reg_err_email_send;
-        } else {
-            testoErrore = dict.js_reg_err_generic + testoErrore;
-        }
-        
-        if (msgErroreServer) {
-            msgErroreServer.textContent = testoErrore;
-            msgErroreServer.style.display = 'block';
-        }
     }
 }
 
@@ -1958,71 +1718,6 @@ async function caricaDatiDashboardPasseggero() {
     }
 }
 
-async function caricaDatiDashboardPartner() {
-    const token = localStorage.getItem('driverbook_auth_token');
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    
-    try {
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const userData = await userRes.json();
-        if (!userRes.ok) throw new Error("Token non valido");
-
-        const userId = userData.id;
-
-        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const dbData = await dbRes.json();
-
-        if (dbData && dbData.length > 0) {
-            const partner = dbData[0];
-            
-            if (document.getElementById('dash_nome_partner')) {
-                document.getElementById('dash_nome_partner').textContent = partner.nome_cognome;
-            }
-            if (document.getElementById('dash_codice_partner')) {
-                document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
-            }
-
-            if (document.getElementById('profilo_nome')) {
-                document.getElementById('profilo_nome').value = partner.nome_cognome || '';
-                document.getElementById('profilo_email').value = partner.email || '';
-                if (itiProfiloPasseggero && partner.tel_partner) {
-                    itiProfiloPasseggero.setNumber(partner.tel_partner);
-                }
-                
-                if (document.getElementById('profilo_ragioneSociale')) document.getElementById('profilo_ragioneSociale').value = partner.ragione_sociale || '';
-                if (document.getElementById('profilo_piva')) document.getElementById('profilo_piva').value = partner.piva || '';
-                if (document.getElementById('profilo_codice_sdi')) document.getElementById('profilo_codice_sdi').value = partner.codice_sdi || '';
-                if (document.getElementById('profilo_pec')) document.getElementById('profilo_pec').value = partner.pec || '';
-                if (document.getElementById('profilo_indirizzo_via')) document.getElementById('profilo_indirizzo_via').value = partner.indirizzo_via || '';
-                if (document.getElementById('profilo_indirizzo_cap')) document.getElementById('profilo_indirizzo_cap').value = partner.indirizzo_cap || '';
-                if (document.getElementById('profilo_indirizzo_citta')) document.getElementById('profilo_indirizzo_citta').value = partner.indirizzo_citta || '';
-                if (document.getElementById('profilo_indirizzo_provincia')) document.getElementById('profilo_indirizzo_provincia').value = partner.indirizzo_provincia || '';
-                
-                if (document.getElementById('profilo_iban')) document.getElementById('profilo_iban').value = partner.iban || '';
-                if (document.getElementById('profilo_intestatario_conto')) document.getElementById('profilo_intestatario_conto').value = partner.intestatario_conto || '';
-                if (document.getElementById('profilo_ruoloConducenti')) document.getElementById('profilo_ruoloConducenti').value = partner.ruolo_conducenti || '';
-                if (document.getElementById('profilo_autocertificazioneKb')) document.getElementById('profilo_autocertificazioneKb').checked = partner.autocertificazione_kb;
-                if (document.getElementById('profilo_zonaOperativa')) document.getElementById('profilo_zonaOperativa').value = partner.zona_operativa || '';
-
-                if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
-                if (document.getElementById('profilo_notificaEmail')) document.getElementById('profilo_notificaEmail').checked = partner.notifica_email;
-            }
-            
-            if (typeof applicaBozze === 'function') applicaBozze();
-
-        } else {
-            esciAccount();
-        }
-    } catch (error) {
-        localStorage.removeItem('driverbook_auth_token');
-        window.location.href = 'login.html';
-    }
-}
-
 async function aggiornaProfilo(event) {
     event.preventDefault();
 
@@ -2071,53 +1766,23 @@ async function aggiornaProfilo(event) {
         let numeroDigitato = document.getElementById('profilo_telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
-        let urlPatch = "";
-        let corpoDati = {};
-
-        if (ruolo === 'partner') {
-            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
-            corpoDati = {
-                nome_cognome: document.getElementById('profilo_nome').value,
-                tel_partner: telefonoFinale,
-                ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
-                piva: document.getElementById('profilo_piva').value,
-                codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
-                pec: document.getElementById('profilo_pec').value || null,
-                indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
-                indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
-                indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
-                indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
-                iban: document.getElementById('profilo_iban').value,
-                intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
-                ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
-                autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
-                zona_operativa: document.getElementById('profilo_zonaOperativa').value,
-                notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
-            };
-            if (latLngProfiloZonaOperativa) {
-                corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
-                corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
-            }
-        } else {
-            const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
-            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
-            corpoDati = {
-                nome_cognome: document.getElementById('profilo_nome').value,
-                telefono: telefonoFinale,
-                richiede_fattura: richiedeFattura,
-                ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
-                piva_cf: richiedeFattura ? document.getElementById('profilo_piva_cf').value : null,
-                codice_sdi: richiedeFattura ? document.getElementById('profilo_codice_sdi').value : null,
-                pec: richiedeFattura ? document.getElementById('profilo_pec').value : null,
-                indirizzo_via: richiedeFattura ? document.getElementById('profilo_indirizzo_via').value : null,
-                indirizzo_cap: richiedeFattura ? document.getElementById('profilo_indirizzo_cap').value : null,
-                indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
-                indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
-                notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
-            };
-        }
+        const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
+        const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
+        const corpoDati = {
+            nome_cognome: document.getElementById('profilo_nome').value,
+            telefono: telefonoFinale,
+            richiede_fattura: richiedeFattura,
+            ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
+            piva_cf: richiedeFattura ? document.getElementById('profilo_piva_cf').value : null,
+            codice_sdi: richiedeFattura ? document.getElementById('profilo_codice_sdi').value : null,
+            pec: richiedeFattura ? document.getElementById('profilo_pec').value : null,
+            indirizzo_via: richiedeFattura ? document.getElementById('profilo_indirizzo_via').value : null,
+            indirizzo_cap: richiedeFattura ? document.getElementById('profilo_indirizzo_cap').value : null,
+            indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
+            indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
+            notifica_push: document.getElementById('profilo_notificaPush').checked,
+            notifica_email: document.getElementById('profilo_notificaEmail').checked
+        };
 
         const dbRes = await fetch(urlPatch, {
             method: "PATCH",
@@ -2146,10 +1811,7 @@ async function aggiornaProfilo(event) {
         
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
-            let urlRedirect = "https://mauy81.github.io/driverbook-test/partner/login.html";
-            if (ruolo === 'passeggeri') {
-                urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
-            }
+            let urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
             if (window.location.protocol !== 'file:') {
                 let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
                 urlRedirect = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/login.html';
@@ -2206,11 +1868,7 @@ async function aggiornaProfilo(event) {
                 btnSubmit.disabled = false;
             }, 5000);
             
-            if (localStorage.getItem('driverbook_ruolo') === 'partner') {
-                caricaDatiDashboardPartner();
-            } else {
-                caricaDatiDashboardPasseggero();
-            }
+            caricaDatiDashboardPasseggero();
         }
     } catch (errore) {
         let msgErrore = dict.js_prof_err_save;
@@ -2238,9 +1896,8 @@ async function modificaPassword() {
     const btn = document.getElementById('btn_modifica_password');
     if (!btn) return;
 
-    const pathAttuale = window.location.pathname.toLowerCase();
     const ruoloSalvato = localStorage.getItem('driverbook_ruolo');
-    if ((pathAttuale.includes('/partner/') && ruoloSalvato !== 'partner') || (pathAttuale.includes('/passeggeri/') && ruoloSalvato !== 'passeggeri') || (pathAttuale.includes('/autisti/') && ruoloSalvato !== 'autisti') || (pathAttuale.includes('/admin/') && ruoloSalvato !== 'admin')) {
+    if (ruoloSalvato !== 'passeggeri') {
         esciAccount();
         return;
     }
@@ -2538,11 +2195,7 @@ async function inviaNuovaPassword(event) {
             localStorage.setItem('driverbook_auth_token', accessToken);
         }
 
-        const pathAttuale = window.location.pathname.toLowerCase();
-        if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
-        else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
-        else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
-        else localStorage.setItem('driverbook_ruolo', 'passeggeri');
+        localStorage.setItem('driverbook_ruolo', 'passeggeri');
 
         btnSubmit.textContent = dict.js_pass_success;
         btnSubmit.style.backgroundColor = "#28a745";
@@ -2677,15 +2330,6 @@ async function inviaAssistenzaInterna(event) {
         if (datiPasseggero && datiPasseggero.length > 0) {
             nomeUtente = datiPasseggero[0].nome_cognome || "N/A";
             codiceCliente = datiPasseggero[0].codice_passeggero || "N/A";
-        } else {
-            const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            });
-            const datiPartner = await checkPartner.json();
-            if (datiPartner && datiPartner.length > 0) {
-                nomeUtente = datiPartner[0].nome_cognome || "N/A";
-                codiceCliente = datiPartner[0].codice_partner || "N/A";
-            }
         }
 
         const messaggioArricchito = `Codice Cliente: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
@@ -2897,9 +2541,7 @@ function applicaTraduzioni() {
     elementiPlaceholders.forEach(item => {
         const el = document.getElementById(item.id);
         if (el && traduzioni[linguaAttuale] && traduzioni[linguaAttuale][item.chiave]) {
-            if (!window.location.pathname.includes('autista') && !window.location.pathname.includes('partner')) {
-                el.placeholder = traduzioni[linguaAttuale][item.chiave];
-            }
+            el.placeholder = traduzioni[linguaAttuale][item.chiave];
         }
     });
 
@@ -2928,28 +2570,25 @@ function impostaLingua(nuovaLingua) {
 function mostraUiRegistrazioneOk(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Registrazione Completata!</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>` : `<p class="feedback-testo">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
 function mostraUiResetRicevuto(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Ricevuta</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>` : `<p class="feedback-testo">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
 function mostraUiAssistenzaOk(containerId) {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
-    const bottone = usaI18n ? `<a data-href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a data-href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>`;
+    const bottone = `<a data-href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
 
@@ -3023,327 +2662,10 @@ function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, h
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const btnApri = document.getElementById('barra_aggiungi_veicolo');
-    if (!btnApri) return;
-
-    const btnAnnulla = document.getElementById('btn_annulla_veicolo');
-    const formContainer = document.getElementById('form_container_veicolo');
-    const elencoVeicoli = document.getElementById('sezione_elenco_veicoli');
-    const selectModello = document.getElementById('veicolo_modello');
-    const gruppoPostiV = document.getElementById('gruppo_posti_v');
-    const selectPosti = document.getElementById('veicolo_posti');
-    const titoloForm = document.getElementById('titolo_form_veicolo');
-    const formGestione = document.getElementById('formGestioneVeicolo');
-
-    caricaFlotta();
-
-    function apriForm() {
-        formContainer.classList.remove('hidden');
-        btnApri.classList.add('hidden');
-        elencoVeicoli.classList.add('hidden');
-        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '40px', 'important');
-        window.scrollTo(0, 0);
-    }
-
-    function chiudiForm() {
-        formContainer.classList.add('hidden');
-        btnApri.classList.remove('hidden');
-        elencoVeicoli.classList.remove('hidden');
-        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
-        window.scrollTo(0, 0);
-        formGestione.reset();
-        if (typeof moduloSporco !== 'undefined') moduloSporco = false;
-    }
-
-    btnApri.addEventListener('click', () => {
-        formGestione.reset();
-        titoloForm.textContent = 'Nuovo Veicolo';
-        gruppoPostiV.classList.add('hidden');
-        selectPosti.required = false;
-        apriForm();
-    });
-
-    btnAnnulla.addEventListener('click', () => {
-        chiudiForm();
-    });
-
-    selectModello.addEventListener('change', function() {
-        if (this.value === 'CLASSE_V') {
-            gruppoPostiV.classList.remove('hidden');
-            selectPosti.required = true;
-        } else {
-            gruppoPostiV.classList.add('hidden');
-            selectPosti.value = "";
-            selectPosti.required = false;
-        }
-    });
-
-    formGestione.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btnSalva = document.getElementById('btn_salva_veicolo');
-        const testoOriginale = btnSalva.textContent;
-        btnSalva.disabled = true;
-        btnSalva.textContent = "SALVATAGGIO...";
-
-        const token = localStorage.getItem('driverbook_auth_token');
-        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-        
-        try {
-            let targaPulita = document.getElementById('veicolo_targa').value.toUpperCase().replace(/\s+/g, '');
-            const regexTarga = /^[A-Z]{2}[0-9]{3}[A-Z]{2}$/;
-            
-            if (!regexTarga.test(targaPulita)) {
-                throw new Error("FORMATO_TARGA_ERRATO");
-            }
-            
-            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            });
-            const userData = await userRes.json();
-            
-            let targaValue = targaPulita.substring(0, 2) + ' ' + targaPulita.substring(2, 5) + ' ' + targaPulita.substring(5, 7);
-
-            const corpoDati = {
-                id_partner: userData.id,
-                modello: selectModello.value,
-                posti: selectModello.value === 'CLASSE_V' ? parseInt(selectPosti.value) : null,
-                targa: targaValue,
-                autocert_destinazione: document.getElementById('autocert_destinazione').checked,
-                autocert_assicurazione: document.getElementById('autocert_assicurazione').checked,
-                autocert_autorizzazione: document.getElementById('autocert_autorizzazione').checked
-            };
-
-            const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta", {
-                method: "POST",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(corpoDati)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                if (JSON.stringify(err).includes("unique") || JSON.stringify(err).includes("targa")) {
-                    throw new Error("TARGA_ESISTENTE");
-                }
-                throw new Error("ERRORE_SALVATAGGIO");
-            }
-
-            chiudiForm();
-            caricaFlotta();
-            
-        } catch (errore) {
-            let testoErrore = "Si è verificato un errore durante il salvataggio.";
-            if (errore.message === "TARGA_ESISTENTE") {
-                testoErrore = "Questa targa è già presente nel sistema.";
-            } else if (errore.message === "FORMATO_TARGA_ERRATO") {
-                testoErrore = "Formato targa non valido.<br><span style='font-size: 0.85em; color: #aaaaaa;'>Inserisci 2 lettere, 3 numeri e 2 lettere (es. AB 123 CD).</span>";
-            }
-            
-            let overlay = document.getElementById('modale_errore_veicolo');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'modale_errore_veicolo';
-                overlay.className = 'modale-overlay';
-                overlay.innerHTML = `
-                    <div class="modale-box">
-                        <h3 class="modale-titolo">Attenzione</h3>
-                        <p class="modale-testo" id="testo_errore_veicolo"></p>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-            }
-            document.getElementById('testo_errore_veicolo').innerHTML = testoErrore;
-            overlay.style.display = 'flex';
-            
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 5000);
-
-            btnSalva.textContent = testoOriginale;
-            btnSalva.disabled = false;
-            return;
-        }
-        
-        btnSalva.textContent = testoOriginale;
-        btnSalva.disabled = false;
-    });
-});
-
-async function caricaFlotta() {
-    const contenitore = document.getElementById('sezione_elenco_veicoli');
-    if (!contenitore) return;
-    
-    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Caricamento flotta in corso...</div>';
-    
-    const token = localStorage.getItem('driverbook_auth_token');
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    
-    try {
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const userData = await userRes.json();
-
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}`, {
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + token
-            }
-        });
-        
-        if (!res.ok) throw new Error("Errore lettura flotta");
-        
-        const veicoli = await res.json();
-        contenitore.innerHTML = '';
-        
-        if (veicoli.length === 0) {
-            contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun veicolo presente nella flotta.</div>';
-            return;
-        }
-        
-        veicoli.sort((a, b) => {
-            const ordineModello = { 'CLASSE_V': 1, 'CLASSE_E': 2, 'CLASSE_S': 3 };
-            if (ordineModello[a.modello] !== ordineModello[b.modello]) {
-                return ordineModello[a.modello] - ordineModello[b.modello];
-            }
-            if (a.modello === 'CLASSE_V' && a.posti !== b.posti) {
-                return b.posti - a.posti;
-            }
-            return a.targa.localeCompare(b.targa);
-        });
-
-        veicoli.forEach(v => {
-            generaCardVeicolo(v.modello, v.posti, v.targa);
-        });
-        
-    } catch (errore) {
-        contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 20px;">Impossibile caricare la flotta. Riprova più tardi.</div>';
-    }
-}
-
-function chiediConfermaEliminazioneVeicolo(targa) {
-    let overlay = document.getElementById('modale_eliminazione_veicolo');
-
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'modale_eliminazione_veicolo';
-        overlay.className = 'modale-overlay';
-        
-        let modal = document.createElement('div');
-        modal.className = 'modale-box';
-        
-        modal.innerHTML = `
-            <h3 class="modale-titolo">Elimina Veicolo</h3>
-            <p class="modale-testo">Vuoi davvero eliminare questo veicolo dalla flotta?<br><strong class="targa-evidenza">${targa}</strong></p>
-            <div class="modale-bottoni-container">
-                <button id="btn_annulla_eliminazione" class="btn-modale-bianco">NO</button>
-                <button id="btn_conferma_eliminazione" class="btn-modale-bianco">SI</button>
-            </div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        document.getElementById('btn_annulla_eliminazione').addEventListener('click', function() {
-            overlay.style.display = 'none';
-        });
-    } else {
-        overlay.querySelector('.targa-evidenza').innerText = targa;
-    }
-    
-    overlay.style.display = 'flex';
-    
-    const btnConferma = document.getElementById('btn_conferma_eliminazione');
-    
-    const nuovoBtnConferma = btnConferma.cloneNode(true);
-    btnConferma.parentNode.replaceChild(nuovoBtnConferma, btnConferma);
-    
-    nuovoBtnConferma.addEventListener('click', async function() {
-        nuovoBtnConferma.disabled = true;
-        nuovoBtnConferma.textContent = "...";
-        
-        const token = localStorage.getItem('driverbook_auth_token');
-        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-        
-        try {
-            const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?targa=eq.${encodeURIComponent(targa)}`, {
-                method: "DELETE",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token
-                }
-            });
-            
-            if (res.ok) {
-                overlay.style.display = 'none';
-                const cardDaRimuovere = document.querySelector(`.vettura-card[data-targa="${targa}"]`);
-                if(cardDaRimuovere) {
-                    cardDaRimuovere.remove();
-                }
-                const contenitore = document.getElementById('sezione_elenco_veicoli');
-                if (contenitore && contenitore.children.length === 0) {
-                    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun veicolo presente nella flotta.</div>';
-                }
-            }
-        } catch (err) {
-            console.error(err);
-        }
-        
-        nuovoBtnConferma.disabled = false;
-        nuovoBtnConferma.textContent = "SI";
-    });
-}
-
-function generaCardVeicolo(modello, posti, targa) {
-    const contenitore = document.getElementById('sezione_elenco_veicoli');
-    if (!contenitore) return;
-
-    let classeVettura = '';
-    let testoPosti = '';
-    
-    if (modello === 'CLASSE_V') {
-        classeVettura = 'V';
-        testoPosti = `VAN ${posti} POSTI`;
-    } else if (modello === 'CLASSE_E') {
-        classeVettura = 'E';
-    } else if (modello === 'CLASSE_S') {
-        classeVettura = 'S';
-    }
-
-    const divPosti = classeVettura === 'V' 
-        ? `<div class="testo-card-veicolo"><span class="testo-label">${testoPosti}</span></div>` 
-        : '';
-
-    const htmlCard = `
-        <div class="vettura-card vettura-card-mini" data-targa="${targa}">
-            <div class="card-flex-container">
-                <div class="testo-card-veicolo"><span class="testo-label">CLASSE</span> <span class="testo-valore">${classeVettura}</span></div>
-                ${divPosti}
-            </div>
-            <div class="card-flex-container">
-                <div class="testo-card-veicolo"><span class="testo-valore">${targa}</span></div>
-                <div class="btn-elimina-veicolo" onclick="chiediConfermaEliminazioneVeicolo('${targa}')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </div>
-            </div>
-        </div>
-    `;
-
-    contenitore.insertAdjacentHTML('beforeend', htmlCard);
-}
-
 window.applicaBozze = function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'pax_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]), textarea, select').forEach(campo => {
@@ -3367,11 +2689,7 @@ window.applicaBozze = function() {
 document.addEventListener("DOMContentLoaded", function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'pax_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         if (typeof applicaBozze === 'function') applicaBozze();
@@ -3390,11 +2708,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 window.svuotaBozze = function() {
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'pax_';
 
     document.querySelectorAll('input, textarea, select').forEach(campo => {
         if (campo.id) {
