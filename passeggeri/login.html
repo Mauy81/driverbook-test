@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_login_passeggeri">Accesso Passeggeri</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <main class="login-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 data-i18n="h1_login_passeggeri">Accesso Passeggeri</h1>
+            </div>
+            
+            <div id="messaggio_cambio_email" class="hidden" style="color: #00FF66; text-align: center; margin-bottom: 15px; font-weight: bold; padding: 10px; border: 1px solid #00FF66; border-radius: 5px;" data-i18n="msg_email_confermata">
+                Email confermata con successo. Effettua il login con le tue nuove credenziali.
+            </div>
+
+            <form id="formLogin" action="#" method="POST" onsubmit="inviaLogin(event)">
+                <div class="form-group">
+                    <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
+                    <input type="email" id="email" name="email" class="input" required placeholder="mario@example.com" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="label" for="password" data-i18n="label_password">Password</label>
+                    <div class="pass-box">
+                        <input type="password" id="password" name="password" class="input" required placeholder="••••••••" autocomplete="current-password">
+                        <button type="button" class="eye-btn" onclick="togglePassword('password', this)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="btn_accedi">Accedi</button>
+                <a href="registrazione.html" class="link link-login" data-i18n="link_reg_login">Non hai un account? <strong>Registrati</strong></a>
+            </form>
+            <div class="nota-informativa-login" data-i18n="nota_impostazioni">
+                Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
+            </div>
+        </div>
+    </main>
+    
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+
+    
+
+    <script src="traduzioni.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

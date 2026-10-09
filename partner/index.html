@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner DriverBook</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
+    <script>
+        (function() {
+            const path = window.location.pathname.toLowerCase();
+            let prefix = 'pax_';
+            if (path.includes('/partner/')) prefix = 'prt_';
+            else if (path.includes('/autisti/')) prefix = 'aut_';
+            else if (path.includes('/admin/')) prefix = 'adm_';
+            
+            if (localStorage.getItem(prefix + 'driverbook_auth_token')) {
+                const lastPage = localStorage.getItem(prefix + 'driverbook_last_page') || 'dashboard.html';
+                window.location.replace(lastPage);
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <div id="menu_overlay" class="overlay"></div>
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale chiudi-menu">
+                <span style="pointer-events: none;">CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="scrollable-menu"></div>
+    </div>
+
+    <main class="hero-section">
+        <h1 class="hero-title">
+            <span>Riempi la tua agenda</span><br>
+            <span>e fai crescere il tuo lavoro</span>
+        </h1>
+        <p class="hero-subtitle">
+            Unisciti a DriverBook per ricevere richieste di trasferimento ogni giorno.<br>
+            Un'unica piattaforma per acquisire nuovi clienti, avere più servizi e gestire il tuo business NCC.
+        </p>
+        
+        <div class="action-buttons">
+            <a href="login.html" class="btn btn-primary">Entra in DriverBook</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        &copy; 2026 DriverBook. Tutti i diritti riservati.
+    </footer>
+
+    
+    
+    
+    <script src="script.js"></script>
+</body>
+</html>
