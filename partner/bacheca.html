@@ -10,19 +10,24 @@
 <body>
     <div id="menu-principale"></div>
 
-    <div class="menu-overlay" id="menu_overlay"></div>
-    <div class="side-panel" id="side_panel">
-        <div class="side-panel-header">
-            <img src="../logo/logo-bianco.png" alt="DriverBook" class="side-panel-logo">
-            <button class="close-btn" id="btn_chiudi_menu">&times;</button>
-        </div>
-        <div class="scrollable-menu"></div>
-        <div class="side-panel-footer">
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
             <div class="swipe-logout-container">
-                <input type="range" min="0" max="100" value="0" class="swipe-logout-slider" id="swipe_logout_range">
-                <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
             </div>
         </div>
+        <div class="menu-items scrollable-menu"></div>
     </div>
 
     <div class="login-wrapper">

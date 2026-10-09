@@ -11,11 +11,7 @@
     <link rel="apple-touch-icon" href="../logo/icona-pwa.png">
     <script>
         (function() {
-            const path = window.location.pathname.toLowerCase();
-            let prefix = 'pax_';
-            if (path.includes('/partner/')) prefix = 'prt_';
-            else if (path.includes('/autisti/')) prefix = 'aut_';
-            else if (path.includes('/admin/')) prefix = 'adm_';
+            const prefix = 'pax_';
             
             if (localStorage.getItem(prefix + 'driverbook_auth_token')) {
                 const lastPage = localStorage.getItem(prefix + 'driverbook_last_page') || 'dashboard.html';
@@ -29,16 +25,17 @@
     <div id="menu-principale"></div>
 
     <div id="menu_overlay" class="overlay"></div>
+
     <div id="side_panel" class="side-panel">
         <div class="sidebar-sticky-header">
-            <button id="btn_chiudi_menu" class="btn-chiudi-testuale chiudi-menu">
-                <span data-i18n="btn_chiudi_menu_testo" style="pointer-events: none;">CHIUDI MENU</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
             </button>
         </div>
-        <div class="scrollable-menu"></div>
+        <div class="menu-items scrollable-menu"></div>
     </div>
 
     <main class="hero-section">

@@ -2,11 +2,7 @@
     const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page'];
     
     function getPrefissoApp() {
-        const path = window.location.pathname.toLowerCase();
-        if (path.includes('/partner/')) return 'prt_';
-        if (path.includes('/autisti/')) return 'aut_';
-        if (path.includes('/admin/')) return 'adm_';
-        return 'pax_';
+        return 'prt_';
     }
     
     const originalSetItem = Storage.prototype.setItem;
@@ -29,34 +25,21 @@
 })();
 
 let phoneInput;
-let itiPasseggero, itiReferente, itiProfiloPasseggero;
-let latLngPartenza = null;
-let latLngArrivo = null;
+let itiProfiloPartner;
 let latLngZonaOperativa = null;
 let latLngProfiloZonaOperativa = null;
-
-const CONFIG_TARIFFE = {
-    CLASSE_E: { allAlKm: 2.00, oraDisposizione: 70.00, corsaMinima: 70.00 },
-    CLASSE_V: { allAlKm: 2.45, oraDisposizione: 90.00, corsaMinima: 90.00 },
-    CLASSE_S: { allAlKm: 4.00, oraDisposizione: 120.00, corsaMinima: 120.00 }
-};
 
 if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.includes('autista') || window.location.pathname.includes('partner')) {
-        localStorage.setItem('driverbook_lang', 'it');
-    }
-
+    localStorage.setItem('driverbook_lang', 'it');
+    
     const paginaCorrenteSicurezza = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
     if (paginaCorrenteSicurezza === 'index.html') {
-        document.querySelectorAll('a[href*="/passeggeri/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'passeggeri')));
-        document.querySelectorAll('a[href*="/partner/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'partner')));
-        document.querySelectorAll('a[href*="/autisti/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'autisti')));
-        document.querySelectorAll('a[href*="/admin/"]').forEach(link => link.addEventListener('click', () => localStorage.setItem('driverbook_ruolo', 'admin')));
+        localStorage.setItem('driverbook_ruolo', 'partner');
     }
 
     const blacklistPubblicaAccesso = [
@@ -157,19 +140,14 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(userData => {
                 const userId = userData.id;
-                return fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero`, {
+                return fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner`, {
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
                 });
             })
             .then(res => res.json())
-            .then(datiPasseggero => {
+            .then(datiPartner => {
                 setTimeout(() => {
-                    const pathAttuale = window.location.pathname.toLowerCase();
-                    if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
-                    else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
-                    else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
-                    else localStorage.setItem('driverbook_ruolo', 'passeggeri');
-                    
+                    localStorage.setItem('driverbook_ruolo', 'partner');
                     window.location.href = 'dashboard.html';
                 }, 2000);
             })
@@ -205,29 +183,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 </svg>
             </button>` : '';
         
-        const ruoloCorrente = localStorage.getItem('driverbook_ruolo');
-        const isAreaRiservata = window.location.pathname.includes('/admin/') || window.location.pathname.includes('/autisti/') || window.location.pathname.includes('/partner/');
-        const utenteNonPasseggero = ruoloCorrente && ruoloCorrente !== 'passeggeri';
-        const utenteLoggato = localStorage.getItem('driverbook_auth_token') !== null;
-        
-        const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
-        const pathPerLingua = window.location.pathname.toLowerCase();
-        const isAreaPartner = pathPerLingua.includes('/partner/');
-        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato && !isAreaPartner;
-        
-        const linguaAttualeMenu = localStorage.getItem('driverbook_lang') || 'it';
-        const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
-        
-        const testoItaliano = linguaAttualeMenu === 'it' ? '<span class="lang-active">Italiano</span>' : '<span class="lang-inactive">Italiano</span>';
-        const testoEnglish = linguaAttualeMenu === 'en' ? '<span class="lang-active">English</span>' : '<span class="lang-inactive">English</span>';
-
-        const selettoreLingua = mostraLingua ? `
-            <button class="nav-btn lang-selector-container" onclick="impostaLingua('${linguaOpposta}')">
-                ${testoItaliano}
-                <span class="lang-divider">/</span>
-                ${testoEnglish}
-            </button>` : '';
-
         contenitoreMenu.innerHTML = `
         <nav class="navbar">
             <a href="${linkLogo}" class="logo-container" ${bloccaClickLogo ? 'style="pointer-events: none;"' : ''}>
@@ -235,7 +190,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 <img src="../logo/scritta-bianco.png" alt="DriverBook" class="logo-text-img">
             </a>
             <div class="menu-destra" style="gap: 5px;">
-                ${selettoreLingua}
                 ${iconaUtente}
             </div>
         </nav>`;
@@ -302,73 +256,33 @@ document.addEventListener("DOMContentLoaded", function() {
     const blacklistPubblica = ['login.html', 'registrazione.html', 'pwreset.html', 'pwreimposta.html', 'assistenza.html'];
     const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu) || percorsoCorrenteMenu === 'index.html' || percorsoCorrenteMenu === '';
     
-    const pathCartella = window.location.pathname.toLowerCase();
-    let ruoloMenu = localStorage.getItem('driverbook_ruolo');
-    if (pathCartella.includes('/passeggeri/')) {
-        ruoloMenu = 'passeggeri';
-    } else if (pathCartella.includes('/admin/')) {
-        ruoloMenu = 'admin';
-    } else if (pathCartella.includes('/autisti/')) {
-        ruoloMenu = 'autisti';
-    } else if (pathCartella.includes('/partner/')) {
-        ruoloMenu = 'partner';
-    }
-
     if (contenitoreMenuLaterale) {
         if (isPaginaPubblica) {
             contenitoreMenuLaterale.innerHTML = `
-                <a id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
-                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Reset Password</a>
-                <a id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
-                <a id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
+                <a id="link_menu_pub_login" class="menu-item">Accesso</a>
+                <a id="link_menu_pub_reset" class="menu-item">Reset Password</a>
+                <a id="link_menu_pub_reg" class="menu-item">Registrazione</a>
+                <a id="link_menu_pub_assist" class="menu-item">Assistenza</a>
             `;
             if (btnChiudi) {
                 btnChiudi.classList.add('bordo-inferiore-grigio');
             }
         } else if (localStorage.getItem('driverbook_auth_token')) {
-            if (ruoloMenu === 'partner') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item">Pannello Utente</a>
-                    <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
-                    <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
-                    <a id="link_menu_guidatori" class="menu-item">Gestione Autisti</a>
-                    <a id="link_menu_viaggi" class="menu-item">I Miei Servizi</a>
-                    <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
-                    <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
-                    <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
-                `;
-            } else if (ruoloMenu === 'autisti') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">I Miei Servizi</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
-                `;
-            } else if (ruoloMenu === 'admin') {
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_utenti" class="menu-item" data-i18n="menu_utenti">Gestione Utenti</a>
-                    <a id="link_menu_impostazioni" class="menu-item" data-i18n="menu_impostazioni">Impostazioni Sistema</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                `;
-            } else {
-                const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
-                contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
-                    ${linkRiepilogo}
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
-                    <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
-                    <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
-                `;
-            }
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_home" class="menu-item">Pannello Utente</a>
+                <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
+                <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
+                <a id="link_menu_guidatori" class="menu-item">Gestione Autisti</a>
+                <a id="link_menu_viaggi" class="menu-item">I Miei Servizi</a>
+                <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
+                <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
+                <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
+                <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
+            `;
         }
         
         if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
-            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;"><span data-i18n="btn_installa_app">Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
             contenitoreMenuLaterale.innerHTML = btnInstallSidebar + contenitoreMenuLaterale.innerHTML;
         }
     }
@@ -446,8 +360,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    applicaTraduzioni();
-
     const swipeRange = document.getElementById('swipe_logout_range');
     if (swipeRange) {
         const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
@@ -473,7 +385,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const inputTelProfilo = document.getElementById('profilo_telefono');
     if (inputTelProfilo && window.intlTelInput) {
-        itiProfiloPasseggero = window.intlTelInput(inputTelProfilo, {
+        itiProfiloPartner = window.intlTelInput(inputTelProfilo, {
             preferredCountries: ['it'],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
@@ -507,123 +419,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    const inputTelPasseggero = document.getElementById('tel_passeggero');
-    if (inputTelPasseggero && window.intlTelInput) {
-        itiPasseggero = window.intlTelInput(inputTelPasseggero, {
-            initialCountry: "it",
-            preferredCountries: ['it'],
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
-        });
-
-        const inputTelReferente = document.getElementById('tel_referente');
-        itiReferente = window.intlTelInput(inputTelReferente, {
-            initialCountry: "it",
-            preferredCountries: ['it'],
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
-        });
-
-        const inputPartenza = document.getElementById('partenza');
-        const inputArrivo = document.getElementById('arrivo');
-        
-        if (typeof google !== 'undefined' && google.maps && google.maps.places) {
-            const confiniArea = new google.maps.LatLngBounds(
-                new google.maps.LatLng(36.0, -2.0),
-                new google.maps.LatLng(52.0, 18.0)
-            );
-
-            const opzioniGoogle = {
-                bounds: confiniArea,
-                strictBounds: true
-            };
-
-            const acPartenza = new google.maps.places.Autocomplete(inputPartenza, opzioniGoogle);
-            const acArrivo = new google.maps.places.Autocomplete(inputArrivo, opzioniGoogle);
-
-            acPartenza.addListener('place_changed', function() {
-                const place = acPartenza.getPlace();
-                if (place && place.geometry) {
-                    latLngPartenza = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                }
-                calcolaPrezzi();
-            });
-            acArrivo.addListener('place_changed', function() {
-                const place = acArrivo.getPlace();
-                if (place && place.geometry) {
-                    latLngArrivo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                }
-                calcolaPrezzi();
-            });
-        }
-        
-        inputPartenza.addEventListener('blur', calcolaPrezzi);
-        inputArrivo.addEventListener('blur', calcolaPrezzi);
-        document.getElementById('ore').addEventListener('change', calcolaPrezzi);
-
-        impostaLimitiData();
-
-        document.getElementById('nome_passeggero').value = localStorage.getItem('db_nome_passeggero') || '';
-        if (localStorage.getItem('db_tel_passeggero')) {
-            itiPasseggero.setNumber(localStorage.getItem('db_tel_passeggero'));
-        }
-
-        const checkReferente = localStorage.getItem('db_chk_referente') === 'true';
-        document.getElementById('chk_referente').checked = checkReferente;
-        document.getElementById('nome_referente').value = localStorage.getItem('db_nome_referente') || '';
-        if (localStorage.getItem('db_tel_referente')) {
-            itiReferente.setNumber(localStorage.getItem('db_tel_referente'));
-        }
-        gestisciVisualizzazioneReferente();
-
-        document.getElementById('tipo_servizio').value = localStorage.getItem('db_tipo_servizio') || '';
-        gestisciCampi(); 
-
-        document.getElementById('partenza').value = localStorage.getItem('db_partenza') || '';
-        document.getElementById('arrivo').value = localStorage.getItem('db_arrivo') || '';
-        document.getElementById('itinerario_previsto').value = localStorage.getItem('db_itinerario_previsto') || '';
-
-        const checkHub = localStorage.getItem('db_chk_hub') === 'true';
-        document.getElementById('chk_hub').checked = checkHub;
-        document.getElementById('info_trasporto').value = localStorage.getItem('db_info_trasporto') || '';
-        gestisciVisualizzazioneHub();
-
-        document.getElementById('ore').value = localStorage.getItem('db_ore') || '3';
-        document.getElementById('data_partenza').value = localStorage.getItem('db_data_partenza') || '';
-        document.getElementById('ora_partenza').value = localStorage.getItem('db_ora_partenza') || '';
-        
-        document.getElementById('passeggeri').value = localStorage.getItem('db_pax') || '1';
-        document.getElementById('bagagli_grandi').value = localStorage.getItem('db_grandi') || '0';
-        document.getElementById('bagagli_mano').value = localStorage.getItem('db_mano') || '0';
-        
-        const vetturaSalvata = localStorage.getItem('db_vettura');
-        if (vetturaSalvata) {
-            document.getElementById('vettura_selezionata').value = vetturaSalvata;
-        }
-        
-        validaFlottaEBagagli(); 
-        document.getElementById('note_servizio').value = localStorage.getItem('db_note_servizio') || '';
-    }
-
-    if (document.getElementById('view_nome_pax')) {
-        caricaRiepilogo();
-    }
-
-    const ruoloDashboard = localStorage.getItem('driverbook_ruolo');
-    
-    if (ruoloDashboard === 'partner') {
-        if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
-            caricaDatiDashboardPartner();
-        }
-    } else {
-        if (document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('card_viaggi_edit') || document.getElementById('card_storico') || document.getElementById('form_assistenza_interna') || document.getElementById('form_prenotazione')) {
-            caricaDatiDashboardPasseggero();
-        }
-    }
-
-    const btnPrenota = document.getElementById('btn_prenota_servizio');
-    if (btnPrenota) {
-        btnPrenota.addEventListener('click', function() {
-            window.location.href = 'prenotazione.html';
-        });
+    if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
+        caricaDatiDashboardPartner();
     }
 
     const formProfilo = document.getElementById('formModificaProfilo');
@@ -739,13 +536,11 @@ function togglePassword(inputId, button) {
 
 async function inviaLogin(event) {
     event.preventDefault();
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const btnSubmit = document.querySelector('#formLogin button[type="submit"]');
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_login_loading;
+    btnSubmit.textContent = "Accesso in corso...";
     
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -768,47 +563,22 @@ async function inviaLogin(event) {
             const descErrore = (erroreDati.error_description || erroreDati.msg || "").toLowerCase();
             
             if (descErrore.includes("not confirmed") || descErrore.includes("non confermata")) {
-                throw new Error(dict.js_login_err_active);
+                throw new Error("Account non attivo. Hai confermato il link via email?");
             }
             
-            throw new Error(dict.js_login_err_invalid);
+            throw new Error("Email o password non validi.");
         }
 
         const datiSessione = await risposta.json();
         const userId = datiSessione.user.id;
 
-        const pathAttuale = window.location.pathname.toLowerCase();
-        
-        if (pathAttuale.includes('/passeggeri/')) {
-            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero,linguaggio`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
-            });
-            const datiPasseggero = await checkResponse.json();
+        const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner,linguaggio`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
+        });
+        const datiPartner = await checkResponse.json();
 
-            if (!datiPasseggero || datiPasseggero.length === 0) {
-                throw new Error(dict.js_login_err_pax);
-            }
-            if (datiPasseggero[0].linguaggio) {
-                localStorage.setItem('driverbook_lang', datiPasseggero[0].linguaggio);
-            }
-        } else {
-            const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner,linguaggio`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
-            });
-            const datiPartner = await checkResponse.json();
-
-            if (!datiPartner || datiPartner.length === 0) {
-                if (pathAttuale.includes('/partner/')) {
-                    throw new Error(dict.js_login_err_partner);
-                } else if (pathAttuale.includes('/admin/')) {
-                    throw new Error(dict.js_login_err_admin);
-                } else {
-                    throw new Error(dict.js_login_err_driver);
-                }
-            }
-            if (datiPartner[0].linguaggio) {
-                localStorage.setItem('driverbook_lang', datiPartner[0].linguaggio);
-            }
+        if (!datiPartner || datiPartner.length === 0) {
+            throw new Error("Account non autorizzato come Partner.");
         }
 
         localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
@@ -826,16 +596,12 @@ async function inviaLogin(event) {
         }
         localStorage.setItem('driverbook_last_user', userId);
         
-        btnSubmit.textContent = dict.js_login_success;
+        btnSubmit.textContent = "Accesso effettuato!";
         btnSubmit.style.backgroundColor = "#28a745";
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
         
-        if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
-        else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
-        else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
-        else localStorage.setItem('driverbook_ruolo', 'passeggeri');
-        
+        localStorage.setItem('driverbook_ruolo', 'partner');
         window.location.href = 'dashboard.html';
 
     } catch (errore) {
@@ -1041,629 +807,6 @@ async function inviaRegistrazione(event) {
     }
 }
 
-function toggleReferente(event) {
-    gestisciVisualizzazioneReferente();
-}
-
-function gestisciVisualizzazioneReferente() {
-    const chk = document.getElementById('chk_referente');
-    const sezione = document.getElementById('sezione_referente');
-    const inputNome = document.getElementById('nome_referente');
-    const inputTel = document.getElementById('tel_referente');
-    const inputNomePax = document.getElementById('nome_passeggero');
-
-    if (chk && sezione) {
-        if (chk.checked) {
-            sezione.classList.remove('hidden');
-            if (inputNome) inputNome.required = true;
-            if (inputTel) inputTel.required = true;
-            
-            if (localStorage.getItem('driverbook_is_business') === 'false') {
-                const defaultNome = localStorage.getItem('driverbook_privato_nome') || '';
-                const defaultTel = localStorage.getItem('driverbook_privato_tel') || '';
-                
-                if (inputNome) inputNome.value = defaultNome;
-                if (itiReferente) itiReferente.setNumber(defaultTel);
-                
-                const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
-                let currentTelPax = '';
-                if (itiPasseggero) {
-                    currentTelPax = itiPasseggero.getNumber().replace(/\s+/g, '');
-                }
-                const cleanDefaultTel = defaultTel.replace(/\s+/g, '');
-                
-                if (currentNomePax === defaultNome.trim() && currentTelPax === cleanDefaultTel) {
-                    if (inputNomePax) inputNomePax.value = '';
-                    if (itiPasseggero) itiPasseggero.setNumber('');
-                }
-            }
-        } else {
-            sezione.classList.add('hidden');
-            if (inputNome) inputNome.required = false;
-            if (inputTel) inputTel.required = false;
-            
-            if (localStorage.getItem('driverbook_is_business') === 'false') {
-                if (inputNomePax) inputNomePax.value = localStorage.getItem('driverbook_privato_nome') || '';
-                if (itiPasseggero) itiPasseggero.setNumber(localStorage.getItem('driverbook_privato_tel') || '');
-                if (inputNome) inputNome.value = '';
-                if (itiReferente) itiReferente.setNumber('');
-            }
-        }
-    }
-}
-
-function toggleHubTrasporti(event) {
-    gestisciVisualizzazioneHub();
-}
-
-function gestisciVisualizzazioneHub() {
-    const chk = document.getElementById('chk_hub');
-    const sezione = document.getElementById('sezione_hub');
-    const inputInfo = document.getElementById('info_trasporto');
-
-    if (chk && sezione) {
-        if (chk.checked) {
-            sezione.classList.remove('hidden');
-            if (inputInfo) inputInfo.required = true;
-        } else {
-            sezione.classList.add('hidden');
-            if (inputInfo) inputInfo.required = false;
-        }
-    }
-}
-
-function gestisciCampi() {
-    const tipo = document.getElementById('tipo_servizio').value;
-    
-    document.getElementById('campi_comuni').classList.remove('hidden');
-    document.getElementById('blocco_chk_hub').classList.remove('hidden');
-    document.getElementById('blocco_tempo').classList.remove('hidden');
-    document.getElementById('blocco_passeggeri').classList.remove('hidden');
-    document.getElementById('blocco_note').classList.remove('hidden');
-    document.getElementById('sezione_vetture').classList.remove('hidden');
-    document.getElementById('btn_submit').classList.remove('hidden');
-
-    document.getElementById('partenza').required = true;
-    document.getElementById('data_partenza').required = true;
-    document.getElementById('ora_partenza').required = true;
-
-    if (tipo === 'TRASFERIMENTO') {
-        document.getElementById('campo_arrivo').classList.remove('hidden');
-        document.getElementById('arrivo').required = true;
-        document.getElementById('campo_ore').classList.add('hidden');
-        document.getElementById('blocco_itinerario').classList.add('hidden');
-    } else if (tipo === 'DISPOSIZIONE') {
-        document.getElementById('campo_arrivo').classList.add('hidden');
-        document.getElementById('arrivo').required = false;
-        document.getElementById('campo_ore').classList.remove('hidden');
-        document.getElementById('blocco_itinerario').classList.remove('hidden');
-    }
-
-    validaFlottaEBagagli();
-    calcolaPrezzi();
-}
-
-function impostaLimitiData() {
-    const inputData = document.getElementById('data_partenza');
-    if (inputData) {
-        const oggi = new Date();
-        const anno = oggi.getFullYear();
-        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-        const giorno = String(oggi.getDate()).padStart(2, '0');
-        inputData.min = `${anno}-${mese}-${giorno}`;
-    }
-}
-
-function validaOrario() {
-    const inputData = document.getElementById('data_partenza').value;
-    const inputOra = document.getElementById('ora_partenza').value;
-    const msgErrore = document.getElementById('errore_ora');
-
-    if (!inputData || !inputOra) return true;
-
-    const dataOraScelta = new Date(`${inputData}T${inputOra}`);
-    const adesso = new Date();
-    const limiteMinimo = new Date(adesso.getTime() + (3 * 60 * 60 * 1000));
-
-    if (dataOraScelta < limiteMinimo) {
-        msgErrore.style.display = 'block';
-        document.getElementById('ora_partenza').value = ''; 
-        return false;
-    } else {
-        msgErrore.style.display = 'none';
-        return true;
-    }
-}
-
-function calcolaPrezzi(tentativo = 1) {
-    const tipoServizio = document.getElementById('tipo_servizio').value;
-    if (!tipoServizio) return;
-
-    if (tipoServizio === 'DISPOSIZIONE') {
-        const ore = parseInt(document.getElementById('ore').value) || 3;
-        
-        aggiornaGraficaPrezzo('CLASSE_E', ore * CONFIG_TARIFFE.CLASSE_E.oraDisposizione);
-        aggiornaGraficaPrezzo('CLASSE_V', ore * CONFIG_TARIFFE.CLASSE_V.oraDisposizione);
-        aggiornaGraficaPrezzo('CLASSE_S', ore * CONFIG_TARIFFE.CLASSE_S.oraDisposizione);
-        
-    } else if (tipoServizio === 'TRASFERIMENTO') {
-        const partenza = document.getElementById('partenza').value;
-        const arrivo = document.getElementById('arrivo').value;
-
-        if (!partenza || !arrivo) {
-            nascondiPrezzi();
-            return;
-        }
-
-        if (typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService) {
-            const service = new google.maps.DistanceMatrixService();
-            service.getDistanceMatrix({
-                origins: [partenza],
-                destinations: [arrivo],
-                travelMode: 'DRIVING',
-                unitSystem: google.maps.UnitSystem.METRIC
-            }, function(response, status) {
-                if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
-                    const distanzaMetri = response.rows[0].elements[0].distance.value;
-                    const km = distanzaMetri / 1000;
-                    
-                    let distanzaValida = true;
-                    if (latLngPartenza && latLngArrivo) {
-                        const distanzaAria = calcolaDistanzaAria(latLngPartenza.lat, latLngPartenza.lng, latLngArrivo.lat, latLngArrivo.lng);
-                        if (distanzaAria > 0 && km > (distanzaAria * 2.2)) {
-                            distanzaValida = false;
-                        }
-                    }
-
-                    if (!distanzaValida && tentativo === 1) {
-                        setTimeout(() => calcolaPrezzi(2), 200);
-                        return;
-                    }
-                    
-                    let prezzoE = km * CONFIG_TARIFFE.CLASSE_E.allAlKm;
-                    if(prezzoE < CONFIG_TARIFFE.CLASSE_E.corsaMinima) prezzoE = CONFIG_TARIFFE.CLASSE_E.corsaMinima;
-                    prezzoE = Math.round(prezzoE / 5) * 5;
-
-                    let prezzoV = km * CONFIG_TARIFFE.CLASSE_V.allAlKm;
-                    if(prezzoV < CONFIG_TARIFFE.CLASSE_V.corsaMinima) prezzoV = CONFIG_TARIFFE.CLASSE_V.corsaMinima;
-                    prezzoV = Math.round(prezzoV / 5) * 5;
-
-                    let prezzoS = km * CONFIG_TARIFFE.CLASSE_S.allAlKm;
-                    if(prezzoS < CONFIG_TARIFFE.CLASSE_S.corsaMinima) prezzoS = CONFIG_TARIFFE.CLASSE_S.corsaMinima;
-                    prezzoS = Math.round(prezzoS / 5) * 5;
-                    
-                    aggiornaGraficaPrezzo('CLASSE_E', prezzoE);
-                    aggiornaGraficaPrezzo('CLASSE_V', prezzoV);
-                    aggiornaGraficaPrezzo('CLASSE_S', prezzoS);
-                } else {
-                    nascondiPrezzi();
-                }
-            });
-        }
-    }
-}
-
-function aggiornaGraficaPrezzo(classe, valore) {  
-    const elemento = document.getElementById(`prezzo_${classe.toLowerCase()}`);  
-    if (elemento) {  
-        const prezzoFormattato = valore.toFixed(2).replace('.', ',');  
-        elemento.textContent = `€ ${prezzoFormattato}`;  
-        elemento.classList.remove('hidden');  
-    }  
-}
-
-function nascondiPrezzi() {
-    ['classe_e', 'classe_s', 'classe_v'].forEach(classe => {
-        const el = document.getElementById(`prezzo_${classe}`);
-        if (el) el.classList.add('hidden');
-    });
-}
-
-function validaFlottaEBagagli() {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
-    const pax = parseInt(document.getElementById('passeggeri').value) || 1;
-    const grandi = parseInt(document.getElementById('bagagli_grandi').value) || 0;
-    const mano = parseInt(document.getElementById('bagagli_mano').value) || 0;
-
-    const punteggioBagagli = (grandi * 2) + mano;
-
-    const cardE = document.getElementById('card_classe_e');
-    const cardS = document.getElementById('card_classe_s');
-    const cardV = document.getElementById('card_classe_v');
-    
-    const tagE = document.getElementById('tag_classe_e');
-    const tagS = document.getElementById('tag_classe_s');
-    const tagV = document.getElementById('tag_classe_v');
-    
-    const motivoE = document.getElementById('motivo_classe_e');
-    const motivoS = document.getElementById('motivo_classe_s');
-    
-    const alertBox = document.getElementById('alert_eccedenza');
-    const btnSubmit = document.getElementById('btn_submit');
-    const inputVettura = document.getElementById('vettura_selezionata');
-
-    cardE.className = "vettura-card attiva";
-    cardS.className = "vettura-card attiva";
-    cardV.className = "vettura-card attiva";
-    
-    tagE.textContent = (inputVettura.value === 'CLASSE_E') ? dict.js_vettura_sel : dict.js_vettura_disp;
-    tagS.textContent = (inputVettura.value === 'CLASSE_S') ? dict.js_vettura_sel : dict.js_vettura_disp;
-    tagV.textContent = (inputVettura.value === 'CLASSE_V') ? dict.js_vettura_sel : dict.js_vettura_disp;
-    
-    if(inputVettura.value === 'CLASSE_E') cardE.classList.add('selezionata');
-    if(inputVettura.value === 'CLASSE_S') cardS.classList.add('selezionata');
-    if(inputVettura.value === 'CLASSE_V') cardV.classList.add('selezionata');
-
-    motivoE.style.display = 'none';
-    motivoS.style.display = 'none';
-    alertBox.style.display = 'none';
-    btnSubmit.disabled = false;
-
-    if (punteggioBagagli > 16) {
-        alertBox.style.display = 'block';
-        btnSubmit.disabled = true;
-        inputVettura.value = ""; 
-        cardE.className = "vettura-card bloccata";
-        cardS.className = "vettura-card bloccata";
-        cardV.className = "vettura-card bloccata";
-        tagE.textContent = dict.js_vettura_non_disp;
-        tagS.textContent = dict.js_vettura_non_disp;
-        tagV.textContent = dict.js_vettura_non_disp;
-        nascondiPrezzi();
-        return;
-    }
-
-    const msgBagagliEccedenti = dict.js_motivo_bagagli;
-
-    let escludiE = false;
-    let motivoE_testo = "";
-
-    if (pax > 2) {
-        escludiE = true;
-        motivoE_testo = dict.js_motivo_comfort;
-    } else if (punteggioBagagli > 5) {
-        escludiE = true;
-        motivoE_testo = msgBagagliEccedenti;
-    }
-
-    if (escludiE) {
-        cardE.className = "vettura-card bloccata";
-        tagE.textContent = dict.js_vettura_non_disp;
-        motivoE.textContent = motivoE_testo;
-        motivoE.style.display = 'block';
-        if (inputVettura.value === 'CLASSE_E') inputVettura.value = "";
-    }
-
-    let escludiS = false;
-    let motivoS_testo = "";
-
-    if (pax > 2) {
-        escludiS = true;
-        motivoS_testo = dict.js_motivo_comfort;
-    } else if (punteggioBagagli > 5) {
-        escludiS = true;
-        motivoS_testo = msgBagagliEccedenti;
-    }
-
-    if (escludiS) {
-        cardS.className = "vettura-card bloccata";
-        tagS.textContent = dict.js_vettura_non_disp;
-        motivoS.textContent = motivoS_testo;
-        motivoS.style.display = 'block';
-        if (inputVettura.value === 'CLASSE_S') inputVettura.value = "";
-    }
-    
-    calcolaPrezzi();
-}
-
-function selezionaVettura(codiceVettura) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
-    const cardE = document.getElementById('card_classe_e');
-    const cardS = document.getElementById('card_classe_s');
-    const cardV = document.getElementById('card_classe_v');
-    
-    const tagE = document.getElementById('tag_classe_e');
-    const tagS = document.getElementById('tag_classe_s');
-    const tagV = document.getElementById('tag_classe_v');
-    
-    const inputVettura = document.getElementById('vettura_selezionata');
-    
-    let cardCliccata;
-    if(codiceVettura === 'CLASSE_E') cardCliccata = cardE;
-    if(codiceVettura === 'CLASSE_S') cardCliccata = cardS;
-    if(codiceVettura === 'CLASSE_V') cardCliccata = cardV;
-
-    if (cardCliccata.classList.contains('bloccata')) return;
-
-    if(cardE.classList.contains('attiva')) { cardE.classList.remove('selezionata'); tagE.textContent = dict.js_vettura_disp; }
-    if(cardS.classList.contains('attiva')) { cardS.classList.remove('selezionata'); tagS.textContent = dict.js_vettura_disp; }
-    if(cardV.classList.contains('attiva')) { cardV.classList.remove('selezionata'); tagV.textContent = dict.js_vettura_disp; }
-
-    cardCliccata.classList.add('selezionata');
-    inputVettura.value = codiceVettura;
-    
-    if(codiceVettura === 'CLASSE_E') tagE.textContent = dict.js_vettura_sel;
-    if(codiceVettura === 'CLASSE_S') tagS.textContent = dict.js_vettura_sel;
-    if(codiceVettura === 'CLASSE_V') tagV.textContent = dict.js_vettura_sel;
-
-    const msgErroreVettura = document.getElementById('errore_vettura');
-    if (msgErroreVettura) msgErroreVettura.style.display = 'none';
-}
-
-function inviaRichiesta(event) {
-    event.preventDefault();
-    
-    const vetturaScelta = document.getElementById('vettura_selezionata').value;
-    const msgErroreVettura = document.getElementById('errore_vettura');
-
-    if (!vetturaScelta) {
-        if (msgErroreVettura) msgErroreVettura.style.display = 'block';
-        return;
-    } else {
-        if (msgErroreVettura) msgErroreVettura.style.display = 'none';
-    }
-
-    if (validaOrario()) {
-        localStorage.setItem('db_nome_passeggero', document.getElementById('nome_passeggero').value);
-        let prefissoPax = "+" + itiPasseggero.getSelectedCountryData().dialCode;
-        let numPax = document.getElementById('tel_passeggero').value.trim();
-        localStorage.setItem('db_tel_passeggero', (numPax.startsWith('+') ? numPax : (prefissoPax + numPax)).replace(/\s+/g, '')); 
-
-        let chkAttivo = document.getElementById('chk_referente').checked;
-        localStorage.setItem('db_chk_referente', chkAttivo);
-        localStorage.setItem('db_nome_referente', chkAttivo ? document.getElementById('nome_referente').value : "");
-
-        let prefissoRef = "+" + itiReferente.getSelectedCountryData().dialCode;
-        let numRef = document.getElementById('tel_referente').value.trim();
-        localStorage.setItem('db_tel_referente', (chkAttivo && numRef !== "") ? (numRef.startsWith('+') ? numRef : (prefissoRef + numRef)).replace(/\s+/g, '') : "");
-        
-        const tipoServizioImpostato = document.getElementById('tipo_servizio').value;
-        localStorage.setItem('db_tipo_servizio', tipoServizioImpostato);
-        localStorage.setItem('db_partenza', document.getElementById('partenza').value);
-        if (latLngPartenza) {
-            localStorage.setItem('db_partenza_lat', latLngPartenza.lat);
-            localStorage.setItem('db_partenza_lng', latLngPartenza.lng);
-        }
-        localStorage.setItem('db_arrivo', tipoServizioImpostato === 'TRASFERIMENTO' ? (document.getElementById('arrivo').value || '') : '');
-        if (tipoServizioImpostato === 'TRASFERIMENTO' && latLngArrivo) {
-            localStorage.setItem('db_arrivo_lat', latLngArrivo.lat);
-            localStorage.setItem('db_arrivo_lng', latLngArrivo.lng);
-        }
-        localStorage.setItem('db_itinerario_previsto', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('itinerario_previsto').value : '');
-        
-        localStorage.setItem('db_chk_hub', document.getElementById('chk_hub').checked);
-        localStorage.setItem('db_info_trasporto', document.getElementById('info_trasporto').value);
-        localStorage.setItem('db_ore', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('ore').value : '');
-        
-        localStorage.setItem('db_data_partenza', document.getElementById('data_partenza').value);
-        localStorage.setItem('db_ora_partenza', document.getElementById('ora_partenza').value);
-        localStorage.setItem('db_pax', document.getElementById('passeggeri').value);
-        localStorage.setItem('db_grandi', document.getElementById('bagagli_grandi').value);
-        localStorage.setItem('db_mano', document.getElementById('bagagli_mano').value);
-        localStorage.setItem('db_vettura', vetturaScelta);
-        localStorage.setItem('db_note_servizio', document.getElementById('note_servizio').value);
-
-        const prezzoFormattato = document.getElementById(`prezzo_${vetturaScelta.toLowerCase()}`).textContent;
-        localStorage.setItem('db_prezzo_stimato', prezzoFormattato);
-
-        let prezzoPulito = prezzoFormattato.replace('€ ', '').replace(',', '.');
-        let prezzoPerStripe = Math.round(parseFloat(prezzoPulito) * 100);
-
-        localStorage.setItem('db_prezzo_stripe', prezzoPerStripe);
-
-        window.location.href = 'checkout.html';
-    }
-}
-
-function caricaRiepilogo() {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
-    const nomePax = localStorage.getItem('db_nome_passeggero');
-    const telPax = localStorage.getItem('db_tel_passeggero');
-    const chkReferente = localStorage.getItem('db_chk_referente') === 'true';
-    const nomeRef = localStorage.getItem('db_nome_referente');
-    const telRef = localStorage.getItem('db_tel_referente');
-    
-    const tipoServizio = localStorage.getItem('db_tipo_servizio');
-    const partenza = localStorage.getItem('db_partenza');
-    const arrivo = localStorage.getItem('db_arrivo');
-    const itinerario = localStorage.getItem('db_itinerario_previsto');
-    
-    const chkHub = localStorage.getItem('db_chk_hub') === 'true';
-    const infoTrasporto = localStorage.getItem('db_info_trasporto'); 
-    const ore = localStorage.getItem('db_ore');
-    
-    const dataPartenza = localStorage.getItem('db_data_partenza');
-    const oraPartenza = localStorage.getItem('db_ora_partenza');
-    const pax = localStorage.getItem('db_pax') || '1';
-    const grandi = localStorage.getItem('db_grandi') || '0';
-    const mano = localStorage.getItem('db_mano') || '0';
-    const vetturaCodice = localStorage.getItem('db_vettura');
-    const noteServizio = localStorage.getItem('db_note_servizio');
-    const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
-
-    if (!tipoServizio || !partenza) {
-        mostraUiRedirectCheckout('body');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 5000);
-        return;
-    }
-
-    document.getElementById('view_nome_pax').textContent = nomePax || '-';
-    document.getElementById('view_tel_pax').textContent = telPax || '-';
-
-    if (chkReferente) {
-        document.getElementById('blocco_view_referente').classList.remove('hidden');
-        document.getElementById('view_nome_ref').textContent = nomeRef || '-';
-        document.getElementById('view_tel_ref').textContent = telRef || '-';
-    }
-
-    if (tipoServizio === 'TRASFERIMENTO') {
-        document.getElementById('view_servizio').textContent = dict.opt_tratta;
-        document.getElementById('blocco_view_arrivo').classList.remove('hidden');
-        document.getElementById('view_arrivo').textContent = arrivo || '-';
-        document.getElementById('blocco_view_ore').classList.add('hidden');
-        document.getElementById('blocco_view_itinerario').classList.add('hidden');
-    } else if (tipoServizio === 'DISPOSIZIONE') {
-        document.getElementById('view_servizio').textContent = dict.opt_disposizione;
-        document.getElementById('blocco_view_ore').classList.remove('hidden');
-        document.getElementById('view_ore').textContent = ore + dict.js_ore;
-        document.getElementById('blocco_view_arrivo').classList.add('hidden');
-        
-        if (itinerario && itinerario.trim() !== '') {
-            document.getElementById('blocco_view_itinerario').classList.remove('hidden');
-            document.getElementById('view_itinerario').textContent = itinerario;
-        }
-    }
-
-    let vetturaLeggibile = "-";
-    if (vetturaCodice === 'CLASSE_E') vetturaLeggibile = dict.nome_classe_e + "<br>(" + dict.vettura_berlina_comfort + ")";
-    if (vetturaCodice === 'CLASSE_S') vetturaLeggibile = dict.nome_classe_s + "<br>(" + dict.vettura_berlina_lusso + ")";
-    if (vetturaCodice === 'CLASSE_V') vetturaLeggibile = dict.nome_classe_v + "<br>(" + dict.vettura_van_comfort + ")";
-    document.getElementById('view_vettura').innerHTML = vetturaLeggibile;
-
-    let dataFormattata = dataPartenza;
-    if (dataPartenza) {
-        const parti = dataPartenza.split('-');
-        if(parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
-    }
-    document.getElementById('view_data_ora').textContent = dataFormattata + dict.js_alle_ore + oraPartenza;
-    document.getElementById('view_partenza').textContent = partenza || '-';
-
-    if (chkHub) {
-        document.getElementById('blocco_view_hub').classList.remove('hidden');
-        document.getElementById('view_info_trasporto').textContent = infoTrasporto || '-';
-    }
-
-    let testoPax = pax === '1' ? dict.js_pax_singolo : pax + dict.js_pax_plur;
-    let testoGrandi = grandi === '1' ? dict.js_val_singola : grandi + dict.js_val_plur;
-    let testoMano = mano === '1' ? dict.js_tro_singolo : mano + dict.js_tro_plur;
-
-    document.getElementById('view_carico').innerHTML = `${testoPax}<br>${testoGrandi}<br>${testoMano}`;
-    
-    if (noteServizio && noteServizio.trim() !== '') {
-        document.getElementById('view_note').textContent = noteServizio;
-    } else {
-        document.getElementById('view_note').textContent = dict.js_nessuna_nota;
-        document.getElementById('view_note').style.color = '#555555';
-    }
-
-    if (prezzoStimato) {
-        let prezzoPulito = prezzoStimato.replace('€', '').trim();
-        document.getElementById('view_prezzo').textContent = `${prezzoPulito} €`;
-    } else {
-        document.getElementById('view_prezzo').textContent = '-';
-    }
-}
-
-async function confermaPrenotazione() {
-    const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
-    
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    
-    let prezzoNumero = 0;
-    if (prezzoStimato) {
-        prezzoNumero = parseFloat(prezzoStimato.replace('€', '').trim()) || 0;
-    }
-
-    const urlCompleto = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni";
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    const token = localStorage.getItem('driverbook_auth_token');
-
-    let emailUtente = null;
-    if (token) {
-        try {
-            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            });
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                emailUtente = userData.email;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    const corpoDati = {
-        nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
-        tel_passeggero: localStorage.getItem('db_tel_passeggero') || null,
-        chk_referente: localStorage.getItem('db_chk_referente') === 'true',
-        nome_referente: localStorage.getItem('db_nome_referente') || null,
-        tel_referente: localStorage.getItem('db_tel_referente') || null,
-        tipo_servizio: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? 'TRANSFER' : (localStorage.getItem('db_tipo_servizio') || null),
-        ore: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' && localStorage.getItem('db_ore') ? parseInt(localStorage.getItem('db_ore')) : null,
-        partenza: localStorage.getItem('db_partenza') || null,
-        partenza_lat: localStorage.getItem('db_partenza_lat') ? parseFloat(localStorage.getItem('db_partenza_lat')) : null,
-        partenza_lng: localStorage.getItem('db_partenza_lng') ? parseFloat(localStorage.getItem('db_partenza_lng')) : null,
-        arrivo: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? (localStorage.getItem('db_arrivo') || null) : null,
-        arrivo_lat: localStorage.getItem('db_arrivo_lat') ? parseFloat(localStorage.getItem('db_arrivo_lat')) : null,
-        arrivo_lng: localStorage.getItem('db_arrivo_lng') ? parseFloat(localStorage.getItem('db_arrivo_lng')) : null,
-        itinerario_previsto: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' ? (localStorage.getItem('db_itinerario_previsto') || null) : null,
-        chk_hub: localStorage.getItem('db_chk_hub') === 'true',
-        info_trasporto: localStorage.getItem('db_info_trasporto') || null,
-        data_partenza: localStorage.getItem('db_data_partenza') || null,
-        ora_partenza: localStorage.getItem('db_ora_partenza') || null,
-        passeggeri: localStorage.getItem('db_pax') ? parseInt(localStorage.getItem('db_pax')) : null,
-        bagagli_grandi: localStorage.getItem('db_grandi') ? parseInt(localStorage.getItem('db_grandi')) : null,
-        bagagli_mano: localStorage.getItem('db_mano') ? parseInt(localStorage.getItem('db_mano')) : null,
-        vettura_selezionata: localStorage.getItem('db_vettura') ? localStorage.getItem('db_vettura').replace('_', ' ') : null,
-        note_servizio: localStorage.getItem('db_note_servizio') || null,
-        prezzo_totale: prezzoNumero,
-        email_cliente: emailUtente,
-        stripe_payment_intent_id: null,
-        termini_accettati: null
-    };
-
-    try {
-        const risposta = await fetch(urlCompleto, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!risposta.ok) {
-            throw new Error("Errore nel salvataggio");
-        }
-
-        const datiSalvati = await risposta.json();
-        const codiceGenerato = datiSalvati[0].codice_prenotazione;
-        
-        const chiaviDaCancellare = [
-            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
-            'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
-            'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
-        ];
-        chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-
-        mostraUiPrenotazioneOk('body', codiceGenerato);
-        
-        document.getElementById('btn_chiudi_conferma').onclick = function() {
-            window.location.href = 'dashboard.html';
-        };
-
-    } catch (errore) {
-        mostraUiPrenotazioneErrore('body');
-        
-        document.getElementById('btn_riprova_errore').onclick = function() {
-            window.location.reload();
-        };
-    }
-}
-
 function toggleFatturazione() {
     const spunta = document.getElementById('richiedeFattura').checked;
     const sezione = document.getElementById('sezione_fatturazione');
@@ -1757,207 +900,6 @@ function toggleFatturazioneProfiloReale(stato) {
     }
 }
 
-async function inviaRegistrazionePasseggero(event) {
-    event.preventDefault();
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
-    const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) {
-        msgErroreServer.style.display = 'none';
-    }
-
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
-        return;
-    }
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
-        event.preventDefault();
-        return;
-    }
-
-    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-    let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
-
-    const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
-    const urlPasseggeri = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri";
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
-    let numeroDigitato = document.getElementById('telefono').value.trim();
-    let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-    try {
-        const authResponse = await fetch(urlAuth, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email: email, password: password })
-        });
-
-        if (!authResponse.ok) {
-            const authError = await authResponse.json();
-            throw new Error(authError.msg || authError.message || "Errore credenziali");
-        }
-
-        const authData = await authResponse.json();
-        const authUserId = authData.id || (authData.user && authData.user.id);
-
-        if (!authUserId) {
-            throw new Error("ID utente mancante.");
-        }
-
-        const richiedeFattura = document.getElementById('richiedeFattura').checked;
-
-        const corpoDati = {
-            id_passeggero: authUserId,
-            nome_cognome: document.getElementById('nome').value,
-            email: email,
-            telefono: telefonoFinale,
-            richiede_fattura: richiedeFattura,
-            ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
-            piva_cf: richiedeFattura ? document.getElementById('piva_cf').value : null,
-            codice_sdi: richiedeFattura ? document.getElementById('codice_sdi').value : null,
-            pec: richiedeFattura ? document.getElementById('pec').value : null,
-            indirizzo_via: richiedeFattura ? document.getElementById('indirizzo_via').value : null,
-            indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
-            indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
-            indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
-            linguaggio: linguaAttuale
-        };
-
-        const dbResponse = await fetch(urlPasseggeri, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!dbResponse.ok) {
-            throw new Error("Errore database");
-        }
-
-        if (typeof svuotaBozze === 'function') svuotaBozze();
-        mostraUiRegistrazioneOk('.login-wrapper');
-
-    } catch (errore) {
-        let testoErrore = errore.message;
-        
-        if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = dict.js_reg_err_exists;
-        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
-            testoErrore = dict.js_reg_err_email_send;
-        } else {
-            testoErrore = dict.js_reg_err_generic + testoErrore;
-        }
-        
-        if (msgErroreServer) {
-            msgErroreServer.textContent = testoErrore;
-            msgErroreServer.style.display = 'block';
-        }
-    }
-}
-
-async function caricaDatiDashboardPasseggero() {
-    const token = localStorage.getItem('driverbook_auth_token');
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    
-    try {
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const userData = await userRes.json();
-        if (!userRes.ok) throw new Error("Token non valido");
-
-        const userId = userData.id;
-
-        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const dbData = await dbRes.json();
-
-        if (dbData && dbData.length > 0) {
-            const passeggero = dbData[0];
-            
-            if (document.getElementById('dash_nome_utente')) {
-                document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
-            }
-            if (document.getElementById('dash_codice_cliente')) {
-                document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
-            }
-            
-            if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
-                if (passeggero.richiede_fattura) {
-                    document.getElementById('chk_referente').checked = true;
-                    gestisciVisualizzazioneReferente();
-                    document.getElementById('nome_referente').value = passeggero.ragione_sociale || passeggero.nome_cognome || '';
-                    if (itiReferente && passeggero.telefono) {
-                        itiReferente.setNumber(passeggero.telefono);
-                    }
-                    localStorage.setItem('driverbook_is_business', 'true');
-                } else {
-                    document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
-                    if (itiPasseggero && passeggero.telefono) {
-                        itiPasseggero.setNumber(passeggero.telefono);
-                    }
-                    localStorage.setItem('driverbook_is_business', 'false');
-                    localStorage.setItem('driverbook_privato_nome', passeggero.nome_cognome || '');
-                    localStorage.setItem('driverbook_privato_tel', passeggero.telefono || '');
-                    
-                    const labelRef = document.querySelector('label[for="chk_referente"]');
-                    if (labelRef) {
-                        const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-                        labelRef.textContent = traduzioni[linguaAttuale].js_prenotazione_terzi;
-                    }
-                }
-            }
-            
-            if (document.getElementById('profilo_nome')) {
-                document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
-                document.getElementById('profilo_email').value = passeggero.email || '';
-                if (itiProfiloPasseggero && passeggero.telefono) {
-                    itiProfiloPasseggero.setNumber(passeggero.telefono);
-                }
-                
-                document.getElementById('profilo_richiedeFattura').checked = passeggero.richiede_fattura;
-                if (passeggero.richiede_fattura) {
-                    document.getElementById('sezione_fatturazione_profilo').classList.remove('hidden');
-                    document.getElementById('profilo_ragioneSociale').value = passeggero.ragione_sociale || '';
-                    document.getElementById('profilo_piva_cf').value = passeggero.piva_cf || '';
-                    document.getElementById('profilo_codice_sdi').value = passeggero.codice_sdi || '';
-                    document.getElementById('profilo_pec').value = passeggero.pec || '';
-                    document.getElementById('profilo_indirizzo_via').value = passeggero.indirizzo_via || '';
-                    document.getElementById('profilo_indirizzo_cap').value = passeggero.indirizzo_cap || '';
-                    document.getElementById('profilo_indirizzo_citta').value = passeggero.indirizzo_citta || '';
-                    document.getElementById('profilo_indirizzo_provincia').value = passeggero.indirizzo_provincia || '';
-                }
-
-                document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
-                document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
-            }
-            
-            if (typeof applicaBozze === 'function') applicaBozze();
-
-        } else {
-            esciAccount();
-        }
-    } catch (error) {
-        localStorage.removeItem('driverbook_auth_token');
-        window.location.href = 'login.html';
-    }
-}
-
 async function caricaDatiDashboardPartner() {
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -1989,8 +931,8 @@ async function caricaDatiDashboardPartner() {
             if (document.getElementById('profilo_nome')) {
                 document.getElementById('profilo_nome').value = partner.nome_cognome || '';
                 document.getElementById('profilo_email').value = partner.email || '';
-                if (itiProfiloPasseggero && partner.tel_partner) {
-                    itiProfiloPasseggero.setNumber(partner.tel_partner);
+                if (itiProfiloPartner && partner.tel_partner) {
+                    itiProfiloPartner.setNumber(partner.tel_partner);
                 }
                 
                 if (document.getElementById('profilo_ragioneSociale')) document.getElementById('profilo_ragioneSociale').value = partner.ragione_sociale || '';
@@ -2026,9 +968,6 @@ async function caricaDatiDashboardPartner() {
 async function aggiornaProfilo(event) {
     event.preventDefault();
 
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
     if (!validaNotificheDashboard()) {
         return;
     }
@@ -2039,7 +978,7 @@ async function aggiornaProfilo(event) {
 
     const alertBox = document.getElementById('alert_chiusura_fatturazione');
     if (alertBox && alertBox.style.display === 'block') {
-        btnSubmit.textContent = dict.js_prof_err_vat;
+        btnSubmit.textContent = "Conferma disattivazione P.IVA prima di salvare!";
         btnSubmit.style.backgroundColor = "#FF4444";
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#FF4444";
@@ -2054,7 +993,7 @@ async function aggiornaProfilo(event) {
         return;
     }
 
-    btnSubmit.textContent = dict.js_prof_loading;
+    btnSubmit.textContent = "Salvataggio in corso...";
 
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2065,58 +1004,34 @@ async function aggiornaProfilo(event) {
         });
         const userData = await userRes.json();
         const userId = userData.id;
-        const ruolo = localStorage.getItem('driverbook_ruolo');
 
-        let prefissoTel = "+" + itiProfiloPasseggero.getSelectedCountryData().dialCode;
+        let prefissoTel = "+" + itiProfiloPartner.getSelectedCountryData().dialCode;
         let numeroDigitato = document.getElementById('profilo_telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
-        let urlPatch = "";
-        let corpoDati = {};
-
-        if (ruolo === 'partner') {
-            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
-            corpoDati = {
-                nome_cognome: document.getElementById('profilo_nome').value,
-                tel_partner: telefonoFinale,
-                ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
-                piva: document.getElementById('profilo_piva').value,
-                codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
-                pec: document.getElementById('profilo_pec').value || null,
-                indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
-                indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
-                indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
-                indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
-                iban: document.getElementById('profilo_iban').value,
-                intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
-                ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
-                autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
-                zona_operativa: document.getElementById('profilo_zonaOperativa').value,
-                notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
-            };
-            if (latLngProfiloZonaOperativa) {
-                corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
-                corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
-            }
-        } else {
-            const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
-            urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
-            corpoDati = {
-                nome_cognome: document.getElementById('profilo_nome').value,
-                telefono: telefonoFinale,
-                richiede_fattura: richiedeFattura,
-                ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
-                piva_cf: richiedeFattura ? document.getElementById('profilo_piva_cf').value : null,
-                codice_sdi: richiedeFattura ? document.getElementById('profilo_codice_sdi').value : null,
-                pec: richiedeFattura ? document.getElementById('profilo_pec').value : null,
-                indirizzo_via: richiedeFattura ? document.getElementById('profilo_indirizzo_via').value : null,
-                indirizzo_cap: richiedeFattura ? document.getElementById('profilo_indirizzo_cap').value : null,
-                indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
-                indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
-                notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
-            };
+        const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
+        const corpoDati = {
+            nome_cognome: document.getElementById('profilo_nome').value,
+            tel_partner: telefonoFinale,
+            ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
+            piva: document.getElementById('profilo_piva').value,
+            codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
+            pec: document.getElementById('profilo_pec').value || null,
+            indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
+            indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
+            indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
+            indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
+            iban: document.getElementById('profilo_iban').value,
+            intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
+            ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
+            autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
+            zona_operativa: document.getElementById('profilo_zonaOperativa').value,
+            notifica_push: document.getElementById('profilo_notificaPush').checked,
+            notifica_email: document.getElementById('profilo_notificaEmail').checked
+        };
+        if (latLngProfiloZonaOperativa) {
+            corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
+            corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
         }
 
         const dbRes = await fetch(urlPatch, {
@@ -2147,9 +1062,6 @@ async function aggiornaProfilo(event) {
         const nuovaEmail = document.getElementById('profilo_email').value;
         if (nuovaEmail !== userData.email) {
             let urlRedirect = "https://mauy81.github.io/driverbook-test/partner/login.html";
-            if (ruolo === 'passeggeri') {
-                urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
-            }
             if (window.location.protocol !== 'file:') {
                 let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
                 urlRedirect = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/login.html';
@@ -2176,8 +1088,8 @@ async function aggiornaProfilo(event) {
             }
             
             if (typeof svuotaBozze === 'function') svuotaBozze();
-            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title}</h2>`;
-            const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg}</p>`;
+            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">Email aggiornata!</h2>`;
+            const msgFeedback = `<p class="feedback-testo">Controlla la nuova casella di posta e clicca il link per confermare l'indirizzo. Per sicurezza, verrai scollegato.</p>`;
             
             mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
 
@@ -2193,7 +1105,7 @@ async function aggiornaProfilo(event) {
             return;
         } else {
             if (typeof svuotaBozze === 'function') svuotaBozze();
-            btnSubmit.textContent = dict.js_prof_success;
+            btnSubmit.textContent = "Modifiche salvate con successo!";
             btnSubmit.style.backgroundColor = "#00FF66";
             btnSubmit.style.color = "#000000";
             btnSubmit.style.borderColor = "#00FF66";
@@ -2206,17 +1118,13 @@ async function aggiornaProfilo(event) {
                 btnSubmit.disabled = false;
             }, 5000);
             
-            if (localStorage.getItem('driverbook_ruolo') === 'partner') {
-                caricaDatiDashboardPartner();
-            } else {
-                caricaDatiDashboardPasseggero();
-            }
+            caricaDatiDashboardPartner();
         }
     } catch (errore) {
-        let msgErrore = dict.js_prof_err_save;
+        let msgErrore = "Errore durante il salvataggio. Riprova.";
         
         if (errore.message === "EMAIL_ESISTENTE") {
-            msgErrore = dict.js_prof_err_email_exists;
+            msgErrore = "La mail scelta è già registrata.";
         }
 
         btnSubmit.textContent = msgErrore;
@@ -2238,18 +1146,14 @@ async function modificaPassword() {
     const btn = document.getElementById('btn_modifica_password');
     if (!btn) return;
 
-    const pathAttuale = window.location.pathname.toLowerCase();
     const ruoloSalvato = localStorage.getItem('driverbook_ruolo');
-    if ((pathAttuale.includes('/partner/') && ruoloSalvato !== 'partner') || (pathAttuale.includes('/passeggeri/') && ruoloSalvato !== 'passeggeri') || (pathAttuale.includes('/autisti/') && ruoloSalvato !== 'autisti') || (pathAttuale.includes('/admin/') && ruoloSalvato !== 'admin')) {
+    if (ruoloSalvato !== 'partner') {
         esciAccount();
         return;
     }
-    
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const testoOriginale = btn.textContent;
-    btn.textContent = dict.js_rec_loading;
+    btn.textContent = "Invio richiesta...";
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbook_auth_token');
@@ -2289,8 +1193,8 @@ async function modificaPassword() {
             throw new Error("Errore durante l'invio della richiesta");
         }
 
-        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>`;
-        const messaggio = `<p class="feedback-testo" data-i18n="js_rec_int_success_msg">${dict.js_rec_int_success_msg}</p>`;
+        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Ricevuta</h2>`;
+        const messaggio = `<p class="feedback-testo">Riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio);
 
@@ -2304,7 +1208,7 @@ async function modificaPassword() {
 
     } catch (errore) {
         console.error(errore);
-        btn.textContent = dict.js_rec_err;
+        btn.textContent = "Errore di invio";
         btn.style.backgroundColor = "#dc3545"; 
         
         setTimeout(() => {
@@ -2330,16 +1234,13 @@ async function inviaAssistenza(event) {
     const honeypot = document.getElementById('azienda_hp').value;
     if (honeypot) return;
 
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
     const emailUtente = document.getElementById('assistenza_email').value.trim();
     const messaggioUtente = document.getElementById('testo_assistenza').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza button[type="submit"]');
 
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_assist_loading;
+    btnSubmit.textContent = "Invio in corso...";
 
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
     const urlGoogleApp = "https://script.google.com/macros/s/AKfycbxS7_NOyZXPwhO9m3VDH1aD98a1emWtuDRDNi6VnnqStZtieZUE_ILt_lcvu_HU88In/exec";
@@ -2369,7 +1270,7 @@ async function inviaAssistenza(event) {
         mostraUiAssistenzaOk('.login-wrapper');
 
     } catch (errore) {
-        alert(dict.js_assist_err);
+        alert("Errore durante l'invio. Riprova più tardi.");
         btnSubmit.disabled = false;
         btnSubmit.textContent = testoOriginale;
     }
@@ -2401,9 +1302,6 @@ document.addEventListener("DOMContentLoaded", function() {
             localStorage.setItem('driverbook_temp_recovery_token', accessToken);
             window.history.replaceState(null, null, window.location.pathname);
         } else if (!localStorage.getItem('driverbook_temp_recovery_token')) {
-            const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-            const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-            
             mostraUiLinkScaduto('.login-wrapper');
         }
     }
@@ -2411,16 +1309,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function richiediResetPassword(event) {
     event.preventDefault();
-    
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const email = document.getElementById('email_recupero').value.trim();
     const btn = document.getElementById('btn_invia_recupero');
 
     const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = dict.js_rec_proc;
+    btn.textContent = "Elaborazione in corso...";
 
     let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
     let redirectUrl = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/pwreimposta.html';
@@ -2440,7 +1335,7 @@ async function richiediResetPassword(event) {
         mostraUiResetRicevuto('.login-wrapper');
 
     } catch (errore) {
-        btn.textContent = dict.js_rec_conn_err;
+        btn.textContent = "Errore di connessione. Riprova.";
         btn.style.backgroundColor = "#dc3545";
         btn.style.color = "#ffffff";
         btn.style.borderColor = "#dc3545";
@@ -2458,9 +1353,6 @@ async function richiediResetPassword(event) {
 async function inviaNuovaPassword(event) {
     event.preventDefault();
 
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) msgErroreServer.style.display = 'none';
 
@@ -2473,7 +1365,7 @@ async function inviaNuovaPassword(event) {
 
     if (!accessToken) {
         if (msgErroreServer) {
-            msgErroreServer.textContent = linguaAttuale === 'en' ? "Session expired or missing token. Request a new link." : "Sessione scaduta o token mancante. Richiedi un nuovo link.";
+            msgErroreServer.textContent = "Sessione scaduta o token mancante. Richiedi un nuovo link.";
             msgErroreServer.style.display = 'block';
             setTimeout(() => {
                 window.location.href = 'index.html';
@@ -2486,7 +1378,7 @@ async function inviaNuovaPassword(event) {
 
     const btnSubmit = document.getElementById('btn_salva_password');
     const testoOriginale = btnSubmit.textContent;
-    btnSubmit.textContent = dict.js_pass_loading;
+    btnSubmit.textContent = "Salvataggio in corso...";
     btnSubmit.disabled = true;
 
     const urlUpdate = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user";
@@ -2506,9 +1398,9 @@ async function inviaNuovaPassword(event) {
         if (!risposta.ok) {
             const datiErrore = await risposta.json();
             if (datiErrore.error_code === "same_password") {
-                throw new Error(dict.js_pass_err_same);
+                throw new Error("La nuova password digitata è uguale all'attuale, non hai bisogno di reimpostarla.");
             }
-            throw new Error(dict.js_pass_err_update);
+            throw new Error("Impossibile aggiornare la password. Link scaduto o errore server.");
         }
 
         const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2516,7 +1408,6 @@ async function inviaNuovaPassword(event) {
         });
         const userData = await userRes.json();
         const emailUtente = userData.email;
-        const userId = userData.id;
 
         localStorage.removeItem('driverbook_temp_recovery_token');
 
@@ -2538,13 +1429,9 @@ async function inviaNuovaPassword(event) {
             localStorage.setItem('driverbook_auth_token', accessToken);
         }
 
-        const pathAttuale = window.location.pathname.toLowerCase();
-        if (pathAttuale.includes('/admin/')) localStorage.setItem('driverbook_ruolo', 'admin');
-        else if (pathAttuale.includes('/autisti/')) localStorage.setItem('driverbook_ruolo', 'autisti');
-        else if (pathAttuale.includes('/partner/')) localStorage.setItem('driverbook_ruolo', 'partner');
-        else localStorage.setItem('driverbook_ruolo', 'passeggeri');
+        localStorage.setItem('driverbook_ruolo', 'partner');
 
-        btnSubmit.textContent = dict.js_pass_success;
+        btnSubmit.textContent = "Password aggiornata! Accesso in corso...";
         btnSubmit.style.backgroundColor = "#28a745";
 
         setTimeout(() => {
@@ -2567,7 +1454,7 @@ async function inviaNuovaPassword(event) {
 }
 
 if ('serviceWorker' in navigator) {
-    let swPath = window.location.pathname.includes('driverbook-test') ? '/driverbook-test/passeggeri/service-worker.js' : '/passeggeri/service-worker.js';
+    let swPath = window.location.pathname.includes('driverbook-test') ? '/driverbook-test/partner/service-worker.js' : '/partner/service-worker.js';
     navigator.serviceWorker.register(swPath)
         .catch(errore => console.log('Registrazione SW fallita: ', errore));
 }
@@ -2612,8 +1499,6 @@ document.addEventListener('click', async (e) => {
 
 function mostraPopupInstallazioneApple(isMac) {
     let popup = document.getElementById('ios_install_popup');
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     if (!popup) {
         popup = document.createElement('div');
@@ -2622,11 +1507,16 @@ function mostraPopupInstallazioneApple(isMac) {
         document.body.appendChild(popup);
     }
 
-    const chiaveTesto = isMac ? 'js_install_mac' : 'js_install_ios';
+    let testoPopup = "";
+    if (isMac) {
+        testoPopup = "Per ricevere le notifiche push in tempo reale e utilizzare DriverBook al 100% delle sue funzioni, è necessario salvare l'app sul dispositivo.<br><br>Clicca su <strong>File</strong> nella barra in alto di Safari e seleziona <strong>Aggiungi al Dock</strong>.";
+    } else {
+        testoPopup = "Per ricevere le notifiche push in tempo reale e utilizzare DriverBook al 100% delle sue funzioni, è necessario salvare l'app sul dispositivo.<br><br>Tocca l'icona Condividi <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align: middle; margin: 0 4px;\"><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><polyline points=\"16 6 12 2 8 6\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"15\"></line></svg> nella barra del browser e seleziona <strong>Aggiungi alla schermata Home</strong>.";
+    }
 
     popup.innerHTML = `
         <span class="close-popup" id="btn_chiudi_apple_popup">&times;</span>
-        <p data-i18n="${chiaveTesto}">${dict[chiaveTesto]}</p>
+        <p>${testoPopup}</p>
     `;
 
     popup.style.display = 'block';
@@ -2642,15 +1532,12 @@ async function inviaAssistenzaInterna(event) {
     const honeypot = document.getElementById('azienda_hp_interna').value;
     if (honeypot) return;
 
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-
     const messaggioUtente = document.getElementById('testo_assistenza_interna').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza_interna button[type="submit"]');
 
     const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_assist_loading;
+    btnSubmit.textContent = "Invio in corso...";
 
     const token = localStorage.getItem('driverbook_auth_token');
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
@@ -2669,26 +1556,16 @@ async function inviaAssistenzaInterna(event) {
         let nomeUtente = "N/A";
         let codiceCliente = "N/A";
 
-        const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=nome_cognome,codice_passeggero`, {
+        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
-        const datiPasseggero = await checkPasseggero.json();
-
-        if (datiPasseggero && datiPasseggero.length > 0) {
-            nomeUtente = datiPasseggero[0].nome_cognome || "N/A";
-            codiceCliente = datiPasseggero[0].codice_passeggero || "N/A";
-        } else {
-            const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            });
-            const datiPartner = await checkPartner.json();
-            if (datiPartner && datiPartner.length > 0) {
-                nomeUtente = datiPartner[0].nome_cognome || "N/A";
-                codiceCliente = datiPartner[0].codice_partner || "N/A";
-            }
+        const datiPartner = await checkPartner.json();
+        if (datiPartner && datiPartner.length > 0) {
+            nomeUtente = datiPartner[0].nome_cognome || "N/A";
+            codiceCliente = datiPartner[0].codice_partner || "N/A";
         }
 
-        const messaggioArricchito = `Codice Cliente: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
+        const messaggioArricchito = `Codice Partner: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
 
         const resSupa = await fetch(urlSupabase, {
             method: "POST",
@@ -2710,14 +1587,14 @@ async function inviaAssistenzaInterna(event) {
         });
 
         if (typeof svuotaBozze === 'function') svuotaBozze();
-        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
-        const messaggio = `<p class="feedback-testo" data-i18n="js_assist_int_success_msg">${dict.js_assist_int_success_msg}</p>`;
-        const bottone = `<a data-href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
+        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
+        const messaggio = `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto al tuo indirizzo email.</p>`;
+        const bottone = `<a data-href="dashboard.html" class="btn btn-primary btn-full">Vai al Pannello Utente</a>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio, bottone);
 
     } catch (errore) {
-        alert(dict.js_assist_err);
+        alert("Errore durante l'invio. Riprova più tardi.");
         btnSubmit.disabled = false;
         btnSubmit.textContent = testoOriginale;
     }
@@ -2773,8 +1650,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function mostraModaleSalvataggio(destinazione) {
     let overlay = document.getElementById('modale_uscita_dati');
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     if (!overlay) {
         overlay = document.createElement('div');
@@ -2785,11 +1660,11 @@ function mostraModaleSalvataggio(destinazione) {
         modal.className = 'modale-box';
         
         modal.innerHTML = `
-            <h3 class="modale-titolo" data-i18n="modale_uscita_titolo">${dict.modale_uscita_titolo}</h3>
-            <p class="modale-testo" data-i18n="modale_uscita_testo">${dict.modale_uscita_testo}</p>
+            <h3 class="modale-titolo">Attenzione</h3>
+            <p class="modale-testo">Hai delle modifiche non salvate. Sei sicuro di voler abbandonare la pagina?</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_resta">${dict.modale_uscita_btn_resta}</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_esci">${dict.modale_uscita_btn_esci}</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco">RESTA QUI</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco">ESCI E PERDI</button>
             </div>
         `;
         
@@ -2840,154 +1715,30 @@ async function rinnovaSessioneSilenziosa() {
     }
 }
 
-function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
-
-function applicaTraduzioni() {
-    if (!window.location.pathname.toLowerCase().includes('/passeggeri/')) return;
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    
-    document.querySelectorAll('[data-i18n]').forEach(elemento => {
-        const chiave = elemento.getAttribute('data-i18n');
-        if (traduzioni[linguaAttuale] && traduzioni[linguaAttuale][chiave]) {
-            if (elemento.tagName === 'TITLE') {
-                document.title = traduzioni[linguaAttuale][chiave];
-            } else {
-                elemento.innerHTML = traduzioni[linguaAttuale][chiave];
-            }
-        }
-    });
-
-    const textareaAssistenza = document.getElementById('testo_assistenza');
-    if (textareaAssistenza && traduzioni[linguaAttuale]) {
-        textareaAssistenza.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
-    }
-
-    const textareaAssistenzaInterna = document.getElementById('testo_assistenza_interna');
-    if (textareaAssistenzaInterna && traduzioni[linguaAttuale]) {
-        textareaAssistenzaInterna.placeholder = traduzioni[linguaAttuale]['placeholder_assistenza'] || "Scrivi qui i dettagli della tua richiesta...";
-    }
-	
-	const elementiPlaceholders = [
-        { id: 'nome', chiave: 'ph_nome_reg' },
-        { id: 'profilo_nome', chiave: 'ph_nome_reg' },
-        { id: 'nome_passeggero', chiave: 'ph_nome_pax' },
-        { id: 'nome_referente', chiave: 'ph_nome_ref' },
-        { id: 'partenza', chiave: 'ph_indirizzo' },
-        { id: 'arrivo', chiave: 'ph_indirizzo' },
-        { id: 'itinerario_previsto', chiave: 'ph_itinerario' },
-        { id: 'info_trasporto', chiave: 'ph_trasporto' },
-        { id: 'note_servizio', chiave: 'ph_note' },
-        { id: 'ragioneSociale', chiave: 'ph_ragione_sociale' },
-        { id: 'profilo_ragioneSociale', chiave: 'ph_ragione_sociale' },
-        { id: 'codice_sdi', chiave: 'ph_sdi' },
-        { id: 'profilo_codice_sdi', chiave: 'ph_sdi' },
-        { id: 'indirizzo_via', chiave: 'ph_via' },
-        { id: 'profilo_indirizzo_via', chiave: 'ph_via' },
-        { id: 'indirizzo_citta', chiave: 'ph_citta' },
-        { id: 'profilo_indirizzo_citta', chiave: 'ph_citta' }
-    ];
-
-    elementiPlaceholders.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el && traduzioni[linguaAttuale] && traduzioni[linguaAttuale][item.chiave]) {
-            if (!window.location.pathname.includes('autista') && !window.location.pathname.includes('partner')) {
-                el.placeholder = traduzioni[linguaAttuale][item.chiave];
-            }
-        }
-    });
-
-    const bloccoFatturazione = document.getElementById('blocco_fatturazione_registrazione');
-    if (bloccoFatturazione) {
-        const checkboxFattura = document.getElementById('richiedeFattura');
-        if (linguaAttuale === 'en') {
-            bloccoFatturazione.style.display = 'none';
-            if (checkboxFattura && checkboxFattura.checked) {
-                checkboxFattura.checked = false;
-                toggleFatturazione();
-            }
-        } else {
-            bloccoFatturazione.style.display = 'flex';
-        }
-    }
-    
-    document.documentElement.lang = linguaAttuale;
-}
-
-function impostaLingua(nuovaLingua) {
-    localStorage.setItem('driverbook_lang', nuovaLingua);
-    window.location.reload();
-}
-
 function mostraUiRegistrazioneOk(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_reg_success_title">${dict.js_reg_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Registrazione Completata!</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_reg_success_msg">${dict.js_reg_success_msg}</p>` : `<p class="feedback-testo">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo">Registrazione Completata!</h2>`;
+    const messaggio = `<p class="feedback-testo">Ti abbiamo inviato un'email. Vai nella tua casella di posta e clicca sul link per attivare il tuo account.</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
 function mostraUiResetRicevuto(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Ricevuta</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_rec_success_msg">${dict.js_rec_success_msg}</p>` : `<p class="feedback-testo">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Ricevuta</h2>`;
+    const messaggio = `<p class="feedback-testo">Se l'indirizzo inserito corrisponde ad un account registrato, riceverai a breve un'email con il link da cliccare per creare la nuova password.</p>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio);
 }
 
 function mostraUiAssistenzaOk(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const usaI18n = !window.location.pathname.includes('/partner/');
-    const titolo = usaI18n ? `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>` : `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
-    const messaggio = usaI18n ? `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>` : `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
-    const bottone = usaI18n ? `<a data-href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>` : `<a data-href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo">Richiesta Inviata</h2>`;
+    const messaggio = `<p class="feedback-testo">Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto all'indirizzo email che ci hai fornito.</p>`;
+    const bottone = `<a data-href="index.html" class="btn btn-primary btn-full">Torna alla Home</a>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
 
 function mostraUiLinkScaduto(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
-    const messaggio = `<p class="feedback-testo" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
-    const bottone = `<a data-href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore">Link Scaduto</h2>`;
+    const messaggio = `<p class="feedback-testo">Il link per la reimpostazione della password non è più valido o è già stato utilizzato.</p>`;
+    const bottone = `<a data-href="pwreset.html" class="btn btn-primary btn-full">Richiedi Nuovo Link</a>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
-}
-
-function mostraUiPrenotazioneOk(containerId, codiceGenerato = "DB-A1B2C") {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const btnPannelloStr = dict.js_btn_pannello_utente || (linguaAttuale === 'en' ? 'Go to Dashboard' : 'Vai al Pannello Utente');
-    const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_check_success_title">${dict.js_check_success_title}</h2>`;
-    const messaggio = `<p class="feedback-testo"><span data-i18n="js_check_success_text">${dict.js_check_success_text}</span><strong class="feedback-evidenza">${codiceGenerato}</strong></p>`;
-    const bottone = `<button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${btnPannelloStr}</button>`;
-    mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
-}
-
-function mostraUiPrenotazioneErrore(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const btnRiprovaStr = dict.js_btn_riprova || (linguaAttuale === 'en' ? 'Try Again' : 'Riprova');
-    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
-    const messaggio = `<p class="feedback-testo" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
-    const bottone = `<button id="btn_riprova_errore" class="btn btn-primary btn-full">${btnRiprovaStr}</button>`;
-    mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
-}
-
-function mostraUiRedirectCheckout(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_redirect_title">${dict.js_redirect_title}</h2>`;
-    const messaggio = `<p class="feedback-testo" data-i18n="js_check_redirect">${dict.js_check_redirect}</p>`;
-    mostraSchermataFeedback('errore', containerId, titolo, messaggio);
 }
 
 function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, htmlBottone = '') {
@@ -3339,11 +2090,7 @@ function generaCardVeicolo(modello, posti, targa) {
 window.applicaBozze = function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'prt_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]), textarea, select').forEach(campo => {
@@ -3367,11 +2114,7 @@ window.applicaBozze = function() {
 document.addEventListener("DOMContentLoaded", function() {
     const blacklistPagineAutosave = ['login.html', 'pwreset.html', 'pwreimposta.html', 'index.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'prt_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         if (typeof applicaBozze === 'function') applicaBozze();
@@ -3390,11 +2133,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 window.svuotaBozze = function() {
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const path = window.location.pathname.toLowerCase();
-    let prefix = 'pax_';
-    if (path.includes('/partner/')) prefix = 'prt_';
-    else if (path.includes('/autisti/')) prefix = 'aut_';
-    else if (path.includes('/admin/')) prefix = 'adm_';
+    const prefix = 'prt_';
 
     document.querySelectorAll('input, textarea, select').forEach(campo => {
         if (campo.id) {

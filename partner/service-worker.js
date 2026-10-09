@@ -2,8 +2,8 @@ const CACHE_NAME = 'partner-driverbook-cache';
 const urlsToCache = [
     './',
     './index.html',
-    '../style.css',
-    '../script.js'
+    './style.css',
+    './script.js'
 ];
 
 self.addEventListener('install', event => {
