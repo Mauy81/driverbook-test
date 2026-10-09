@@ -32,6 +32,8 @@ let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero;
 let latLngPartenza = null;
 let latLngArrivo = null;
+let latLngZonaOperativa = null;
+let latLngProfiloZonaOperativa = null;
 
 const CONFIG_TARIFFE = {
     CLASSE_E: { allAlKm: 2.00, oraDisposizione: 70.00, corsaMinima: 70.00 },
@@ -92,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const chiaviDaCancellare = [
             'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
             'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
@@ -326,14 +328,15 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (localStorage.getItem('driverbook_auth_token')) {
             if (ruoloMenu === 'partner') {
                 contenitoreMenuLaterale.innerHTML = `
-                    <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                    <a id="link_menu_calendario" class="menu-item" data-i18n="menu_calendario">Calendario Servizi</a>
-                    <a id="link_menu_guidatori" class="menu-item" data-i18n="menu_guidatori">Gestione Autisti</a>
-                    <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">I Miei Servizi</a>
-                    <a id="link_menu_flotta" class="menu-item" data-i18n="menu_flotta">Gestione Flotta</a>
-                    <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
-                    <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                    <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
+                    <a id="link_menu_home" class="menu-item">Pannello Utente</a>
+                    <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
+                    <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
+                    <a id="link_menu_guidatori" class="menu-item">Gestione Autisti</a>
+                    <a id="link_menu_viaggi" class="menu-item">I Miei Servizi</a>
+                    <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
+                    <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
+                    <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
+                    <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
                 `;
             } else if (ruoloMenu === 'autisti') {
                 contenitoreMenuLaterale.innerHTML = `
@@ -375,6 +378,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const mappaPagine = {
         'link_menu_home': 'dashboard.html',
+        'link_menu_bacheca': 'bacheca.html',
         'link_menu_prenota': 'prenotazione.html',
         'link_menu_riepilogo': 'checkout.html',
         'link_menu_viaggi': 'viaggiprogrammati.html',
@@ -484,10 +488,22 @@ document.addEventListener("DOMContentLoaded", function() {
             new google.maps.LatLng(52.0, 18.0)
         );
         if (inputZonaOperativa) {
-            new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            const acZona = new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            acZona.addListener('place_changed', function() {
+                const place = acZona.getPlace();
+                if (place && place.geometry) {
+                    latLngZonaOperativa = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                }
+            });
         }
         if (inputProfiloZonaOperativa) {
-            new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            const acProfZona = new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            acProfZona.addListener('place_changed', function() {
+                const place = acProfZona.getPlace();
+                if (place && place.geometry) {
+                    latLngProfiloZonaOperativa = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                }
+            });
         }
     }
 
@@ -802,7 +818,7 @@ async function inviaLogin(event) {
         if (ultimoUtente && ultimoUtente !== userId) {
             const chiaviDaCancellare = [
                 'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
                 'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
             ];
@@ -982,6 +998,8 @@ async function inviaRegistrazione(event) {
             ruolo_conducenti: document.getElementById('ruoloConducenti').value,
             autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
             zona_operativa: document.getElementById('zonaOperativa').value,
+            zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
+            zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
             notifica_push: document.getElementById('notificaPush').checked,
             notifica_email: document.getElementById('notificaEmail').checked,
             linguaggio: linguaAttuale
@@ -1406,7 +1424,15 @@ function inviaRichiesta(event) {
         const tipoServizioImpostato = document.getElementById('tipo_servizio').value;
         localStorage.setItem('db_tipo_servizio', tipoServizioImpostato);
         localStorage.setItem('db_partenza', document.getElementById('partenza').value);
+        if (latLngPartenza) {
+            localStorage.setItem('db_partenza_lat', latLngPartenza.lat);
+            localStorage.setItem('db_partenza_lng', latLngPartenza.lng);
+        }
         localStorage.setItem('db_arrivo', tipoServizioImpostato === 'TRASFERIMENTO' ? (document.getElementById('arrivo').value || '') : '');
+        if (tipoServizioImpostato === 'TRASFERIMENTO' && latLngArrivo) {
+            localStorage.setItem('db_arrivo_lat', latLngArrivo.lat);
+            localStorage.setItem('db_arrivo_lng', latLngArrivo.lng);
+        }
         localStorage.setItem('db_itinerario_previsto', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('itinerario_previsto').value : '');
         
         localStorage.setItem('db_chk_hub', document.getElementById('chk_hub').checked);
@@ -1575,7 +1601,11 @@ async function confermaPrenotazione() {
         tipo_servizio: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? 'TRANSFER' : (localStorage.getItem('db_tipo_servizio') || null),
         ore: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' && localStorage.getItem('db_ore') ? parseInt(localStorage.getItem('db_ore')) : null,
         partenza: localStorage.getItem('db_partenza') || null,
+        partenza_lat: localStorage.getItem('db_partenza_lat') ? parseFloat(localStorage.getItem('db_partenza_lat')) : null,
+        partenza_lng: localStorage.getItem('db_partenza_lng') ? parseFloat(localStorage.getItem('db_partenza_lng')) : null,
         arrivo: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? (localStorage.getItem('db_arrivo') || null) : null,
+        arrivo_lat: localStorage.getItem('db_arrivo_lat') ? parseFloat(localStorage.getItem('db_arrivo_lat')) : null,
+        arrivo_lng: localStorage.getItem('db_arrivo_lng') ? parseFloat(localStorage.getItem('db_arrivo_lng')) : null,
         itinerario_previsto: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' ? (localStorage.getItem('db_itinerario_previsto') || null) : null,
         chk_hub: localStorage.getItem('db_chk_hub') === 'true',
         info_trasporto: localStorage.getItem('db_info_trasporto') || null,
@@ -1613,7 +1643,7 @@ async function confermaPrenotazione() {
         
         const chiaviDaCancellare = [
             'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
@@ -2065,6 +2095,10 @@ async function aggiornaProfilo(event) {
                 notifica_push: document.getElementById('profilo_notificaPush').checked,
                 notifica_email: document.getElementById('profilo_notificaEmail').checked
             };
+            if (latLngProfiloZonaOperativa) {
+                corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
+                corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
+            }
         } else {
             const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
             urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
@@ -2150,7 +2184,7 @@ async function aggiornaProfilo(event) {
             const chiaviDaCancellare = [
                 'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
                 'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
                 'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
             ];
@@ -2345,7 +2379,7 @@ function esciAccount() {
     const chiaviDaCancellare = [
         'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_arrivo', 'db_itinerario_previsto',
+        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
         'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
     ];
