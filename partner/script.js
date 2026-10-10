@@ -594,7 +594,14 @@ async function inviaLogin(event) {
         }
 
         const checkRicordami = document.getElementById('ricordami');
-        const storage = (checkRicordami && checkRicordami.checked) ? localStorage : sessionStorage;
+        const usaLocalStorage = (checkRicordami && checkRicordami.checked);
+        const storage = usaLocalStorage ? localStorage : sessionStorage;
+
+        if (usaLocalStorage) {
+            localStorage.setItem('driverbook_ricordami', 'true');
+        } else {
+            localStorage.removeItem('driverbook_ricordami');
+        }
 
         storage.setItem('driverbook_auth_token', datiSessione.access_token);
         storage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
@@ -2162,3 +2169,20 @@ window.svuotaBozze = function() {
         moduloSporco = false;
     }
 };
+
+window.addEventListener('beforeunload', function(e) {
+    if (localStorage.getItem('driverbook_ricordami') !== 'true') {
+        const prefix = getPrefissoApp();
+        const chiaviDaCancellare = [
+            'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
+            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+            'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+            'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+        ];
+        chiaviDaCancellare.forEach(chiave => {
+            sessionStorage.removeItem(prefix + chiave);
+            sessionStorage.removeItem(chiave); 
+        });
+    }
+});
