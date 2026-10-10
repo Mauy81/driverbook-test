@@ -13,8 +13,14 @@
     
     const originalGetItem = Storage.prototype.getItem;
     Storage.prototype.getItem = function(key) {
-        if (chiaviIsolate.includes(key)) key = getPrefissoApp() + key;
-        return originalGetItem.call(this, key);
+        let scopedKey = key;
+        if (chiaviIsolate.includes(key)) scopedKey = getPrefissoApp() + key;
+        
+        let val = originalGetItem.call(this, scopedKey);
+        if (val === null && this === localStorage && chiaviIsolate.includes(key)) {
+            val = sessionStorage.getItem(scopedKey);
+        }
+        return val;
     };
     
     const originalRemoveItem = Storage.prototype.removeItem;
@@ -35,6 +41,12 @@ if ('scrollRestoration' in history) {
 
 document.addEventListener("DOMContentLoaded", function() {
     localStorage.setItem('driverbook_lang', 'it');
+    
+    const chkRicordami = document.getElementById('ricordami');
+    if (chkRicordami) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) chkRicordami.checked = true;
+    }
     
     const paginaCorrenteSicurezza = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
@@ -581,8 +593,11 @@ async function inviaLogin(event) {
             throw new Error("Account non autorizzato come Partner.");
         }
 
-        localStorage.setItem('driverbook_auth_token', datiSessione.access_token);
-        localStorage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
+        const checkRicordami = document.getElementById('ricordami');
+        const storage = (checkRicordami && checkRicordami.checked) ? localStorage : sessionStorage;
+
+        storage.setItem('driverbook_auth_token', datiSessione.access_token);
+        storage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
 
         const ultimoUtente = localStorage.getItem('driverbook_last_user');
         if (ultimoUtente && ultimoUtente !== userId) {
@@ -601,7 +616,7 @@ async function inviaLogin(event) {
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
         
-        localStorage.setItem('driverbook_ruolo', 'partner');
+        storage.setItem('driverbook_ruolo', 'partner');
         window.location.href = 'dashboard.html';
 
     } catch (errore) {
@@ -1284,7 +1299,10 @@ function esciAccount() {
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
         'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
     ];
-    chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+    chiaviDaCancellare.forEach(chiave => {
+        localStorage.removeItem(chiave);
+        sessionStorage.removeItem(getPrefissoApp() + chiave);
+    });
     window.location.href = 'index.html';
 }
 
