@@ -2053,7 +2053,7 @@ function esciAccount() {
     ];
     chiaviDaCancellare.forEach(chiave => {
         localStorage.removeItem(chiave);
-        sessionStorage.removeItem(getPrefissoApp() + chiave);
+        sessionStorage.removeItem(chiave);
     });
     window.location.href = 'index.html';
 }
