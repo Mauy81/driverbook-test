@@ -46,6 +46,21 @@ if ('scrollRestoration' in history) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    let linkFavicon = document.querySelector("link[rel~='icon']");
+    if (!linkFavicon) {
+        linkFavicon = document.createElement('link');
+        linkFavicon.rel = 'icon';
+        linkFavicon.type = 'image/png';
+        linkFavicon.href = '../logo/icona-pwa.png';
+        document.head.appendChild(linkFavicon);
+    }
+
+    if (localStorage.getItem('driverbook_ricordami') === 'false' && !sessionStorage.getItem('finestra_attiva')) {
+        esciAccount();
+        return;
+    }
+    sessionStorage.setItem('finestra_attiva', 'true');
+
     const chkRicordami = document.getElementById('ricordami');
     if (chkRicordami) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -703,7 +718,8 @@ async function inviaLogin(event) {
         if (usaLocalStorage) {
             localStorage.setItem('driverbook_ricordami', 'true');
         } else {
-            localStorage.removeItem('driverbook_ricordami');
+            localStorage.setItem('driverbook_ricordami', 'false');
+            sessionStorage.setItem('finestra_attiva', 'true');
         }
 
         storage.setItem('driverbook_auth_token', datiSessione.access_token);
@@ -2061,7 +2077,10 @@ function esciAccount() {
     chiaviDaCancellare.forEach(chiave => {
         localStorage.removeItem(chiave);
         sessionStorage.removeItem(chiave);
+        sessionStorage.removeItem('pax_' + chiave);
     });
+    localStorage.removeItem('driverbook_ricordami');
+    sessionStorage.removeItem('finestra_attiva');
     window.location.href = 'index.html';
 }
 
@@ -2741,20 +2760,3 @@ window.svuotaBozze = function() {
         moduloSporco = false;
     }
 };
-
-window.addEventListener('beforeunload', function(e) {
-    if (localStorage.getItem('driverbook_ricordami') !== 'true') {
-        const prefix = getPrefissoApp();
-        const chiaviDaCancellare = [
-            'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
-            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
-            'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
-            'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
-        ];
-        chiaviDaCancellare.forEach(chiave => {
-            sessionStorage.removeItem(prefix + chiave);
-            sessionStorage.removeItem(chiave); 
-        });
-    }
-});
