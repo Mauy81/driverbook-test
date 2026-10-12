@@ -2689,7 +2689,8 @@ window.applicaBozze = function() {
     const prefix = 'pax_';
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
-        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]), textarea, select').forEach(campo => {
+        localStorage.removeItem(prefix + 'db_draft_' + paginaAutosave + '_swipe_logout_range');
+        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range), textarea, select').forEach(campo => {
             if (campo.id) {
                 const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
                 if (valoreSalvato !== null) {
@@ -2718,7 +2719,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.addEventListener('input', function(e) {
             const campo = e.target;
             if (campo.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(campo.tagName) && campo.id) {
-                if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file') {
+                if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file' && campo.id !== 'swipe_logout_range') {
                     const valore = (campo.type === 'checkbox' || campo.type === 'radio') ? campo.checked : campo.value;
                     localStorage.setItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`, valore);
                 }
