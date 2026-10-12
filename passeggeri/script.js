@@ -2488,6 +2488,7 @@ function mostraModaleSalvataggio(destinazione) {
     overlay.style.display = 'flex';
     
     document.getElementById('btn_conferma_uscita').onclick = function() {
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         moduloSporco = false;
         window.location.href = destinazione;
     };
