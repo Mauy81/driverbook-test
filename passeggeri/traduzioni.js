@@ -273,7 +273,16 @@ const traduzioni = {
         js_btn_pannello_utente: "Vai al Pannello Utente",
         js_btn_riprova: "Riprova",
         js_rec_int_success_msg: "Riceverai a breve un'email con il link da cliccare per creare la nuova password.",
-        js_assist_int_success_msg: "Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto al tuo indirizzo email."
+        js_assist_int_success_msg: "Abbiamo ricevuto il tuo messaggio. Il nostro team ti risponderà al più presto al tuo indirizzo email.",
+        js_stato_in_attesa: "In Attesa di Assegnazione",
+        js_stato_assegnato: "Autista Assegnato",
+        js_limbo_info: "La tua richiesta è attiva e visibile alla nostra flotta. Nei servizi NCC, le assegnazioni definitive per i viaggi programmati avvengono solitamente nei giorni precedenti la partenza, in base alla pianificazione logistica dei turni. Riceverai una notifica immediata non appena il tuo autista prenderà in carico la corsa.",
+        js_btn_annulla_viaggio: "Annulla Richiesta",
+        js_penale_avviso: "Annullamento con Penale 100%",
+        js_penale_testo: "Mancano meno di 24 ore alla partenza. Come da termini accettati, l'annullamento comporterà l'addebito dell'intero importo della corsa.",
+        js_btn_conferma_annulla: "Conferma Annullamento",
+        js_annulla_success: "Richiesta annullata correttamente. I fondi pre-autorizzati sono stati sbloccati.",
+        js_annulla_error: "Impossibile annullare la richiesta al momento. Riprova più tardi."
     },
     en: {
         titolo_pagina: "DriverBook - Chauffeur Service",
@@ -549,6 +558,15 @@ const traduzioni = {
         js_btn_pannello_utente: "Go to Dashboard",
         js_btn_riprova: "Try Again",
         js_rec_int_success_msg: "You will shortly receive an email with a link to click to create your new password.",
-        js_assist_int_success_msg: "We have received your message. Our team will reply to your email address as soon as possible."
+        js_assist_int_success_msg: "We have received your message. Our team will reply to your email address as soon as possible.",
+        js_stato_in_attesa: "Awaiting Assignment",
+        js_stato_assegnato: "Driver Assigned",
+        js_limbo_info: "Your request is active and visible to our fleet. In chauffeur services, definitive assignments for scheduled trips usually occur in the days leading up to departure, based on shift logistics. You will receive an immediate notification as soon as a driver takes your trip.",
+        js_btn_annulla_viaggio: "Cancel Request",
+        js_penale_avviso: "100% Penalty Cancellation",
+        js_penale_testo: "Departure is in less than 24 hours. As per the accepted terms, cancellation will result in a charge for the full amount of the trip.",
+        js_btn_conferma_annulla: "Confirm Cancellation",
+        js_annulla_success: "Request successfully cancelled. Pre-authorized funds have been released.",
+        js_annulla_error: "Unable to cancel the request at the moment. Please try again later."
     }
 };

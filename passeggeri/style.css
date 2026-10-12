@@ -1158,3 +1158,123 @@ input:-webkit-autofill:active {
 .feedback-icona {
     margin-bottom: 20px;
 }
+
+.msg-caricamento {
+    text-align: center;
+    color: #888888;
+    padding: 20px;
+}
+
+.msg-errore-viaggi {
+    text-align: center;
+    color: #dc3545;
+    padding: 20px;
+}
+
+.card-viaggio {
+    background-color: transparent;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.viaggio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+}
+
+.viaggio-data {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.viaggio-badge {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    letter-spacing: 1px;
+}
+
+.badge-attesa {
+    color: #FFA500;
+    border-color: #FFA500;
+}
+
+.badge-assegnato {
+    color: #00FF66;
+    border-color: #00FF66;
+}
+
+.viaggio-riga {
+    margin-bottom: 15px;
+}
+
+.viaggio-label {
+    color: #888888;
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.viaggio-valore {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.viaggio-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-top: 1px solid #333333;
+    padding-top: 15px;
+}
+
+.viaggio-codice-label {
+    color: #888888;
+    font-size: 0.85rem;
+    display: inline;
+}
+
+.viaggio-codice-valore {
+    color: #00FF66;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.viaggio-prezzo {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.viaggio-limbo-box {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: #aaaaaa;
+    border-left: 3px solid #FFA500;
+    line-height: 1.4;
+}
+
+.btn-annulla-viaggio {
+    border-color: #dc3545;
+    color: #dc3545;
+    margin-top: 5px;
+}
+
+.btn-annulla-viaggio:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
+}

@@ -539,6 +539,10 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaDatiDashboardPasseggero();
     }
 
+    if (document.getElementById('lista_viaggi_attivi_edit')) {
+        caricaViaggiProgrammati();
+    }
+
     const btnPrenota = document.getElementById('btn_prenota_servizio');
     if (btnPrenota) {
         btnPrenota.addEventListener('click', function() {
@@ -2761,3 +2765,212 @@ window.svuotaBozze = function() {
         moduloSporco = false;
     }
 };
+
+async function caricaViaggiProgrammati() {
+    const contenitore = document.getElementById('lista_viaggi_attivi_edit');
+    if (!contenitore) return;
+    
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    
+    contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+    
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Utente non loggato");
+        const userData = await userRes.json();
+        const userId = userData.id;
+
+        const oggi = new Date().toISOString().split('T')[0];
+        
+        const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?id_passeggero=eq.${userId}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
+        
+        const res = await fetch(urlFetch, {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+        
+        if (!res.ok) throw new Error("Errore lettura viaggi");
+        
+        const viaggi = await res.json();
+        contenitore.innerHTML = '';
+        
+        if (viaggi.length === 0) {
+            contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
+            return;
+        }
+        
+        viaggi.forEach(viaggio => {
+            const isAttesa = viaggio.stato === 'IN_ATTESA';
+            
+            const classeBadge = isAttesa ? 'badge-attesa' : 'badge-assegnato';
+            const testoStato = isAttesa ? dict.js_stato_in_attesa : dict.js_stato_assegnato;
+
+            const htmlLimbo = isAttesa ? `
+                <div class="viaggio-limbo-box">
+                    ${dict.js_limbo_info}
+                </div>
+            ` : '';
+            
+            const btnAnnulla = `
+                <button onclick="chiediConfermaAnnullamento('${viaggio.codice_prenotazione}', '${viaggio.data_partenza}', '${viaggio.ora_partenza}', '${viaggio.stato}')" class="btn btn-ghost btn-full btn-annulla-viaggio">
+                    ${dict.js_btn_annulla_viaggio}
+                </button>
+            `;
+
+            let destinazioneHtml = viaggio.tipo_servizio === 'TRANSFER' ? viaggio.arrivo : (viaggio.ore + " " + dict.js_ore);
+            
+            let dataFormattata = viaggio.data_partenza;
+            const parti = dataFormattata.split('-');
+            if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
+
+            const htmlCard = `
+                <div class="card-viaggio" id="card_${viaggio.codice_prenotazione}">
+                    <div class="viaggio-header">
+                        <span class="viaggio-data">${dataFormattata} - ${viaggio.ora_partenza}</span>
+                        <span class="viaggio-badge ${classeBadge}">${testoStato}</span>
+                    </div>
+                    
+                    <div class="viaggio-riga">
+                        <span class="viaggio-label">${dict.lbl_partenza || 'Partenza'}</span>
+                        <div class="viaggio-valore">${viaggio.partenza}</div>
+                    </div>
+                    
+                    <div class="viaggio-riga">
+                        <span class="viaggio-label">${viaggio.tipo_servizio === 'TRANSFER' ? (dict.lbl_arrivo || 'Arrivo') : (dict.lbl_durata || 'Durata')}</span>
+                        <div class="viaggio-valore">${destinazioneHtml}</div>
+                    </div>
+                    
+                    <div class="viaggio-footer">
+                        <div>
+                           <span class="viaggio-codice-label">Codice:</span> <span class="viaggio-codice-valore">${viaggio.codice_prenotazione}</span>
+                        </div>
+                        <div class="viaggio-prezzo">
+                            € ${viaggio.prezzo_totale.toFixed(2).replace('.', ',')}
+                        </div>
+                    </div>
+                    
+                    ${htmlLimbo}
+                    ${btnAnnulla}
+                </div>
+            `;
+            
+            contenitore.insertAdjacentHTML('beforeend', htmlCard);
+        });
+        
+    } catch (errore) {
+        contenitore.innerHTML = `<div class="msg-errore-viaggi">Impossibile caricare i viaggi. Riprova più tardi.</div>`;
+    }
+}
+
+function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    
+    const dataPartenza = new Date(`${data}T${ora}:00`);
+    const oraAttuale = new Date();
+    const oreMancanti = (dataPartenza - oraAttuale) / (1000 * 60 * 60);
+    
+    let titoloModale = dict.js_btn_annulla_viaggio || "Annulla Richiesta";
+    let testoModale = "";
+    let classeBottone = "btn-modale-bianco";
+    let penale = false;
+    
+    if (statoAttuale === 'IN_ATTESA') {
+        testoModale = linguaAttuale === 'en' ? "Are you sure you want to cancel this request? The pre-authorized amount will be immediately released." : "Sei sicuro di voler annullare questa richiesta? L'importo pre-autorizzato verrà sbloccato immediatamente.";
+    } else if (statoAttuale === 'ASSEGNATO') {
+        if (oreMancanti > 24) {
+            testoModale = linguaAttuale === 'en' ? "Are you sure you want to cancel? Since there are more than 24 hours until departure, no penalty will be applied." : "Sei sicuro di voler annullare? Mancando più di 24 ore alla partenza, non verrà applicata alcuna penale.";
+        } else {
+            titoloModale = dict.js_penale_avviso || "Annullamento con Penale 100%";
+            testoModale = dict.js_penale_testo || "Mancano meno di 24 ore alla partenza. Come da termini accettati, l'annullamento comporterà l'addebito dell'intero importo della corsa.";
+            classeBottone = "btn-danger-outline";
+            penale = true;
+        }
+    }
+    
+    let overlay = document.getElementById('modale_annullamento');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_annullamento';
+        overlay.className = 'modale-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    let stileTitolo = penale ? 'style="color: #dc3545;"' : '';
+
+    overlay.innerHTML = `
+        <div class="modale-box">
+            <h3 class="modale-titolo" ${stileTitolo}>${titoloModale}</h3>
+            <p class="modale-testo">${testoModale}</p>
+            <div class="modale-bottoni-container">
+                <button id="btn_chiudi_modale_annulla" class="btn-modale-bianco">${linguaAttuale === 'en' ? 'Back' : 'Indietro'}</button>
+                <button id="btn_procedi_annullamento" class="btn ${classeBottone}" style="flex: 1;">${dict.js_btn_conferma_annulla || 'Conferma Annullamento'}</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.style.display = 'flex';
+    
+    document.getElementById('btn_chiudi_modale_annulla').onclick = function() {
+        overlay.style.display = 'none';
+    };
+    
+    document.getElementById('btn_procedi_annullamento').onclick = function() {
+        eseguiAnnullamento(codice);
+        overlay.style.display = 'none';
+    };
+}
+
+async function eseguiAnnullamento(codice) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    const card = document.getElementById('card_' + codice);
+    if (card) {
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+    }
+    
+    try {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${codice}`, {
+            method: "PATCH",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify({ stato: 'ANNULLATO' })
+        });
+        
+        if (!res.ok) throw new Error("Errore aggiornamento DB");
+        
+        if (card) {
+            card.remove();
+        }
+        
+        const contenitore = document.getElementById('lista_viaggi_attivi_edit');
+        if (contenitore && contenitore.children.length === 0) {
+            contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
+        }
+        
+        alert(dict.js_annulla_success || "Richiesta annullata correttamente. I fondi pre-autorizzati sono stati sbloccati.");
+        
+    } catch (errore) {
+        if (card) {
+            card.style.opacity = '1';
+            card.style.pointerEvents = 'auto';
+        }
+        alert(dict.js_annulla_error || "Impossibile annullare la richiesta al momento. Riprova più tardi.");
+    }
+}
