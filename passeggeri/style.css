@@ -7,6 +7,7 @@
 
 html {
     scroll-padding-top: 120px;
+    color-scheme: dark;
 }
 
 body {
@@ -17,6 +18,7 @@ body {
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: scroll;
+    color-scheme: dark;
 }
 
 .navbar {
@@ -1004,9 +1006,17 @@ textarea.input {
     border-bottom: 1px solid #222222;
 }
 
-select.input option {
-    background-color: #000000;
-    color: #ffffff;
+select.input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: calc(100% - 10px);
+    background-position-y: center;
+    padding-right: 35px;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 #data_partenza,
@@ -1172,109 +1182,185 @@ input:-webkit-autofill:active {
 }
 
 .card-viaggio {
-    background-color: transparent;
-    border: 1px solid #333333;
+    background-color: #000000;
+    border: none;
     border-radius: 6px;
-    padding: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    overflow: hidden;
 }
 
-.viaggio-header {
+.viaggio-header-touch {
+    padding: 15px 20px;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #333333;
-    padding-bottom: 10px;
+    background-color: #000000;
+    transition: background-color 0.3s ease;
+    border-radius: 6px;
+}
+
+.viaggio-header-touch:hover {
+    background-color: #111111;
+}
+
+.viaggio-header-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 15px;
 }
 
 .viaggio-data {
     font-weight: bold;
     color: #ffffff;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 .viaggio-badge {
-    font-size: 0.75rem;
+    font-size: 0.55rem;
     font-weight: bold;
     text-transform: uppercase;
     padding: 4px 8px;
     border-radius: 4px;
     border: 1px solid transparent;
     letter-spacing: 1px;
+    white-space: nowrap;
+    margin: 0 auto;
 }
 
 .badge-attesa {
-    color: #FFA500;
-    border-color: #FFA500;
+	color: #ffffff;
+	border-color: #ffffff;
 }
 
 .badge-assegnato {
-    color: #00FF66;
-    border-color: #00FF66;
+	color: #00FF66;
+	border-color: #00FF66;
 }
 
-.viaggio-riga {
-    margin-bottom: 15px;
+@media (max-width: 768px) {
+    .viaggio-header-touch {
+        padding: 12px 8px;
+    }
+    .viaggio-header-info {
+        gap: 8px;
+    }
+    .viaggio-data {
+        font-size: 0.75rem;
+    }
+    .viaggio-badge {
+        font-size: 0.45rem;
+        padding: 3px 4px;
+        letter-spacing: 0px;
+        margin: 0 auto;
+    }
+    .icona-tendina {
+        width: 18px;
+        height: 18px;
+        margin-left: 5px;
+    }
 }
 
-.viaggio-label {
-    color: #888888;
-    font-size: 0.85rem;
+.viaggio-dettaglio-body {
+    display: none;
+    padding: 0 20px 20px 20px;
+}
+
+.card-viaggio.aperta .viaggio-dettaglio-body {
     display: block;
-    margin-bottom: 4px;
 }
 
-.viaggio-valore {
-    color: #ffffff;
-    font-size: 1rem;
+.card-viaggio.aperta .icona-tendina {
+    transform: rotate(180deg);
 }
 
-.viaggio-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.icona-tendina {
+    transition: transform 0.3s ease;
+}
+
+.checkout-style-block {
+    margin-bottom: 25px;
+}
+
+.checkout-style-title {
+    color: #00FF66;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: bold;
     margin-bottom: 15px;
-    border-top: 1px solid #333333;
-    padding-top: 15px;
+    border-left: 2px solid #00FF66;
+    padding-left: 8px;
+    letter-spacing: 1px;
+}
+
+.checkout-style-row {
+    margin-bottom: 12px;
+}
+
+.checkout-style-label {
+    color: #777777;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.checkout-style-value {
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.viaggio-limbo-box {
+    background-color: transparent;
+    padding: 0;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+    color: #ffffff;
+    line-height: 1.4;
+}
+
+.viaggio-footer-totale {
+    margin-top: 25px;
+    padding-top: 0;
 }
 
 .viaggio-codice-label {
-    color: #888888;
-    font-size: 0.85rem;
-    display: inline;
+    color: #777777;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 5px;
 }
 
 .viaggio-codice-valore {
-    color: #00FF66;
+    color: #ffffff;
     font-weight: bold;
     font-size: 0.9rem;
 }
 
-.viaggio-prezzo {
+.viaggio-prezzo-totale {
+    color: #00FF66;
+    font-size: 1.5rem;
     font-weight: bold;
-    font-size: 1.1rem;
-    color: #ffffff;
-}
-
-.viaggio-limbo-box {
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 0.85rem;
-    color: #aaaaaa;
-    border-left: 3px solid #FFA500;
-    line-height: 1.4;
+    margin: 15px 0;
 }
 
 .btn-annulla-viaggio {
-    border-color: #dc3545;
-    color: #dc3545;
-    margin-top: 5px;
+    border-color: #ffffff;
+    color: #ffffff;
+    margin-top: 10px;
+    width: auto;
+    padding: 10px 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .btn-annulla-viaggio:hover {
-    background-color: #dc3545;
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: none;
 }

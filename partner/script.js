@@ -1707,8 +1707,8 @@ function mostraModaleSalvataggio(destinazione) {
             <h3 class="modale-titolo">Attenzione</h3>
             <p class="modale-testo">Hai delle modifiche non salvate. Sei sicuro di voler abbandonare la pagina?</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco">RESTA QUI</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco">ESCI E PERDI</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco" style="padding: 10px; font-size: 0.9rem; flex: 1;">NO</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco" style="padding: 10px; font-size: 0.9rem; flex: 1;">SI</button>
             </div>
         `;
         
@@ -2036,8 +2036,8 @@ function chiediConfermaEliminazioneVeicolo(targa) {
             <h3 class="modale-titolo">Elimina Veicolo</h3>
             <p class="modale-testo">Vuoi davvero eliminare questo veicolo dalla flotta?<br><strong class="targa-evidenza">${targa}</strong></p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_eliminazione" class="btn-modale-bianco">NO</button>
-                <button id="btn_conferma_eliminazione" class="btn-modale-bianco">SI</button>
+                <button id="btn_annulla_eliminazione" class="btn-modale-bianco" style="padding: 10px; font-size: 0.9rem; flex: 1;">NO</button>
+                <button id="btn_conferma_eliminazione" class="btn-modale-bianco" style="padding: 10px; font-size: 0.9rem; flex: 1;">SI</button>
             </div>
         `;
         

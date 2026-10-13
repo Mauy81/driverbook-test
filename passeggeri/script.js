@@ -436,22 +436,24 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const inputTelPasseggero = document.getElementById('tel_passeggero');
-    if (inputTelPasseggero && window.intlTelInput) {
-        itiPasseggero = window.intlTelInput(inputTelPasseggero, {
-            initialCountry: "it",
-            preferredCountries: ['it'],
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
-        });
+        if (inputTelPasseggero) {
+            if (window.intlTelInput) {
+                itiPasseggero = window.intlTelInput(inputTelPasseggero, {
+                    preferredCountries: ['it'],
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+                });
+            }
 
-        const inputTelReferente = document.getElementById('tel_referente');
-        itiReferente = window.intlTelInput(inputTelReferente, {
-            initialCountry: "it",
-            preferredCountries: ['it'],
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
-        });
+            const inputTelReferente = document.getElementById('tel_referente');
+            if (inputTelReferente && window.intlTelInput) {
+                itiReferente = window.intlTelInput(inputTelReferente, {
+                    preferredCountries: ['it'],
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+                });
+            }
 
-        const inputPartenza = document.getElementById('partenza');
-        const inputArrivo = document.getElementById('arrivo');
+            const inputPartenza = document.getElementById('partenza');
+            const inputArrivo = document.getElementById('arrivo');
         
         if (typeof google !== 'undefined' && google.maps && google.maps.places) {
             const confiniArea = new google.maps.LatLngBounds(
@@ -471,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const place = acPartenza.getPlace();
                 if (place && place.geometry) {
                     latLngPartenza = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                    inputPartenza.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 calcolaPrezzi();
             });
@@ -478,6 +481,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const place = acArrivo.getPlace();
                 if (place && place.geometry) {
                     latLngArrivo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                    inputArrivo.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 calcolaPrezzi();
             });
@@ -490,20 +494,32 @@ document.addEventListener("DOMContentLoaded", function() {
         impostaLimitiData();
 
         document.getElementById('nome_passeggero').value = localStorage.getItem('db_nome_passeggero') || '';
-        if (localStorage.getItem('db_tel_passeggero')) {
-            itiPasseggero.setNumber(localStorage.getItem('db_tel_passeggero'));
+        if (localStorage.getItem('db_tel_passeggero') && itiPasseggero) {
+            setTimeout(() => {
+                itiPasseggero.setNumber(localStorage.getItem('db_tel_passeggero'));
+            }, 100);
         }
 
         const checkReferente = localStorage.getItem('db_chk_referente') === 'true';
         document.getElementById('chk_referente').checked = checkReferente;
         document.getElementById('nome_referente').value = localStorage.getItem('db_nome_referente') || '';
-        if (localStorage.getItem('db_tel_referente')) {
-            itiReferente.setNumber(localStorage.getItem('db_tel_referente'));
+        if (localStorage.getItem('db_tel_referente') && itiReferente) {
+            setTimeout(() => {
+                itiReferente.setNumber(localStorage.getItem('db_tel_referente'));
+            }, 100);
         }
         gestisciVisualizzazioneReferente();
 
         document.getElementById('tipo_servizio').value = localStorage.getItem('db_tipo_servizio') || '';
         gestisciCampi(); 
+
+        const latP = localStorage.getItem('db_partenza_lat');
+        const lngP = localStorage.getItem('db_partenza_lng');
+        if (latP && lngP) latLngPartenza = { lat: parseFloat(latP), lng: parseFloat(lngP) };
+        
+        const latA = localStorage.getItem('db_arrivo_lat');
+        const lngA = localStorage.getItem('db_arrivo_lng');
+        if (latA && lngA) latLngArrivo = { lat: parseFloat(latA), lng: parseFloat(lngA) };
 
         document.getElementById('partenza').value = localStorage.getItem('db_partenza') || '';
         document.getElementById('arrivo').value = localStorage.getItem('db_arrivo') || '';
@@ -1362,7 +1378,6 @@ function caricaRiepilogo() {
 
 async function confermaPrenotazione() {
     const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
-    
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     
@@ -1376,6 +1391,8 @@ async function confermaPrenotazione() {
     const token = localStorage.getItem('driverbook_auth_token');
 
     let emailUtente = null;
+    let codicePasseggero = null;
+    
     if (token) {
         try {
             const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -1384,6 +1401,16 @@ async function confermaPrenotazione() {
             if (userRes.ok) {
                 const userData = await userRes.json();
                 emailUtente = userData.email;
+                
+                const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero`, {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                if (passRes.ok) {
+                    const passData = await passRes.json();
+                    if (passData && passData.length > 0) {
+                        codicePasseggero = passData[0].codice_passeggero;
+                    }
+                }
             }
         } catch (e) {
             console.error(e);
@@ -1391,6 +1418,7 @@ async function confermaPrenotazione() {
     }
 
     const corpoDati = {
+        codice_passeggero: codicePasseggero,
         nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
         tel_passeggero: localStorage.getItem('db_tel_passeggero') || null,
         chk_referente: localStorage.getItem('db_chk_referente') === 'true',
@@ -1425,7 +1453,7 @@ async function confermaPrenotazione() {
             method: "POST",
             headers: {
                 "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
+                "Authorization": "Bearer " + token,
                 "Content-Type": "application/json",
                 "Prefer": "return=representation"
             },
@@ -1446,6 +1474,12 @@ async function confermaPrenotazione() {
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
         chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.includes('draft_prenotazione.html')) {
+                localStorage.removeItem(key);
+            }
+        });
 
         mostraUiPrenotazioneOk('body', codiceGenerato);
         
@@ -2476,8 +2510,8 @@ function mostraModaleSalvataggio(destinazione) {
             <h3 class="modale-titolo" data-i18n="modale_uscita_titolo">${dict.modale_uscita_titolo}</h3>
             <p class="modale-testo" data-i18n="modale_uscita_testo">${dict.modale_uscita_testo}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_resta">${dict.modale_uscita_btn_resta}</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_esci">${dict.modale_uscita_btn_esci}</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_resta" style="padding: 10px; font-size: 0.9rem; flex: 1;">${dict.modale_uscita_btn_resta}</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_esci" style="padding: 10px; font-size: 0.9rem; flex: 1;">${dict.modale_uscita_btn_esci}</button>
             </div>
         `;
         
@@ -2784,11 +2818,17 @@ async function caricaViaggiProgrammati() {
         });
         if (!userRes.ok) throw new Error("Utente non loggato");
         const userData = await userRes.json();
-        const userId = userData.id;
+        
+        const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!passRes.ok) throw new Error("Errore lettura passeggero");
+        const passData = await passRes.json();
+        const codicePasseggero = passData[0].codice_passeggero;
 
         const oggi = new Date().toISOString().split('T')[0];
         
-        const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?id_passeggero=eq.${userId}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
+        const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_passeggero=eq.${codicePasseggero}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
         
         const res = await fetch(urlFetch, {
             headers: {
@@ -2809,56 +2849,162 @@ async function caricaViaggiProgrammati() {
         
         viaggi.forEach(viaggio => {
             const isAttesa = viaggio.stato === 'IN_ATTESA';
-            
             const classeBadge = isAttesa ? 'badge-attesa' : 'badge-assegnato';
-            const testoStato = isAttesa ? dict.js_stato_in_attesa : dict.js_stato_assegnato;
+            const testoStato = isAttesa ? (dict.js_stato_in_attesa || 'IN ATTESA DI ASSEGNAZIONE') : (dict.js_stato_assegnato || 'ASSEGNATO');
 
             const htmlLimbo = isAttesa ? `
                 <div class="viaggio-limbo-box">
-                    ${dict.js_limbo_info}
+                    ${dict.js_limbo_info || 'Nei servizi NCC, le assegnazioni definitive per i viaggi programmati avvengono solitamente nei giorni precedenti la partenza, in base alla pianificazione logistica dei turni. Riceverai una notifica immediata non appena il tuo autista prenderà in carico la corsa.'}
                 </div>
             ` : '';
             
             const btnAnnulla = `
                 <button onclick="chiediConfermaAnnullamento('${viaggio.codice_prenotazione}', '${viaggio.data_partenza}', '${viaggio.ora_partenza}', '${viaggio.stato}')" class="btn btn-ghost btn-full btn-annulla-viaggio">
-                    ${dict.js_btn_annulla_viaggio}
+                    ${dict.js_btn_annulla_viaggio || 'ANNULLA RICHIESTA'}
                 </button>
             `;
 
-            let destinazioneHtml = viaggio.tipo_servizio === 'TRANSFER' ? viaggio.arrivo : (viaggio.ore + " " + dict.js_ore);
-            
             let dataFormattata = viaggio.data_partenza;
             const parti = dataFormattata.split('-');
             if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
 
+            let nomePasseggero = viaggio.nome_passeggero || "-";
+            let telPasseggero = viaggio.tel_passeggero || "-";
+            
+            let bloccoReferenteHtml = "";
+            if (viaggio.chk_referente) {
+                let nomeRef = viaggio.nome_referente || "-";
+                let telRef = viaggio.tel_referente || "-";
+                bloccoReferenteHtml = `
+                    <div class="checkout-style-block">
+                        <div class="checkout-style-title">${(dict.h2_referente || 'REFERENTE PRENOTAZIONE').toUpperCase()}</div>
+                        <div class="checkout-style-row">
+                            <span class="checkout-style-label">${dict.lbl_nome_ref || 'Nome Azienda / Referente'}</span>
+                            <span class="checkout-style-value">${nomeRef}</span>
+                        </div>
+                        <div class="checkout-style-row">
+                            <span class="checkout-style-label">${dict.lbl_tel_ref || 'Telefono Referente'}</span>
+                            <span class="checkout-style-value">${telRef}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? (dict.opt_tratta || 'Servizio a Tratta Diretta') : (dict.opt_disposizione || 'Servizio a Disposizione Oraria');
+            let vetturaCodice = viaggio.vettura_selezionata || "";
+            let vetturaLeggibile = vetturaCodice;
+            if (vetturaCodice.includes('CLASSE E')) vetturaLeggibile = `${dict.nome_classe_e || 'Mercedes Classe E'}<br><span style='font-size:0.85rem;color:#aaaaaa;'>(${dict.vettura_berlina_comfort || 'Berlina Comfort'})</span>`;
+            if (vetturaCodice.includes('CLASSE S')) vetturaLeggibile = `${dict.nome_classe_s || 'Mercedes Classe S'}<br><span style='font-size:0.85rem;color:#aaaaaa;'>(${dict.vettura_berlina_lusso || 'Berlina Lusso'})</span>`;
+            if (vetturaCodice.includes('CLASSE V')) vetturaLeggibile = `${dict.nome_classe_v || 'Mercedes Classe V'}<br><span style='font-size:0.85rem;color:#aaaaaa;'>(${dict.vettura_van_comfort || 'Van Comfort'})</span>`;
+
+            let arrivoHtml = "";
+            if (viaggio.tipo_servizio === 'TRANSFER') {
+                arrivoHtml = `
+                    <div class="checkout-style-row">
+                        <span class="checkout-style-label">${dict.lbl_arrivo || 'Luogo di Destinazione'}</span>
+                        <span class="checkout-style-value">${viaggio.arrivo || '-'}</span>
+                    </div>
+                `;
+            } else if (viaggio.tipo_servizio === 'DISPOSIZIONE' && viaggio.itinerario_previsto) {
+                arrivoHtml = `
+                    <div class="checkout-style-row">
+                        <span class="checkout-style-label">${dict.lbl_itinerario_previsto || 'Itinerario Previsto'}</span>
+                        <span class="checkout-style-value">${viaggio.itinerario_previsto}</span>
+                    </div>
+                `;
+            }
+
+            let pax = viaggio.passeggeri || 1;
+            let grandi = viaggio.bagagli_grandi || 0;
+            let mano = viaggio.bagagli_mano || 0;
+            let testoPax = pax === 1 ? (dict.js_pax_singolo || "1 Passeggero") : pax + (dict.js_pax_plur || " Passeggeri");
+            let testoGrandi = grandi === 1 ? (dict.js_val_singola || "1 Valigia Grande") : grandi + (dict.js_val_plur || " Valigie Grandi");
+            let testoMano = mano === 1 ? (dict.js_tro_singolo || "1 Trolley") : mano + (dict.js_tro_plur || " Trolley");
+            
+            let noteServizio = (viaggio.note_servizio && viaggio.note_servizio.trim() !== '') ? viaggio.note_servizio : (dict.js_nessuna_nota || "Nessuna nota o richiesta particolare inserita.");
+
             const htmlCard = `
                 <div class="card-viaggio" id="card_${viaggio.codice_prenotazione}">
-                    <div class="viaggio-header">
-                        <span class="viaggio-data">${dataFormattata} - ${viaggio.ora_partenza}</span>
-                        <span class="viaggio-badge ${classeBadge}">${testoStato}</span>
-                    </div>
                     
-                    <div class="viaggio-riga">
-                        <span class="viaggio-label">${dict.lbl_partenza || 'Partenza'}</span>
-                        <div class="viaggio-valore">${viaggio.partenza}</div>
-                    </div>
-                    
-                    <div class="viaggio-riga">
-                        <span class="viaggio-label">${viaggio.tipo_servizio === 'TRANSFER' ? (dict.lbl_arrivo || 'Arrivo') : (dict.lbl_durata || 'Durata')}</span>
-                        <div class="viaggio-valore">${destinazioneHtml}</div>
-                    </div>
-                    
-                    <div class="viaggio-footer">
-                        <div>
-                           <span class="viaggio-codice-label">Codice:</span> <span class="viaggio-codice-valore">${viaggio.codice_prenotazione}</span>
+                    <div class="viaggio-header-touch" onclick="document.getElementById('card_${viaggio.codice_prenotazione}').classList.toggle('aperta')">
+                        <div class="viaggio-header-info">
+                            <span class="viaggio-data">${dataFormattata} - ${viaggio.ora_partenza}</span>
+                            <span class="viaggio-badge ${classeBadge}">${testoStato}</span>
                         </div>
-                        <div class="viaggio-prezzo">
-                            € ${viaggio.prezzo_totale.toFixed(2).replace('.', ',')}
-                        </div>
+                        <svg class="icona-tendina" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-                    
-                    ${htmlLimbo}
-                    ${btnAnnulla}
+
+                    <div class="viaggio-dettaglio-body">
+                        
+                        ${htmlLimbo}
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">${(dict.h2_passeggero || 'PASSEGGERO').toUpperCase()}</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_nome_cognome_pax || 'Nome e Cognome'}</span>
+                                <span class="checkout-style-value">${nomePasseggero}</span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_tel_pax || 'Telefono Passeggero'}</span>
+                                <span class="checkout-style-value">${telPasseggero}</span>
+                            </div>
+                        </div>
+
+                        ${bloccoReferenteHtml}
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">${(dict.h2_dettagli_servizio || 'DETTAGLI SERVIZIO').toUpperCase()}</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_tipologia || 'Tipologia Servizio'}</span>
+                                <span class="checkout-style-value">${tipoServizioLeggibile}</span>
+                            </div>
+                            ${viaggio.tipo_servizio === 'DISPOSIZIONE' ? `
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_durata || 'Durata Disposizione'}</span>
+                                <span class="checkout-style-value">${viaggio.ore}${dict.js_ore || ' Ore'}</span>
+                            </div>` : ''}
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_vettura_richiesta || 'Vettura Richiesta'}</span>
+                                <span class="checkout-style-value">${vetturaLeggibile}</span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_data_ora || 'Data e Ora Partenza'}</span>
+                                <span class="checkout-style-value">${dataFormattata}${dict.js_alle_ore || ' alle ore '}${viaggio.ora_partenza}</span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">${(dict.h2_itinerario || 'ITINERARIO').toUpperCase()}</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_partenza || 'Luogo di Partenza'}</span>
+                                <span class="checkout-style-value">${viaggio.partenza}</span>
+                            </div>
+                            ${arrivoHtml}
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">${(dict.h2_logistica || 'LOGISTICA E NOTE').toUpperCase()}</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">${dict.lbl_pax_bagagli || 'Passeggeri e Bagagli'}</span>
+                                <span class="checkout-style-value">${testoPax}<br>${testoGrandi}<br>${testoMano}</span>
+                            </div>
+                            <div class="checkout-style-row" style="margin-top: 15px;">
+                                <span class="checkout-style-label">${dict.lbl_note_richieste || 'Note e Richieste Particolari'}</span>
+                                <span class="checkout-style-value" style="color: #aaaaaa; font-style: ${noteServizio === (dict.js_nessuna_nota || 'Nessuna nota o richiesta particolare inserita.') ? 'italic' : 'normal'};">${noteServizio}</span>
+                            </div>
+                        </div>
+
+                        <div class="viaggio-footer-totale">
+                            <span class="viaggio-codice-label">${dict.lbl_codice_prenotazione || 'CODICE PRENOTAZIONE:'}</span>
+                            <span class="viaggio-codice-valore">${viaggio.codice_prenotazione}</span>
+                            <div class="viaggio-prezzo-totale">
+                                ${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €
+                            </div>
+                            
+                            ${btnAnnulla}
+                        </div>
+                        
+                    </div>
                 </div>
             `;
             
@@ -2911,8 +3057,8 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
             <h3 class="modale-titolo" ${stileTitolo}>${titoloModale}</h3>
             <p class="modale-testo">${testoModale}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_chiudi_modale_annulla" class="btn-modale-bianco">${linguaAttuale === 'en' ? 'Back' : 'Indietro'}</button>
-                <button id="btn_procedi_annullamento" class="btn ${classeBottone}" style="flex: 1;">${dict.js_btn_conferma_annulla || 'Conferma Annullamento'}</button>
+                <button id="btn_chiudi_modale_annulla" class="btn-modale-bianco" style="padding: 10px; font-size: 0.9rem; flex: 1;">${dict.js_btn_no || 'NO'}</button>
+                <button id="btn_procedi_annullamento" class="btn ${classeBottone}" style="padding: 10px; font-size: 0.9rem; flex: 1;">${dict.js_btn_si || 'SI'}</button>
             </div>
         </div>
     `;
