@@ -1076,3 +1076,73 @@ body.page-flotta,
 .input-targa {
     text-transform: uppercase;
 }
+
+.bacheca-card {
+    text-align: left;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #111111;
+}
+
+.bacheca-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 15px;
+}
+
+.bacheca-prezzo {
+    color: #00FF66;
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}
+
+.bacheca-data-ora {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.bacheca-servizio-info {
+    text-align: right;
+}
+
+.bacheca-tipo-servizio {
+    color: #00FF66;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.bacheca-vettura {
+    color: #aaaaaa;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.bacheca-logistica {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: #aaaaaa;
+    border-top: 1px solid #333333;
+    padding-top: 15px;
+}
+
+.bacheca-logistica-valore {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.bacheca-pulsante {
+    padding: 14px;
+    margin-top: 0;
+    width: 100%;
+}

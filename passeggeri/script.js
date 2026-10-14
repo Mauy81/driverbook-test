@@ -2760,6 +2760,10 @@ window.applicaBozze = function() {
                     if (typeof moduloSporco !== 'undefined') {
                         moduloSporco = true;
                     }
+                    
+                    if (campo.tagName === 'SELECT' || campo.id === 'tipo_servizio') {
+                        if (typeof gestisciCampi === 'function') gestisciCampi();
+                    }
                 }
             }
         });
@@ -2795,6 +2799,15 @@ window.svuotaBozze = function() {
             localStorage.removeItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
         }
     });
+    
+    const chiaviDaCancellare = [
+        'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+        'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+        'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+    ];
+    chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+
     if (typeof moduloSporco !== 'undefined') {
         moduloSporco = false;
     }

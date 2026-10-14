@@ -42,6 +42,41 @@
                     <br>In attesa di nuove richieste...
                 </div>
             </div>
+
+            <template id="template_bacheca_card">
+                <div class="vettura-card bacheca-card">
+                    <div class="bacheca-card-header">
+                        <div>
+                            <div class="bacheca-prezzo" data-bind="prezzo"></div>
+                            <div class="bacheca-data-ora" data-bind="data_ora"></div>
+                        </div>
+                        <div class="bacheca-servizio-info">
+                            <div class="bacheca-tipo-servizio" data-bind="tipo_servizio"></div>
+                            <div class="bacheca-vettura" data-bind="vettura"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 12px;">
+                            <span class="checkout-style-label" style="font-weight: bold; text-transform: uppercase;">Partenza</span>
+                            <span class="checkout-style-value" data-bind="partenza"></span>
+                        </div>
+                        <div data-bind-container="arrivo" style="margin-bottom: 8px; display: none;">
+                            <span class="checkout-style-label" style="font-weight: bold; text-transform: uppercase;">Arrivo</span>
+                            <span class="checkout-style-value" data-bind="arrivo"></span>
+                        </div>
+                    </div>
+
+                    <div class="bacheca-logistica">
+                        <div><span class="bacheca-logistica-valore" data-bind="pax"></span> Pax</div>
+                        <div><span class="bacheca-logistica-valore" data-bind="grandi"></span> Grandi</div>
+                        <div><span class="bacheca-logistica-valore" data-bind="mano"></span> Trolley</div>
+                    </div>
+
+                    <button data-bind-action="accetta" class="btn btn-primary btn-full bacheca-pulsante">ACCETTA CORSA</button>
+                </div>
+            </template>
+            
         </div>
     </main>
 

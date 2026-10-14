@@ -450,6 +450,10 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaDatiDashboardPartner();
     }
 
+    if (document.getElementById('contenitore_bacheca')) {
+        caricaBachecaRichieste();
+    }
+
     const formProfilo = document.getElementById('formModificaProfilo');
     if (formProfilo) {
         formProfilo.addEventListener('submit', function(event) {
@@ -2151,6 +2155,10 @@ window.applicaBozze = function() {
                     if (typeof moduloSporco !== 'undefined') {
                         moduloSporco = true;
                     }
+                    
+                    if (campo.tagName === 'SELECT') {
+                        campo.dispatchEvent(new Event('change'));
+                    }
                 }
             }
         });
@@ -2190,3 +2198,144 @@ window.svuotaBozze = function() {
         moduloSporco = false;
     }
 };
+
+function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+async function caricaBachecaRichieste() {
+    const contenitore = document.getElementById('contenitore_bacheca');
+    if (!contenitore) return;
+
+    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 40px 20px;">Scansione richieste in corso...</div>';
+
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Utente non loggato");
+        const userData = await userRes.json();
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=zona_operativa_lat,zona_operativa_lng`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!partnerRes.ok) throw new Error("Errore recupero zona partner");
+        const partnerData = await partnerRes.json();
+        
+        if (!partnerData || partnerData.length === 0 || !partnerData[0].zona_operativa_lat || !partnerData[0].zona_operativa_lng) {
+            contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px 20px;">Attenzione: per visualizzare le corse in bacheca, devi prima impostare la tua "Zona Operativa" nella pagina Modifica Profilo.</div>';
+            return;
+        }
+
+        const latPartner = partnerData[0].zona_operativa_lat;
+        const lngPartner = partnerData[0].zona_operativa_lng;
+
+        const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&order=data_partenza.asc,ora_partenza.asc", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!prenotazioniRes.ok) throw new Error("Errore recupero prenotazioni");
+        const prenotazioni = await prenotazioniRes.json();
+
+        let richiesteFiltrate = [];
+
+        prenotazioni.forEach(p => {
+            let distanzaPartenza = 9999;
+            let distanzaArrivo = 9999;
+
+            if (p.partenza_lat && p.partenza_lng) {
+                distanzaPartenza = calcolaDistanzaAria(latPartner, lngPartner, p.partenza_lat, p.partenza_lng);
+            }
+            if (p.arrivo_lat && p.arrivo_lng) {
+                distanzaArrivo = calcolaDistanzaAria(latPartner, lngPartner, p.arrivo_lat, p.arrivo_lng);
+            }
+
+            if (distanzaPartenza <= 80 || distanzaArrivo <= 80) {
+                richiesteFiltrate.push(p);
+            }
+        });
+
+        contenitore.innerHTML = '';
+        aggiornaBadgeMenu(richiesteFiltrate.length);
+
+        if (richiesteFiltrate.length === 0) {
+            contenitore.innerHTML = `
+                <div style="text-align: center; color: #888888; padding: 40px 20px;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px; opacity: 0.5;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <br>Nessuna nuova richiesta nel raggio di 80 km dalla tua Zona Operativa.
+                </div>
+            `;
+            return;
+        }
+
+        const template = document.getElementById('template_bacheca_card');
+        
+        if (!template) {
+            console.error("Template bacheca non trovato.");
+            return;
+        }
+
+        richiesteFiltrate.forEach(viaggio => {
+            let dataFormattata = viaggio.data_partenza;
+            if (dataFormattata) {
+                const parti = dataFormattata.split('-');
+                if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
+            }
+
+            let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? 'Tratta Diretta' : 'Disposizione Oraria';
+            let vetturaPulita = (viaggio.vettura_selezionata || '').replace('_', ' ');
+            
+            const clone = template.content.cloneNode(true);
+
+            clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
+            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
+            clone.querySelector('[data-bind="tipo_servizio"]').textContent = tipoServizioLeggibile;
+            clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
+            clone.querySelector('[data-bind="partenza"]').textContent = viaggio.partenza;
+            
+            if (viaggio.tipo_servizio === 'TRANSFER') {
+                clone.querySelector('[data-bind="arrivo"]').textContent = viaggio.arrivo || '-';
+                clone.querySelector('[data-bind-container="arrivo"]').style.display = 'block';
+            }
+
+            clone.querySelector('[data-bind="pax"]').textContent = viaggio.passeggeri || 1;
+            clone.querySelector('[data-bind="grandi"]').textContent = viaggio.bagagli_grandi || 0;
+            clone.querySelector('[data-bind="mano"]').textContent = viaggio.bagagli_mano || 0;
+            
+            const btnAccetta = clone.querySelector('[data-bind-action="accetta"]');
+            btnAccetta.onclick = function() { accettaCorsa(viaggio.codice_prenotazione); };
+
+            contenitore.appendChild(clone);
+        });
+
+    } catch (errore) {
+        console.error(errore);
+        contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px 20px;">Impossibile caricare la bacheca. Verifica la connessione e riprova.</div>';
+    }
+}
+
+function aggiornaBadgeMenu(numero) {
+    const linkBacheca = document.getElementById('link_menu_bacheca');
+    if (linkBacheca) {
+        const testoBase = 'Bacheca Richieste';
+        if (numero > 0) {
+            linkBacheca.innerHTML = `<span>${testoBase}</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">${numero}</span>`;
+        } else {
+            linkBacheca.innerHTML = `<span>${testoBase}</span>`;
+        }
+        linkBacheca.style.display = 'flex';
+        linkBacheca.style.alignItems = 'center';
+        linkBacheca.style.justifyContent = 'space-between';
+    }
+}
+
+async function accettaCorsa(codice) {
+    alert("Funzione 'Accetta' in arrivo nel prossimo step! Hai cliccato la corsa: " + codice);
+}
