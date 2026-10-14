@@ -219,6 +219,7 @@ body {
 
 .input {
     width: 100%;
+    max-width: 100%;
     padding: 16px;
     font-size: 1rem;
     color: #ffffff;
@@ -226,6 +227,7 @@ body {
     border: 1px solid #ffffff;
     border-radius: 4px;
     outline: none;
+    color-scheme: dark;
 }
 
 textarea.input {
@@ -1010,15 +1012,22 @@ select.input {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    background-color: #000000;
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
     background-repeat: no-repeat;
     background-position-x: calc(100% - 10px);
     background-position-y: center;
     padding-right: 35px;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     max-width: 100%;
 }
 
+select.input option {
+    background-color: #000000;
+    color: #ffffff;
+}
 #data_partenza,
 #ora_partenza {
     cursor: pointer;
