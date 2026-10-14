@@ -2208,6 +2208,15 @@ function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+function formattaIndirizzoBreve(indirizzo) {
+    if (!indirizzo) return "";
+    const pezzi = indirizzo.split(',').map(p => p.trim());
+    if (pezzi.length >= 2) {
+        return pezzi[1] + ", " + pezzi[0];
+    }
+    return indirizzo;
+}
+
 async function caricaBachecaRichieste() {
     const contenitore = document.getElementById('contenitore_bacheca');
     if (!contenitore) return;
@@ -2289,27 +2298,35 @@ async function caricaBachecaRichieste() {
                 if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
             }
 
-            let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? 'Tratta Diretta' : 'Disposizione Oraria';
+            let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
             let vetturaPulita = (viaggio.vettura_selezionata || '').replace('_', ' ');
             
             const clone = template.content.cloneNode(true);
-            const card = clone.querySelector('.card-viaggio');
+            const card = clone.querySelector('.card-bacheca-minimal');
             
             clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
                 card.classList.toggle('aperta');
             };
 
-            clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} € - ${tipoServizioLeggibile}`;
+            clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
             clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
             clone.querySelector('[data-bind="tipo_servizio"]').textContent = tipoServizioLeggibile;
-            clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
-            clone.querySelector('[data-bind="partenza"]').textContent = viaggio.partenza;
+
+            let partenzaBreve = formattaIndirizzoBreve(viaggio.partenza);
+            let trattaSintesi = partenzaBreve;
             
             if (viaggio.tipo_servizio === 'TRANSFER') {
-                clone.querySelector('[data-bind="arrivo"]').textContent = viaggio.arrivo || '-';
-                clone.querySelector('[data-bind-container="arrivo"]').style.display = 'flex';
+                let arrivoBreve = formattaIndirizzoBreve(viaggio.arrivo);
+                trattaSintesi = `${partenzaBreve} ➔ ${arrivoBreve}`;
+                
+                clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
+                clone.querySelector('[data-bind-container="arrivo_full"]').style.display = 'block';
             }
 
+            clone.querySelector('[data-bind="tratta_sintesi"]').textContent = trattaSintesi;
+            clone.querySelector('[data-bind="partenza_full"]').textContent = viaggio.partenza;
+            clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
+            
             clone.querySelector('[data-bind="pax"]').textContent = viaggio.passeggeri || 1;
             clone.querySelector('[data-bind="grandi"]').textContent = viaggio.bagagli_grandi || 0;
             clone.querySelector('[data-bind="mano"]').textContent = viaggio.bagagli_mano || 0;
