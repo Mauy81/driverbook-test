@@ -2293,8 +2293,13 @@ async function caricaBachecaRichieste() {
             let vetturaPulita = (viaggio.vettura_selezionata || '').replace('_', ' ');
             
             const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.card-viaggio');
+            
+            clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+                card.classList.toggle('aperta');
+            };
 
-            clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
+            clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} € - ${tipoServizioLeggibile}`;
             clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
             clone.querySelector('[data-bind="tipo_servizio"]').textContent = tipoServizioLeggibile;
             clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
@@ -2302,7 +2307,7 @@ async function caricaBachecaRichieste() {
             
             if (viaggio.tipo_servizio === 'TRANSFER') {
                 clone.querySelector('[data-bind="arrivo"]').textContent = viaggio.arrivo || '-';
-                clone.querySelector('[data-bind-container="arrivo"]').style.display = 'block';
+                clone.querySelector('[data-bind-container="arrivo"]').style.display = 'flex';
             }
 
             clone.querySelector('[data-bind="pax"]').textContent = viaggio.passeggeri || 1;

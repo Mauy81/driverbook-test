@@ -44,36 +44,50 @@
             </div>
 
             <template id="template_bacheca_card">
-                <div class="vettura-card bacheca-card">
-                    <div class="bacheca-card-header">
-                        <div>
-                            <div class="bacheca-prezzo" data-bind="prezzo"></div>
-                            <div class="bacheca-data-ora" data-bind="data_ora"></div>
+                <div class="card-viaggio">
+                    <div class="viaggio-header-touch" data-bind-action="toggle">
+                        <div class="viaggio-header-info">
+                            <span class="viaggio-data" data-bind="data_ora"></span>
+                            <span class="viaggio-badge badge-attesa" data-bind="prezzo"></span>
                         </div>
-                        <div class="bacheca-servizio-info">
-                            <div class="bacheca-tipo-servizio" data-bind="tipo_servizio"></div>
-                            <div class="bacheca-vettura" data-bind="vettura"></div>
-                        </div>
+                        <svg class="icona-tendina" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <div style="margin-bottom: 12px;">
-                            <span class="checkout-style-label" style="font-weight: bold; text-transform: uppercase;">Partenza</span>
-                            <span class="checkout-style-value" data-bind="partenza"></span>
+                    <div class="viaggio-dettaglio-body">
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">DETTAGLI SERVIZIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Tipologia Servizio</span>
+                                <span class="checkout-style-value" data-bind="tipo_servizio"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Vettura Richiesta</span>
+                                <span class="checkout-style-value" data-bind="vettura"></span>
+                            </div>
                         </div>
-                        <div data-bind-container="arrivo" style="margin-bottom: 8px; display: none;">
-                            <span class="checkout-style-label" style="font-weight: bold; text-transform: uppercase;">Arrivo</span>
-                            <span class="checkout-style-value" data-bind="arrivo"></span>
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">ITINERARIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Partenza</span>
+                                <span class="checkout-style-value" data-bind="partenza"></span>
+                            </div>
+                            <div class="checkout-style-row" data-bind-container="arrivo" style="display: none;">
+                                <span class="checkout-style-label">Arrivo</span>
+                                <span class="checkout-style-value" data-bind="arrivo"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="bacheca-logistica">
-                        <div><span class="bacheca-logistica-valore" data-bind="pax"></span> Pax</div>
-                        <div><span class="bacheca-logistica-valore" data-bind="grandi"></span> Grandi</div>
-                        <div><span class="bacheca-logistica-valore" data-bind="mano"></span> Trolley</div>
-                    </div>
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-title">LOGISTICA</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Passeggeri e Bagagli</span>
+                                <span class="checkout-style-value"><span data-bind="pax"></span> Pax, <span data-bind="grandi"></span> Grandi, <span data-bind="mano"></span> Trolley</span>
+                            </div>
+                        </div>
 
-                    <button data-bind-action="accetta" class="btn btn-primary btn-full bacheca-pulsante">ACCETTA CORSA</button>
+                        <button data-bind-action="accetta" class="btn btn-primary btn-full">ACCETTA CORSA</button>
+                    </div>
                 </div>
             </template>
             
