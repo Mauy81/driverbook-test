@@ -1869,7 +1869,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     selectModello.addEventListener('change', function() {
-        if (this.value === 'CLASSE_V') {
+        if (this.value === 'CLASSE V') {
             gruppoPostiV.classList.remove('hidden');
             selectPosti.required = true;
         } else {
@@ -1907,8 +1907,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const corpoDati = {
                 id_partner: userData.id,
                 modello: selectModello.value,
-                posti: selectModello.value === 'CLASSE_V' ? parseInt(selectPosti.value) : null,
-                targa: targaValue,
+                posti: selectModello.value === 'CLASSE V' ? parseInt(selectPosti.value) : null,
+                targa: targaValue,,
                 autocert_destinazione: document.getElementById('autocert_destinazione').checked,
                 autocert_assicurazione: document.getElementById('autocert_assicurazione').checked,
                 autocert_autorizzazione: document.getElementById('autocert_autorizzazione').checked
@@ -2006,11 +2006,11 @@ async function caricaFlotta() {
         }
         
         veicoli.sort((a, b) => {
-            const ordineModello = { 'CLASSE_V': 1, 'CLASSE_E': 2, 'CLASSE_S': 3 };
+            const ordineModello = { 'CLASSE V': 1, 'CLASSE E': 2, 'CLASSE S': 3 };
             if (ordineModello[a.modello] !== ordineModello[b.modello]) {
                 return ordineModello[a.modello] - ordineModello[b.modello];
             }
-            if (a.modello === 'CLASSE_V' && a.posti !== b.posti) {
+            if (a.modello === 'CLASSE V' && a.posti !== b.posti) {
                 return b.posti - a.posti;
             }
             return a.targa.localeCompare(b.targa);
@@ -2105,12 +2105,12 @@ function generaCardVeicolo(modello, posti, targa) {
     let classeVettura = '';
     let testoPosti = '';
     
-    if (modello === 'CLASSE_V') {
+    if (modello === 'CLASSE V') {
         classeVettura = 'V';
         testoPosti = `VAN ${posti} POSTI`;
-    } else if (modello === 'CLASSE_E') {
+    } else if (modello === 'CLASSE E') {
         classeVettura = 'E';
-    } else if (modello === 'CLASSE_S') {
+    } else if (modello === 'CLASSE S') {
         classeVettura = 'S';
     }
 
