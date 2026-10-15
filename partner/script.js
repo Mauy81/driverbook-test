@@ -2334,7 +2334,7 @@ async function caricaBachecaRichieste() {
             if (viaggio.tipo_servizio === 'TRANSFER') {
                 let stringaArrivo = (viaggio.arrivo_citta && viaggio.arrivo_via) ? `${viaggio.arrivo_citta}, ${viaggio.arrivo_via}` : (viaggio.arrivo || '-');
                 clone.querySelector('[data-bind="arrivo_sintesi"]').textContent = stringaArrivo;
-                clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').style.display = 'block';
+                clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').style.display = 'grid';
                 
                 clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
                 clone.querySelector('[data-bind-container="arrivo_full"]').style.display = 'block';

@@ -1274,19 +1274,19 @@ body.page-flotta,
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     width: 100%;
 }
 
 .bacheca-dati-servizio {
     display: flex;
     flex-wrap: wrap;
-    row-gap: 4px;
+    row-gap: 2px;
     column-gap: 12px;
     color: #ffffff;
     font-weight: bold;
     font-size: 0.75rem;
-    line-height: 1.2;
+    line-height: 1;
 }
 
 .bacheca-data-evidenziata {
@@ -1300,14 +1300,14 @@ body.page-flotta,
     font-size: 0.8rem;
     white-space: nowrap;
     margin-left: 10px;
-    line-height: 1.2;
+    line-height: 1;
 }
 
 .bacheca-riga-indirizzo {
     display: grid;
-    grid-template-columns: 32px 1fr;
-    margin-bottom: 4px;
-    line-height: 1.2;
+    grid-template-columns: 25px 1fr;
+    margin-bottom: 2px;
+    line-height: 1;
     align-items: start;
 }
 
@@ -1326,7 +1326,7 @@ body.page-flotta,
 @media (max-width: 450px) {
     .bacheca-dati-servizio {
         font-size: 0.7rem;
-        row-gap: 4px;
+        row-gap: 2px;
     }
     .bacheca-prezzo-sintesi {
         font-size: 0.75rem;
@@ -1338,7 +1338,7 @@ body.page-flotta,
         font-size: 0.65rem;
     }
     .bacheca-riga-indirizzo {
-        grid-template-columns: 30px 1fr;
+        grid-template-columns: 23px 1fr;
     }
 }
 
