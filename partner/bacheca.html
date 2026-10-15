@@ -37,10 +37,28 @@
             </div>
 
             <div id="contenitore_bacheca">
-                <div style="text-align: center; color: #888888; padding: 40px 20px;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px; opacity: 0.5;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <br>In attesa di nuove richieste...
+                <div id="msg_bacheca_loading" class="messaggio-stato-bacheca">
+                    Scansione richieste in corso...
                 </div>
+                
+                <div id="msg_bacheca_no_zona" class="messaggio-stato-bacheca msg-errore hidden">
+                    Attenzione: per visualizzare le corse in bacheca, devi prima impostare la tua "Zona Operativa" nella pagina Modifica Profilo.
+                </div>
+                
+                <div id="msg_bacheca_no_veicoli" class="messaggio-stato-bacheca msg-errore hidden">
+                    Attenzione: non hai ancora aggiunto nessun veicolo alla tua flotta. Vai nella sezione "Gestione Flotta" ed aggiungi almeno un veicolo per poter visualizzare le corse compatibili.
+                </div>
+                
+                <div id="msg_bacheca_vuota" class="messaggio-stato-bacheca hidden">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <br>Nessuna nuova richiesta disponibile per te.
+                </div>
+                
+                <div id="msg_bacheca_errore_rete" class="messaggio-stato-bacheca msg-errore hidden">
+                    Impossibile caricare la bacheca. Verifica la connessione e riprova.
+                </div>
+
+                <div id="lista_card_bacheca"></div>
             </div>
 
             <template id="template_bacheca_card">

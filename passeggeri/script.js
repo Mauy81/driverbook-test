@@ -34,6 +34,42 @@ let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero;
 let latLngPartenza = null;
 let latLngArrivo = null;
+let strutturalePartenzaCitta = null;
+let strutturalePartenzaVia = null;
+let strutturaleArrivoCitta = null;
+let strutturaleArrivoVia = null;
+
+function estraiCittaEViaDaGoogle(place) {
+    let citta = "";
+    let via = "";
+    let civico = "";
+    
+    if (place && place.address_components) {
+        place.address_components.forEach(component => {
+            const types = component.types;
+            if (types.includes("locality")) {
+                citta = component.long_name;
+            }
+            if (types.includes("route")) {
+                via = component.long_name;
+            }
+            if (types.includes("street_number")) {
+                civico = component.long_name;
+            }
+        });
+    }
+    
+    if (!citta && place && place.name) {
+        citta = place.name;
+    }
+    
+    let indirizzoVia = via;
+    if (via && civico) {
+        indirizzoVia = `${via} ${civico}`;
+    }
+    
+    return { citta: citta, via: indirizzoVia };
+}
 
 const CONFIG_TARIFFE = {
     CLASSE_E: { allAlKm: 2.00, oraDisposizione: 70.00, corsaMinima: 70.00 },
@@ -104,7 +140,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const chiaviDaCancellare = [
             'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
             'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+            'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
@@ -473,6 +510,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 const place = acPartenza.getPlace();
                 if (place && place.geometry) {
                     latLngPartenza = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                    const datiP = estraiCittaEViaDaGoogle(place);
+                    strutturalePartenzaCitta = datiP.citta;
+                    strutturalePartenzaVia = datiP.via;
                     inputPartenza.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 calcolaPrezzi();
@@ -481,6 +521,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 const place = acArrivo.getPlace();
                 if (place && place.geometry) {
                     latLngArrivo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                    const datiA = estraiCittaEViaDaGoogle(place);
+                    strutturaleArrivoCitta = datiA.citta;
+                    strutturaleArrivoVia = datiA.via;
                     inputArrivo.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 calcolaPrezzi();
@@ -749,7 +792,8 @@ async function inviaLogin(event) {
         if (ultimoUtente && ultimoUtente !== userId) {
             const chiaviDaCancellare = [
                 'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+                'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
                 'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
             ];
@@ -1242,10 +1286,15 @@ function inviaRichiesta(event) {
             localStorage.setItem('db_partenza_lat', latLngPartenza.lat);
             localStorage.setItem('db_partenza_lng', latLngPartenza.lng);
         }
+        if (strutturalePartenzaCitta) localStorage.setItem('db_partenza_citta', strutturalePartenzaCitta);
+        if (strutturalePartenzaVia) localStorage.setItem('db_partenza_via', strutturalePartenzaVia);
+
         localStorage.setItem('db_arrivo', tipoServizioImpostato === 'TRASFERIMENTO' ? (document.getElementById('arrivo').value || '') : '');
         if (tipoServizioImpostato === 'TRASFERIMENTO' && latLngArrivo) {
             localStorage.setItem('db_arrivo_lat', latLngArrivo.lat);
             localStorage.setItem('db_arrivo_lng', latLngArrivo.lng);
+            if (strutturaleArrivoCitta) localStorage.setItem('db_arrivo_citta', strutturaleArrivoCitta);
+            if (strutturaleArrivoVia) localStorage.setItem('db_arrivo_via', strutturaleArrivoVia);
         }
         localStorage.setItem('db_itinerario_previsto', tipoServizioImpostato === 'DISPOSIZIONE' ? document.getElementById('itinerario_previsto').value : '');
         
@@ -1429,9 +1478,13 @@ async function confermaPrenotazione() {
         partenza: localStorage.getItem('db_partenza') || null,
         partenza_lat: localStorage.getItem('db_partenza_lat') ? parseFloat(localStorage.getItem('db_partenza_lat')) : null,
         partenza_lng: localStorage.getItem('db_partenza_lng') ? parseFloat(localStorage.getItem('db_partenza_lng')) : null,
+        partenza_citta: localStorage.getItem('db_partenza_citta') || null,
+        partenza_via: localStorage.getItem('db_partenza_via') || null,
         arrivo: localStorage.getItem('db_tipo_servizio') === 'TRASFERIMENTO' ? (localStorage.getItem('db_arrivo') || null) : null,
         arrivo_lat: localStorage.getItem('db_arrivo_lat') ? parseFloat(localStorage.getItem('db_arrivo_lat')) : null,
         arrivo_lng: localStorage.getItem('db_arrivo_lng') ? parseFloat(localStorage.getItem('db_arrivo_lng')) : null,
+        arrivo_citta: localStorage.getItem('db_arrivo_citta') || null,
+        arrivo_via: localStorage.getItem('db_arrivo_via') || null,
         itinerario_previsto: localStorage.getItem('db_tipo_servizio') === 'DISPOSIZIONE' ? (localStorage.getItem('db_itinerario_previsto') || null) : null,
         chk_hub: localStorage.getItem('db_chk_hub') === 'true',
         info_trasporto: localStorage.getItem('db_info_trasporto') || null,
@@ -1469,7 +1522,8 @@ async function confermaPrenotazione() {
         
         const chiaviDaCancellare = [
             'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+            'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+            'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
             'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
         ];
@@ -1918,7 +1972,8 @@ async function aggiornaProfilo(event) {
             const chiaviDaCancellare = [
                 'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user',
                 'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+                'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
                 'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
             ];
@@ -2108,7 +2163,8 @@ function esciAccount() {
     const chiaviDaCancellare = [
         'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+        'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
         'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
     ];
@@ -2802,7 +2858,8 @@ window.svuotaBozze = function() {
     
     const chiaviDaCancellare = [
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_itinerario_previsto',
+        'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+        'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
         'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
     ];

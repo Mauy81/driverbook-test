@@ -2208,20 +2208,23 @@ function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-function formattaIndirizzoBreve(indirizzo) {
-    if (!indirizzo) return "";
-    const pezzi = indirizzo.split(',').map(p => p.trim());
-    if (pezzi.length >= 2) {
-        return pezzi[1] + ", " + pezzi[0];
-    }
-    return indirizzo;
-}
-
 async function caricaBachecaRichieste() {
     const contenitore = document.getElementById('contenitore_bacheca');
     if (!contenitore) return;
 
-    contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 40px 20px;">Scansione richieste in corso...</div>';
+    const listaCard = document.getElementById('lista_card_bacheca');
+    const msgLoading = document.getElementById('msg_bacheca_loading');
+    const msgNoZona = document.getElementById('msg_bacheca_no_zona');
+    const msgNoVeicoli = document.getElementById('msg_bacheca_no_veicoli');
+    const msgVuota = document.getElementById('msg_bacheca_vuota');
+    const msgErroreRete = document.getElementById('msg_bacheca_errore_rete');
+
+    msgLoading.classList.remove('hidden');
+    msgNoZona.classList.add('hidden');
+    msgNoVeicoli.classList.add('hidden');
+    msgVuota.classList.add('hidden');
+    msgErroreRete.classList.add('hidden');
+    listaCard.innerHTML = '';
 
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2240,12 +2243,26 @@ async function caricaBachecaRichieste() {
         const partnerData = await partnerRes.json();
         
         if (!partnerData || partnerData.length === 0 || !partnerData[0].zona_operativa_lat || !partnerData[0].zona_operativa_lng) {
-            contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px 20px;">Attenzione: per visualizzare le corse in bacheca, devi prima impostare la tua "Zona Operativa" nella pagina Modifica Profilo.</div>';
+            msgLoading.classList.add('hidden');
+            msgNoZona.classList.remove('hidden');
             return;
         }
 
         const latPartner = partnerData[0].zona_operativa_lat;
         const lngPartner = partnerData[0].zona_operativa_lng;
+
+        const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&select=modello`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!flottaRes.ok) throw new Error("Errore recupero flotta");
+        const flottaData = await flottaRes.json();
+        const modelliPosseduti = flottaData.map(v => v.modello);
+
+        if (modelliPosseduti.length === 0) {
+            msgLoading.classList.add('hidden');
+            msgNoVeicoli.classList.remove('hidden');
+            return;
+        }
 
         const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&order=data_partenza.asc,ora_partenza.asc", {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -2256,6 +2273,10 @@ async function caricaBachecaRichieste() {
         let richiesteFiltrate = [];
 
         prenotazioni.forEach(p => {
+            if (!modelliPosseduti.includes(p.vettura_selezionata)) {
+                return;
+            }
+
             let distanzaPartenza = 9999;
             let distanzaArrivo = 9999;
 
@@ -2271,16 +2292,11 @@ async function caricaBachecaRichieste() {
             }
         });
 
-        contenitore.innerHTML = '';
+        msgLoading.classList.add('hidden');
         aggiornaBadgeMenu(richiesteFiltrate.length);
 
         if (richiesteFiltrate.length === 0) {
-            contenitore.innerHTML = `
-                <div style="text-align: center; color: #888888; padding: 40px 20px;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px; opacity: 0.5;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <br>Nessuna nuova richiesta nel raggio di 80 km dalla tua Zona Operativa.
-                </div>
-            `;
+            msgVuota.classList.remove('hidden');
             return;
         }
 
@@ -2310,14 +2326,14 @@ async function caricaBachecaRichieste() {
 
             clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
             clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
-            clone.querySelector('[data-bind="tipo_servizio"]').textContent = tipoServizioLeggibile;
+            clone.querySelector('[data-bind="tipo_servizio"]').textContent = `${tipoServizioLeggibile} - ${vetturaPulita}`;
 
-            let partenzaBreve = formattaIndirizzoBreve(viaggio.partenza);
-            let trattaSintesi = partenzaBreve;
+            let stringaPartenza = (viaggio.partenza_citta && viaggio.partenza_via) ? `${viaggio.partenza_citta}, ${viaggio.partenza_via}` : viaggio.partenza;
+            let trattaSintesi = stringaPartenza;
             
             if (viaggio.tipo_servizio === 'TRANSFER') {
-                let arrivoBreve = formattaIndirizzoBreve(viaggio.arrivo);
-                trattaSintesi = `${partenzaBreve} ➔ ${arrivoBreve}`;
+                let stringaArrivo = (viaggio.arrivo_citta && viaggio.arrivo_via) ? `${viaggio.arrivo_citta}, ${viaggio.arrivo_via}` : (viaggio.arrivo || '-');
+                trattaSintesi = `${stringaPartenza} ➔ ${stringaArrivo}`;
                 
                 clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
                 clone.querySelector('[data-bind-container="arrivo_full"]').style.display = 'block';
@@ -2334,12 +2350,13 @@ async function caricaBachecaRichieste() {
             const btnAccetta = clone.querySelector('[data-bind-action="accetta"]');
             btnAccetta.onclick = function() { accettaCorsa(viaggio.codice_prenotazione); };
 
-            contenitore.appendChild(clone);
+            listaCard.appendChild(clone);
         });
 
     } catch (errore) {
         console.error(errore);
-        contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px 20px;">Impossibile caricare la bacheca. Verifica la connessione e riprova.</div>';
+        msgLoading.classList.add('hidden');
+        msgErroreRete.classList.remove('hidden');
     }
 }
 

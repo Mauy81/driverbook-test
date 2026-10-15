@@ -1348,3 +1348,18 @@ body.page-flotta,
 .btn-accetta-minimal:hover {
     background-color: #cccccc;
 }
+
+.messaggio-stato-bacheca {
+    text-align: center;
+    color: #888888;
+    padding: 40px 20px;
+}
+
+.messaggio-stato-bacheca svg {
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.messaggio-stato-bacheca.msg-errore {
+    color: #dc3545;
+}
