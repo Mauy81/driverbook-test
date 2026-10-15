@@ -41,34 +41,39 @@ let strutturaleArrivoVia = null;
 
 function estraiCittaEViaDaGoogle(place) {
     let citta = "";
+    let provincia = "";
     let via = "";
-    let civico = "";
     
     if (place && place.address_components) {
+        let comune = "";
+        let localita = "";
         place.address_components.forEach(component => {
             const types = component.types;
-            if (types.includes("locality")) {
-                citta = component.long_name;
-            }
-            if (types.includes("route")) {
-                via = component.long_name;
-            }
-            if (types.includes("street_number")) {
-                civico = component.long_name;
-            }
+            if (types.includes("administrative_area_level_3")) comune = component.long_name;
+            if (types.includes("locality")) localita = component.long_name;
+            if (types.includes("administrative_area_level_2")) provincia = component.short_name;
+            if (types.includes("route")) via = component.long_name;
         });
+        citta = comune || localita;
     }
     
-    if (!citta && place && place.name) {
-        citta = place.name;
+    if (!citta && place && place.name) citta = place.name;
+    
+    let stringaCitta = citta;
+    if (provincia && provincia.length === 2) {
+        stringaCitta = citta + " (" + provincia + ")";
     }
     
-    let indirizzoVia = via;
-    if (via && civico) {
-        indirizzoVia = `${via} ${civico}`;
+    let stringaDettaglio = via;
+    const isPOI = place.types && !place.types.includes("street_address") && !place.types.includes("route") && !place.types.includes("premise");
+    
+    if (isPOI && place.name) {
+        stringaDettaglio = place.name;
+    } else if (!via && place.name) {
+        stringaDettaglio = place.name;
     }
     
-    return { citta: citta, via: indirizzoVia };
+    return { citta: stringaCitta, via: stringaDettaglio };
 }
 
 const CONFIG_TARIFFE = {
