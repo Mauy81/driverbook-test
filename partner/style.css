@@ -1242,9 +1242,9 @@ body.page-flotta,
 
 .card-bacheca-minimal {
     background-color: #000000;
-    border-bottom: 1px solid #222222;
+    border-bottom: none;
     overflow: hidden;
-    margin-bottom: 0;
+    margin-bottom: 18px;
     font-family: inherit;
 }
 
@@ -1273,36 +1273,40 @@ body.page-flotta,
 .bacheca-riga-intestazione {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
+    align-items: flex-start;
+    margin-bottom: 2px;
     width: 100%;
 }
 
 .bacheca-dati-servizio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     color: #ffffff;
     font-weight: bold;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     line-height: 1.2;
 }
 
 .bacheca-prezzo-sintesi {
     color: #aaaaaa;
     font-weight: normal;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     margin-left: 10px;
 }
 
 .bacheca-riga-indirizzo {
-    margin-bottom: 4px;
-    line-height: 1.3;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    margin-bottom: 1px;
+    line-height: 1.2;
 }
 
 .bacheca-label-indirizzo {
     color: #ffffff;
     font-weight: bold;
-    font-size: 0.85rem;
-    margin-right: 4px;
+    font-size: 0.75rem;
 }
 
 .bacheca-valore-indirizzo {
@@ -1313,16 +1317,17 @@ body.page-flotta,
 
 @media (max-width: 450px) {
     .bacheca-dati-servizio {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        gap: 12px;
     }
     .bacheca-prezzo-sintesi {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
-    .bacheca-label-indirizzo {
-        font-size: 0.75rem;
-    }
-    .bacheca-valore-indirizzo {
+    .bacheca-label-indirizzo, .bacheca-valore-indirizzo {
         font-size: 0.65rem;
+    }
+    .bacheca-riga-indirizzo {
+        grid-template-columns: 24px 1fr;
     }
 }
 

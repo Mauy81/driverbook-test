@@ -2325,7 +2325,8 @@ async function caricaBachecaRichieste() {
             };
 
             clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
-            clone.querySelector('[data-bind="data_ora_servizio"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza} - ${tipoServizioLeggibile} - ${vetturaPulita}`;
+            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
+            clone.querySelector('[data-bind="tipo_vettura"]').textContent = `${tipoServizioLeggibile} - ${vetturaPulita}`;
 
             let stringaPartenza = (viaggio.partenza_citta && viaggio.partenza_via) ? `${viaggio.partenza_citta}, ${viaggio.partenza_via}` : viaggio.partenza;
             clone.querySelector('[data-bind="partenza_sintesi"]').textContent = stringaPartenza;
