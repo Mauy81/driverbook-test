@@ -1908,7 +1908,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 id_partner: userData.id,
                 modello: selectModello.value,
                 posti: selectModello.value === 'CLASSE V' ? parseInt(selectPosti.value) : null,
-                targa: targaValue,,
+                targa: targaValue,
                 autocert_destinazione: document.getElementById('autocert_destinazione').checked,
                 autocert_assicurazione: document.getElementById('autocert_assicurazione').checked,
                 autocert_autorizzazione: document.getElementById('autocert_autorizzazione').checked
