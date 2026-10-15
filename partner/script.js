@@ -2308,10 +2308,15 @@ async function caricaBachecaRichieste() {
         }
 
         richiesteFiltrate.forEach(viaggio => {
-            let dataFormattata = viaggio.data_partenza;
-            if (dataFormattata) {
-                const parti = dataFormattata.split('-');
-                if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0].substring(2)}`;
+            let dataCompatta = viaggio.data_partenza;
+            let dataEstesa = viaggio.data_partenza;
+            
+            if (viaggio.data_partenza) {
+                const parti = viaggio.data_partenza.split('-');
+                if (parti.length === 3) {
+                    dataEstesa = `${parti[2]}/${parti[1]}/${parti[0]}`;
+                    dataCompatta = `${parti[2]}/${parti[1]}/${parti[0].substring(2)}`;
+                }
             }
 
             let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
@@ -2325,7 +2330,7 @@ async function caricaBachecaRichieste() {
             };
 
             clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
-            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
+            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataCompatta} - ${viaggio.ora_partenza}`;
             clone.querySelector('[data-bind="tipo_vettura"]').textContent = `${tipoServizioLeggibile} - ${vetturaPulita}`;
 
             let stringaPartenza = (viaggio.partenza_citta && viaggio.partenza_via) ? `${viaggio.partenza_citta}, ${viaggio.partenza_via}` : viaggio.partenza;
@@ -2335,18 +2340,56 @@ async function caricaBachecaRichieste() {
                 let stringaArrivo = (viaggio.arrivo_citta && viaggio.arrivo_via) ? `${viaggio.arrivo_citta}, ${viaggio.arrivo_via}` : (viaggio.arrivo || '-');
                 clone.querySelector('[data-bind="arrivo_sintesi"]').textContent = stringaArrivo;
                 clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').style.display = 'grid';
-                
-                clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
-                clone.querySelector('[data-bind-container="arrivo_full"]').style.display = 'block';
             }
 
-            clone.querySelector('[data-bind="partenza_full"]').textContent = viaggio.partenza;
-            clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
+            clone.querySelector('[data-bind="nome_passeggero"]').textContent = viaggio.nome_passeggero || '-';
             
-            clone.querySelector('[data-bind="pax"]').textContent = viaggio.passeggeri || 1;
-            clone.querySelector('[data-bind="grandi"]').textContent = viaggio.bagagli_grandi || 0;
+            let telPaxFormattato = viaggio.tel_passeggero || '-';
+            if (viaggio.tel_passeggero && window.intlTelInputUtils) {
+                telPaxFormattato = window.intlTelInputUtils.formatNumber(viaggio.tel_passeggero, null, window.intlTelInputUtils.numberFormat.INTERNATIONAL);
+            }
+            clone.querySelector('[data-bind="tel_passeggero"]').textContent = telPaxFormattato;
+
+            if (viaggio.chk_referente && (viaggio.nome_referente || viaggio.tel_referente)) {
+                clone.querySelector('[data-bind-container="referente_block"]').style.display = 'block';
+                clone.querySelector('[data-bind="nome_referente"]').textContent = viaggio.nome_referente || '-';
+                
+                let telRefFormattato = viaggio.tel_referente || '-';
+                if (viaggio.tel_referente && window.intlTelInputUtils) {
+                    telRefFormattato = window.intlTelInputUtils.formatNumber(viaggio.tel_referente, null, window.intlTelInputUtils.numberFormat.INTERNATIONAL);
+                }
+                clone.querySelector('[data-bind="tel_referente"]').textContent = telRefFormattato;
+            }
+
+            clone.querySelector('[data-bind="tipo_servizio_full"]').textContent = tipoServizioLeggibile;
+            if (viaggio.tipo_servizio === 'DISPOSIZIONE') {
+                clone.querySelector('[data-bind-container="durata_block"]').style.display = 'flex';
+                clone.querySelector('[data-bind="durata"]').textContent = viaggio.ore ? `${viaggio.ore} Ore` : '-';
+            }
+            clone.querySelector('[data-bind="vettura_full"]').textContent = vetturaPulita;
+            clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${viaggio.ora_partenza}`;
+
+            clone.querySelector('[data-bind="partenza_full"]').textContent = viaggio.partenza || '-';
+            if (viaggio.tipo_servizio === 'TRANSFER') {
+                clone.querySelector('[data-bind-container="arrivo_full_block"]').style.display = 'flex';
+                clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
+            } else {
+                clone.querySelector('[data-bind-container="itinerario_previsto_block"]').style.display = 'flex';
+                clone.querySelector('[data-bind="itinerario_previsto"]').textContent = viaggio.itinerario_previsto || '-';
+            }
+
+            const numPax = viaggio.passeggeri || 1;
+            clone.querySelector('[data-bind="pax"]').textContent = numPax + (numPax === 1 ? ' Passeggero' : ' Passeggeri');
+            
+            const numGrandi = viaggio.bagagli_grandi || 0;
+            clone.querySelector('[data-bind="grandi"]').textContent = numGrandi + (numGrandi === 1 ? ' Valigia Grande' : ' Valigie Grandi');
+            
             clone.querySelector('[data-bind="mano"]').textContent = viaggio.bagagli_mano || 0;
-            
+            clone.querySelector('[data-bind="note_servizio"]').textContent = viaggio.note_servizio || 'Nessuna nota';
+
+            clone.querySelector('[data-bind="codice_prenotazione_dettaglio"]').textContent = viaggio.codice_prenotazione;
+            clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
+
             const btnAccetta = clone.querySelector('[data-bind-action="accetta"]');
             btnAccetta.onclick = function() { accettaCorsa(viaggio.codice_prenotazione); };
 

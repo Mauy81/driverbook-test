@@ -83,24 +83,91 @@
                     </div>
 
                     <div class="bacheca-body-dettaglio">
-                        <div class="bacheca-dettaglio-row">
-                            <span class="bacheca-dettaglio-label">Indirizzo Partenza Completo</span>
-                            <span class="bacheca-dettaglio-value" data-bind="partenza_full"></span>
+                        <div class="checkout-style-block" style="margin-top: 15px;">
+                            <div class="bacheca-sezione-titolo">PASSEGGERO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Nome e Cognome</span>
+                                <span class="checkout-style-value" data-bind="nome_passeggero"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Telefono Passeggero</span>
+                                <span class="checkout-style-value" data-bind="tel_passeggero"></span>
+                            </div>
                         </div>
-                        <div class="bacheca-dettaglio-row" data-bind-container="arrivo_full" style="display: none;">
-                            <span class="bacheca-dettaglio-label">Indirizzo Arrivo Completo</span>
-                            <span class="bacheca-dettaglio-value" data-bind="arrivo_full"></span>
+
+                        <div class="checkout-style-block" data-bind-container="referente_block" style="display: none;">
+                            <div class="bacheca-sezione-titolo">REFERENTE PRENOTAZIONE</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Nome Azienda / Referente</span>
+                                <span class="checkout-style-value" data-bind="nome_referente"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Telefono Referente</span>
+                                <span class="checkout-style-value" data-bind="tel_referente"></span>
+                            </div>
                         </div>
-                        <div class="bacheca-dettaglio-row">
-                            <span class="bacheca-dettaglio-label">Logistica</span>
-                            <span class="bacheca-dettaglio-value"><span data-bind="pax"></span> Pax - <span data-bind="grandi"></span> Grandi - <span data-bind="mano"></span> Trolley</span>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">DETTAGLI SERVIZIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Tipologia Servizio</span>
+                                <span class="checkout-style-value" data-bind="tipo_servizio_full"></span>
+                            </div>
+                            <div class="checkout-style-row" data-bind-container="durata_block" style="display: none;">
+                                <span class="checkout-style-label">Durata Disposizione</span>
+                                <span class="checkout-style-value" data-bind="durata"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Vettura Richiesta</span>
+                                <span class="checkout-style-value" data-bind="vettura_full"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Data e Ora Partenza</span>
+                                <span class="checkout-style-value" data-bind="data_ora_dettaglio"></span>
+                            </div>
                         </div>
-                        <div class="bacheca-dettaglio-row">
-                            <span class="bacheca-dettaglio-label">Vettura Richiesta</span>
-                            <span class="bacheca-dettaglio-value" data-bind="vettura"></span>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">ITINERARIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Luogo di Partenza</span>
+                                <span class="checkout-style-value" data-bind="partenza_full"></span>
+                            </div>
+                            <div class="checkout-style-row" data-bind-container="arrivo_full_block" style="display: none;">
+                                <span class="checkout-style-label">Luogo di Destinazione</span>
+                                <span class="checkout-style-value" data-bind="arrivo_full"></span>
+                            </div>
+                            <div class="checkout-style-row" data-bind-container="itinerario_previsto_block" style="display: none;">
+                                <span class="checkout-style-label">Itinerario Previsto</span>
+                                <span class="checkout-style-value" data-bind="itinerario_previsto"></span>
+                            </div>
                         </div>
-                        
-                        <button data-bind-action="accetta" class="btn-accetta-minimal">ACCETTA CORSA</button>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">LOGISTICA E NOTE</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Passeggeri e Bagagli</span>
+                                <span class="checkout-style-value"><span data-bind="pax"></span><br><span data-bind="grandi"></span><br><span data-bind="mano"></span> Trolley</span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Note e Richieste Particolari</span>
+                                <span class="checkout-style-value" data-bind="note_servizio"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-row bacheca-riga-codice">
+                                <span class="checkout-style-label">CODICE PRENOTAZIONE:</span>
+                                <span class="checkout-style-value bacheca-valore-codice" data-bind="codice_prenotazione_dettaglio"></span>
+                            </div>
+                            <div class="checkout-style-row bacheca-riga-prezzo">
+                                <span class="checkout-style-value bacheca-valore-prezzo" data-bind="prezzo_dettaglio"></span>
+                            </div>
+                            
+                            <div class="bacheca-container-bottone">
+                                <button data-bind-action="accetta" class="btn btn-ghost btn-accetta-servizio">ACCETTA SERVIZIO</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -108,6 +175,7 @@
         </div>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

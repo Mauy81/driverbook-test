@@ -1217,33 +1217,31 @@ body.page-flotta,
 }
 
 .checkout-style-block {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .checkout-style-title {
     color: #555555;
     font-size: 0.8rem;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .checkout-style-row {
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .checkout-style-label {
     color: #777777;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: bold;
-    margin-bottom: 3px;
+    font-size: 0.7rem;
+    margin-bottom: 2px;
 }
 
 .checkout-style-value {
     color: #ffffff;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 .card-bacheca-minimal {
@@ -1372,42 +1370,14 @@ body.page-flotta,
     display: block;
 }
 
-.bacheca-dettaglio-row {
-    margin-top: 15px;
-    font-size: 0.85rem;
-}
-
-.bacheca-dettaglio-label {
-    color: #777777;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
+.bacheca-sezione-titolo {
+    color: #00FF66;
+    border-left: 2px solid #00FF66;
+    padding-left: 6px;
+    font-size: 0.75rem;
     font-weight: bold;
-}
-
-.bacheca-dettaglio-value {
-    color: #ffffff;
-    line-height: 1.4;
-}
-
-.btn-accetta-minimal {
-    background-color: #ffffff;
-    color: #000000;
-    border: none;
-    font-weight: bold;
-    padding: 12px;
-    width: 100%;
-    border-radius: 4px;
-    margin-top: 20px;
-    cursor: pointer;
+    margin-bottom: 6px;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    transition: background-color 0.2s ease;
-}
-
-.btn-accetta-minimal:hover {
-    background-color: #cccccc;
 }
 
 .messaggio-stato-bacheca {
@@ -1423,4 +1393,33 @@ body.page-flotta,
 
 .messaggio-stato-bacheca.msg-errore {
     color: #dc3545;
+}
+
+.btn-accetta-servizio {
+    width: auto !important;
+    padding: 10px 20px;
+}
+
+.bacheca-riga-codice {
+    margin-bottom: 5px;
+}
+
+.bacheca-valore-codice {
+    font-weight: bold;
+}
+
+.bacheca-riga-prezzo {
+    margin-bottom: 0px;
+}
+
+.bacheca-valore-prezzo {
+    color: #00FF66;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.bacheca-container-bottone {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 60px;
 }
