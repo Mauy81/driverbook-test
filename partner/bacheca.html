@@ -65,12 +65,18 @@
                 <div class="card-bacheca-minimal">
                     <div class="bacheca-header-touch" data-bind-action="toggle">
                         <div class="bacheca-info-sintesi">
-                            <div class="bacheca-riga-top">
-                                <span data-bind="data_ora"></span>
-                                <span data-bind="prezzo"></span>
+                            <div class="bacheca-riga-intestazione">
+                                <div class="bacheca-dati-servizio">
+                                    <span data-bind="data_ora_servizio"></span>
+                                </div>
+                                <div class="bacheca-prezzo-sintesi" data-bind="prezzo"></div>
                             </div>
-                            <div class="bacheca-riga-mid" data-bind="tipo_servizio"></div>
-                            <div class="bacheca-riga-bot" data-bind="tratta_sintesi"></div>
+                            <div class="bacheca-riga-indirizzo">
+                                <span class="bacheca-label-indirizzo">DA:</span> <span class="bacheca-valore-indirizzo" data-bind="partenza_sintesi"></span>
+                            </div>
+                            <div class="bacheca-riga-indirizzo" data-bind-container="arrivo_sintesi_riga" style="display: none;">
+                                <span class="bacheca-label-indirizzo">A:</span> <span class="bacheca-valore-indirizzo" data-bind="arrivo_sintesi"></span>
+                            </div>
                         </div>
                         <svg class="icona-tendina-mini" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>

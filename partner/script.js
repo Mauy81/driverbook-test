@@ -2311,11 +2311,11 @@ async function caricaBachecaRichieste() {
             let dataFormattata = viaggio.data_partenza;
             if (dataFormattata) {
                 const parti = dataFormattata.split('-');
-                if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
+                if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0].substring(2)}`;
             }
 
             let tipoServizioLeggibile = viaggio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
-            let vetturaPulita = (viaggio.vettura_selezionata || '').replace('_', ' ');
+            let vetturaPulita = (viaggio.vettura_selezionata || '');
             
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector('.card-bacheca-minimal');
@@ -2325,21 +2325,20 @@ async function caricaBachecaRichieste() {
             };
 
             clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
-            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza}`;
-            clone.querySelector('[data-bind="tipo_servizio"]').textContent = `${tipoServizioLeggibile} - ${vetturaPulita}`;
+            clone.querySelector('[data-bind="data_ora_servizio"]').textContent = `${dataFormattata} - ${viaggio.ora_partenza} ${tipoServizioLeggibile} - ${vetturaPulita}`;
 
             let stringaPartenza = (viaggio.partenza_citta && viaggio.partenza_via) ? `${viaggio.partenza_citta}, ${viaggio.partenza_via}` : viaggio.partenza;
-            let trattaSintesi = stringaPartenza;
+            clone.querySelector('[data-bind="partenza_sintesi"]').textContent = stringaPartenza;
             
             if (viaggio.tipo_servizio === 'TRANSFER') {
                 let stringaArrivo = (viaggio.arrivo_citta && viaggio.arrivo_via) ? `${viaggio.arrivo_citta}, ${viaggio.arrivo_via}` : (viaggio.arrivo || '-');
-                trattaSintesi = `${stringaPartenza} ➔ ${stringaArrivo}`;
+                clone.querySelector('[data-bind="arrivo_sintesi"]').textContent = stringaArrivo;
+                clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').style.display = 'block';
                 
                 clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
                 clone.querySelector('[data-bind-container="arrivo_full"]').style.display = 'block';
             }
 
-            clone.querySelector('[data-bind="tratta_sintesi"]').textContent = trattaSintesi;
             clone.querySelector('[data-bind="partenza_full"]').textContent = viaggio.partenza;
             clone.querySelector('[data-bind="vettura"]').textContent = vetturaPulita;
             
