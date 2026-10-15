@@ -595,7 +595,13 @@ textarea.input {
     height: 40px;
     width: 40px;
     padding: 0;
+    outline: none;
 }
+
+.user-icon-btn:focus {
+    outline: none;
+}
+
 .user-icon-btn:hover {
     background-color: #ffffff;
     color: #000000;
@@ -1244,12 +1250,12 @@ body.page-flotta,
     background-color: #000000;
     border-bottom: none;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
     font-family: inherit;
 }
 
 .bacheca-header-touch {
-    padding: 15px 20px;
+    padding: 2px 20px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -1274,14 +1280,14 @@ body.page-flotta,
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 2px;
+    margin-bottom: 0px;
     width: 100%;
 }
 
 .bacheca-dati-servizio {
     display: flex;
     flex-wrap: wrap;
-    row-gap: 2px;
+    row-gap: 4px;
     column-gap: 12px;
     color: #ffffff;
     font-weight: bold;
@@ -1306,7 +1312,7 @@ body.page-flotta,
 .bacheca-riga-indirizzo {
     display: grid;
     grid-template-columns: 25px 1fr;
-    margin-bottom: 2px;
+    margin-bottom: 0px;
     line-height: 1;
     align-items: start;
 }
@@ -1321,12 +1327,16 @@ body.page-flotta,
     color: #aaaaaa;
     font-weight: normal;
     font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 100px;
 }
 
 @media (max-width: 450px) {
     .bacheca-dati-servizio {
         font-size: 0.7rem;
-        row-gap: 2px;
+        row-gap: 4px;
     }
     .bacheca-prezzo-sintesi {
         font-size: 0.75rem;
@@ -1336,6 +1346,7 @@ body.page-flotta,
     }
     .bacheca-valore-indirizzo {
         font-size: 0.65rem;
+        padding-right: 50px;
     }
     .bacheca-riga-indirizzo {
         grid-template-columns: 23px 1fr;
