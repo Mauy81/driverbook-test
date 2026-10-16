@@ -309,8 +309,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
-            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item" style="display: none; color: #00FF66; font-weight: bold; background-color: rgba(0, 255, 102, 0.05); border-bottom: 1px solid #333333;"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
-            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + contenitoreMenuLaterale.innerHTML;
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+            const btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione"><span>Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
         }
     }
 
@@ -1147,6 +1148,7 @@ async function aggiornaProfilo(event) {
             return;
         } else {
             if (typeof svuotaBozze === 'function') svuotaBozze();
+
             btnSubmit.textContent = "Modifiche salvate con successo!";
             btnSubmit.style.backgroundColor = "#00FF66";
             btnSubmit.style.color = "#000000";
@@ -2421,3 +2423,122 @@ function aggiornaBadgeMenu(numero) {
 async function accettaCorsa(codice) {
     alert("Funzione 'Accetta' in arrivo nel prossimo step! Hai cliccato la corsa: " + codice);
 }
+
+function gestisciModaleNotifiche() {
+    if (!("Notification" in window)) return;
+
+    const btnMenu = document.getElementById('btn_attiva_notifiche_sidebar');
+    
+    if (Notification.permission === "granted" || Notification.permission === "denied") {
+        if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+        return;
+    }
+
+    if (btnMenu) {
+        btnMenu.style.setProperty('display', 'flex', 'important');
+        btnMenu.addEventListener('click', () => {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted" || permission === "denied") {
+                    btnMenu.style.setProperty('display', 'none', 'important');
+                }
+            });
+        });
+    }
+
+    const modale = document.getElementById('modale_richiesta_notifiche');
+    const pathAttuale = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
+    const isOnDashboard = pathAttuale === 'bacheca.html' || pathAttuale === 'dashboard.html';
+
+    if (modale && isOnDashboard && Notification.permission === "default") {
+        const haIgnorato = localStorage.getItem('prt_modale_notifiche_ignorato');
+        
+        if (!haIgnorato) {
+            modale.style.display = 'flex';
+            
+            document.getElementById('btn_notifiche_no').onclick = function() {
+                localStorage.setItem('prt_modale_notifiche_ignorato', 'true');
+                modale.style.display = 'none';
+            };
+            
+            document.getElementById('btn_notifiche_si').onclick = function() {
+                modale.style.display = 'none';
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted" || permission === "denied") {
+                        if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            };
+        }
+    }
+}
+
+function innescaNotificaNativa() {
+    if ("Notification" in window && Notification.permission === "granted") {
+        try {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    registration.showNotification("Nuova Corsa Disponibile!", {
+                        body: "Controlla la bacheca per i dettagli.",
+                        icon: "../logo/icona-pwa-prt.png",
+                        vibrate: [200, 100, 200],
+                        requireInteraction: true
+                    });
+                });
+            } else {
+                new Notification("Nuova Corsa Disponibile!", {
+                    body: "Controlla la bacheca per i dettagli.",
+                    icon: "../logo/icona-pwa-prt.png",
+                    requireInteraction: true
+                });
+            }
+        } catch(e) {
+            console.error("Errore notifica nativa:", e);
+        }
+    }
+}
+
+function inizializzaSupabaseRealtimeGlobale() {
+    const token = localStorage.getItem('driverbook_auth_token');
+    if (!token) return;
+
+    if (typeof supabase === 'undefined') {
+        const scriptSupa = document.createElement('script');
+        scriptSupa.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+        scriptSupa.onload = () => {
+            avviaConnessioneRealtime(token);
+            gestisciModaleNotifiche();
+        };
+        document.head.appendChild(scriptSupa);
+    } else {
+        avviaConnessioneRealtime(token);
+        gestisciModaleNotifiche();
+    }
+}
+
+function avviaConnessioneRealtime(token) {
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    const clientSupa = supabase.createClient("https://drpgiwjwkfxztjbdyncm.supabase.co", chiaveAnon, {
+        global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+
+    clientSupa.channel('bacheca-globale')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'prenotazioni' }, payload => {
+            
+            innescaNotificaNativa();
+            
+            if (document.getElementById('contenitore_bacheca')) {
+                caricaBachecaRichieste();
+            } else {
+                const linkBacheca = document.getElementById('link_menu_bacheca');
+                if (linkBacheca) {
+                    linkBacheca.innerHTML = `<span>Bacheca Richieste</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">NUOVA</span>`;
+                }
+            }
+        })
+        .subscribe();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(inizializzaSupabaseRealtimeGlobale, 1500);
+});

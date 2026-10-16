@@ -1423,3 +1423,16 @@ body.page-flotta,
     margin-top: 0;
     margin-bottom: 60px;
 }
+
+.menu-item-azione {
+    display: none;
+    color: #00FF66;
+    font-weight: bold;
+    background-color: rgba(0, 255, 102, 0.05);
+    border-bottom: 1px solid #333333;
+}
+
+.menu-item-azione svg {
+    margin-left: auto;
+    stroke: currentColor;
+}
