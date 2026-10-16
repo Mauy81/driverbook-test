@@ -2438,8 +2438,11 @@ function gestisciModaleNotifiche() {
         btnMenu.style.setProperty('display', 'flex', 'important');
         btnMenu.addEventListener('click', () => {
             Notification.requestPermission().then(permission => {
-                if (permission === "granted" || permission === "denied") {
-                    btnMenu.style.setProperty('display', 'none', 'important');
+                if (permission === "granted") {
+                    if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+                    attivaAbbonamentoPush();
+                } else if (permission === "denied") {
+                    if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
                 }
             });
         });
@@ -2463,12 +2466,44 @@ function gestisciModaleNotifiche() {
             document.getElementById('btn_notifiche_si').onclick = function() {
                 modale.style.display = 'none';
                 Notification.requestPermission().then(permission => {
-                    if (permission === "granted" || permission === "denied") {
+                    if (permission === "granted") {
+                        if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+                        attivaAbbonamentoPush();
+                    } else if (permission === "denied") {
                         if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
                     }
                 });
             };
         }
+    }
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+async function attivaAbbonamentoPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+        const registrazione = await navigator.serviceWorker.ready;
+        const chiavePubblicaVapid = "BGoIs_sj3qfrDqtmo5qnMb2AOWtUTWTLyjnOKUEDigwGdF5IkwuHV9I76v4tFIbGkLrr01ePEbGdO8R0lehSPts";
+        const chiaveConvertita = urlBase64ToUint8Array(chiavePubblicaVapid);
+        
+        const abbonamento = await registrazione.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: chiaveConvertita
+        });
+        
+        console.log("Abbonamento Push generato con successo:", JSON.stringify(abbonamento));
+    } catch (errore) {
+        console.error("Errore durante l'iscrizione alle notifiche Push:", errore);
     }
 }
 
