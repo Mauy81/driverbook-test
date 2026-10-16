@@ -2500,10 +2500,63 @@ async function attivaAbbonamentoPush() {
             userVisibleOnly: true,
             applicationServerKey: chiaveConvertita
         });
+
+        const token = localStorage.getItem('driverbook_auth_token');
+        if (!token) return;
+
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
         
-        console.log("Abbonamento Push generato con successo:", JSON.stringify(abbonamento));
+        if (!userRes.ok) return;
+        const userData = await userRes.json();
+        const userId = userData.id;
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=codice_partner`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        
+        let codiceUtente = null;
+        if (partnerRes.ok) {
+            const partnerData = await partnerRes.json();
+            if (partnerData && partnerData.length > 0) {
+                codiceUtente = partnerData[0].codice_partner;
+            }
+        }
+
+        const payloadAbbonamento = {
+            codice_utente: codiceUtente,
+            ruolo: "partner",
+            user_id: userId,
+            dati_abbonamento: JSON.parse(JSON.stringify(abbonamento))
+        };
+
+        const checkSub = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userId}`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+
+        let esisteGia = false;
+        if (checkSub.ok) {
+            const subsEsistenti = await checkSub.json();
+            esisteGia = subsEsistenti.some(sub => sub.dati_abbonamento.endpoint === abbonamento.endpoint);
+        }
+
+        if (!esisteGia) {
+            await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payloadAbbonamento)
+            });
+        }
+
     } catch (errore) {
-        console.error("Errore durante l'iscrizione alle notifiche Push:", errore);
+        console.error(errore);
     }
 }
 
