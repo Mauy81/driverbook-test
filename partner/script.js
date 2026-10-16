@@ -2447,7 +2447,7 @@ function gestisciModaleNotifiche() {
 
     const modale = document.getElementById('modale_richiesta_notifiche');
     const pathAttuale = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
-    const isOnDashboard = pathAttuale === 'bacheca.html' || pathAttuale === 'dashboard.html';
+    const isOnDashboard = pathAttuale === 'dashboard.html';
 
     if (modale && isOnDashboard && Notification.permission === "default") {
         const haIgnorato = localStorage.getItem('prt_modale_notifiche_ignorato');
