@@ -1426,10 +1426,23 @@ body.page-flotta,
 
 .menu-item-azione {
     display: none;
-    color: #00FF66;
+    color: #00FF66 !important;
     font-weight: bold;
-    background-color: rgba(0, 255, 102, 0.05);
+    background-color: rgba(0, 255, 102, 0.05) !important;
     border-bottom: 1px solid #333333;
+}
+
+.menu-item-azione:hover {
+    background-color: rgba(0, 255, 102, 0.05) !important;
+    color: #000000 !important;
+}
+
+.menu-item-azione:hover span {
+    color: #000000 !important;
+}
+
+.menu-item-azione:hover svg {
+    stroke: #00FF66 !important;
 }
 
 .menu-item-azione svg {
