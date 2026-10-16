@@ -1441,11 +1441,7 @@ body.page-flotta,
     color: #000000 !important;
 }
 
-.menu-item-azione:hover svg {
-    stroke: #00FF66 !important;
-}
-
 .menu-item-azione svg {
     margin-left: auto;
-    stroke: currentColor;
+    stroke: #00FF66 !important;
 }
