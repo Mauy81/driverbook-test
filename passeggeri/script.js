@@ -64,6 +64,15 @@ function estraiCittaEViaDaGoogle(place) {
         stringaCitta = citta + " (" + provincia + ")";
     }
     
+    if (place && place.formatted_address && citta) {
+        if (!place.formatted_address.includes(citta)) {
+            const fette = place.formatted_address.split(',');
+            if (fette.length >= 2) {
+                stringaCitta = fette[fette.length - 2].trim();
+            }
+        }
+    }
+    
     let stringaDettaglio = via;
     const isPOI = place.types && !place.types.includes("street_address") && !place.types.includes("route") && !place.types.includes("premise");
     
