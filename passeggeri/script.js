@@ -43,6 +43,8 @@ function estraiCittaEViaDaGoogle(place) {
     let citta = "";
     let provincia = "";
     let via = "";
+    let nazione = "";
+    let cap = "";
     
     if (place && place.address_components) {
         let comune = "";
@@ -53,6 +55,8 @@ function estraiCittaEViaDaGoogle(place) {
             if (types.includes("locality")) localita = component.long_name;
             if (types.includes("administrative_area_level_2")) provincia = component.short_name;
             if (types.includes("route")) via = component.long_name;
+            if (types.includes("country")) nazione = component.short_name;
+            if (types.includes("postal_code")) cap = component.long_name;
         });
         citta = comune || localita;
     }
@@ -60,17 +64,22 @@ function estraiCittaEViaDaGoogle(place) {
     if (!citta && place && place.name) citta = place.name;
     
     let stringaCitta = citta;
-    if (provincia && provincia.length === 2) {
-        stringaCitta = citta + " (" + provincia + ")";
-    }
     
-    if (place && place.formatted_address && citta) {
+    if (nazione !== "IT" && place && place.formatted_address && citta) {
         if (!place.formatted_address.includes(citta)) {
             const fette = place.formatted_address.split(',');
             if (fette.length >= 2) {
-                stringaCitta = fette[fette.length - 2].trim();
+                let estratto = fette[fette.length - 2].trim();
+                if (cap) {
+                    estratto = estratto.replace(cap, '').trim();
+                }
+                stringaCitta = estratto;
             }
         }
+    }
+    
+    if (provincia && provincia.length === 2) {
+        stringaCitta = stringaCitta + " (" + provincia + ")";
     }
     
     let stringaDettaglio = via;
