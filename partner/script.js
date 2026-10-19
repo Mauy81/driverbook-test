@@ -2622,9 +2622,6 @@ function avviaConnessioneRealtime(token) {
 
     clientSupa.channel('bacheca-globale')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'prenotazioni' }, payload => {
-            
-            innescaNotificaNativa();
-            
             if (document.getElementById('contenitore_bacheca')) {
                 caricaBachecaRichieste();
             } else {

@@ -56,7 +56,7 @@ self.addEventListener('push', event => {
     const opzioni = {
         body: datiNotifica.corpo,
         icon: '../logo/icona-pwa-prt.png',
-        badge: '../logo/icona-pwa-prt.png',
+        badge: '../logo/badge-bianco.png',
         vibrate: [200, 100, 200, 100, 200],
         data: { url: datiNotifica.url },
         requireInteraction: true
@@ -75,7 +75,8 @@ self.addEventListener('notificationclick', event => {
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(finestre => {
             for (let i = 0; i < finestre.length; i++) {
                 const client = finestre[i];
-                if (client.url.includes('bacheca.html') && 'focus' in client) {
+                if (client.url.includes('partner') && 'focus' in client) {
+                    client.navigate(urlDestinazione);
                     return client.focus();
                 }
             }
