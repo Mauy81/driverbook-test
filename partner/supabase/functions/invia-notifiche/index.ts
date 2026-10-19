@@ -6,7 +6,7 @@ const vapidPublicKey = "BGoIs_sj3qfrDqtmo5qnMb2AOWtUTWTLyjnOKUEDigwGdF5IkwuHV9I7
 const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
 
 webpush.setVapidDetails(
-  "mailto:assistenza@driverbook.it",
+  "https://mauy81.github.io/driverbook-test",
   vapidPublicKey,
   vapidPrivateKey
 );
@@ -34,7 +34,8 @@ serve(async (req) => {
     const notificationPayload = JSON.stringify({
       title: "Nuova Corsa Disponibile!",
       body: "Controlla la bacheca per i dettagli.",
-      icon: "../logo/icona-pwa-prt.png"
+      icon: "../logo/icona-pwa-prt.png",
+      badge: "../logo/badge-bianco.png"
     });
 
     const invii = abbonamenti.map(sub => 

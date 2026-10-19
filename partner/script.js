@@ -944,16 +944,26 @@ function toggleFatturazioneProfiloReale(stato) {
 }
 
 async function caricaDatiDashboardPartner() {
-    const token = localStorage.getItem('driverbook_auth_token');
+    let token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     
     try {
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+        let userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
-        const userData = await userRes.json();
-        if (!userRes.ok) throw new Error("Token non valido");
 
+        if (userRes.status === 401 || !userRes.ok) {
+            await rinnovaSessioneSilenziosa();
+            token = localStorage.getItem('driverbook_auth_token');
+            
+            userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            
+            if (!userRes.ok) throw new Error("Token irrecuperabile");
+        }
+
+        const userData = await userRes.json();
         const userId = userData.id;
 
         const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`, {
