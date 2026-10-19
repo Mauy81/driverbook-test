@@ -520,6 +520,19 @@ document.addEventListener("DOMContentLoaded", function() {
             const acPartenza = new google.maps.places.Autocomplete(inputPartenza, opzioniGoogle);
             const acArrivo = new google.maps.places.Autocomplete(inputArrivo, opzioniGoogle);
 
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const circle = new google.maps.Circle({
+                        center: { lat: position.coords.latitude, lng: position.coords.longitude },
+                        radius: 50000
+                    });
+                    acPartenza.setBounds(circle.getBounds());
+                    acPartenza.setOptions({ strictBounds: false });
+                    acArrivo.setBounds(circle.getBounds());
+                    acArrivo.setOptions({ strictBounds: false });
+                });
+            }
+
             acPartenza.addListener('place_changed', function() {
                 const place = acPartenza.getPlace();
                 if (place && place.geometry) {

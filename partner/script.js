@@ -427,8 +427,11 @@ document.addEventListener("DOMContentLoaded", function() {
             new google.maps.LatLng(36.0, -2.0),
             new google.maps.LatLng(52.0, 18.0)
         );
+        
+        let acZona, acProfZona;
+
         if (inputZonaOperativa) {
-            const acZona = new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            acZona = new google.maps.places.Autocomplete(inputZonaOperativa, { bounds: confiniArea, strictBounds: true });
             acZona.addListener('place_changed', function() {
                 const place = acZona.getPlace();
                 if (place && place.geometry) {
@@ -437,11 +440,28 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         if (inputProfiloZonaOperativa) {
-            const acProfZona = new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
+            acProfZona = new google.maps.places.Autocomplete(inputProfiloZonaOperativa, { bounds: confiniArea, strictBounds: true });
             acProfZona.addListener('place_changed', function() {
                 const place = acProfZona.getPlace();
                 if (place && place.geometry) {
                     latLngProfiloZonaOperativa = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                }
+            });
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const circle = new google.maps.Circle({
+                    center: { lat: position.coords.latitude, lng: position.coords.longitude },
+                    radius: 50000
+                });
+                if (acZona) {
+                    acZona.setBounds(circle.getBounds());
+                    acZona.setOptions({ strictBounds: false });
+                }
+                if (acProfZona) {
+                    acProfZona.setBounds(circle.getBounds());
+                    acProfZona.setOptions({ strictBounds: false });
                 }
             });
         }
