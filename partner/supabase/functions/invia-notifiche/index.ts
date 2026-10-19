@@ -39,8 +39,12 @@ serve(async (req) => {
     });
 
     const invii = abbonamenti.map(sub => 
-      webpush.sendNotification(sub.dati_abbonamento, notificationPayload)
-        .catch(err => console.error("Errore invio:", err))
+      webpush.sendNotification(sub.dati_abbonamento, notificationPayload, {
+        headers: {
+          "Urgency": "high"
+        }
+      })
+      .catch(err => console.error("Errore invio:", err))
     );
 
     await Promise.all(invii);
