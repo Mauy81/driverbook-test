@@ -2725,7 +2725,8 @@ function innescaNotificaNativa() {
                         icon: "../logo/icona-pwa-prt.png",
                         vibrate: [200, 100, 200],
                         requireInteraction: true,
-                        tag: 'driverbook-notifiche'
+                        tag: 'driverbook-notifiche',
+                        renotify: true
                     });
                 });
             } else {
@@ -2733,7 +2734,8 @@ function innescaNotificaNativa() {
                     body: "Controlla la bacheca per i dettagli.",
                     icon: "../logo/icona-pwa-prt.png",
                     requireInteraction: true,
-                    tag: 'driverbook-notifiche'
+                    tag: 'driverbook-notifiche',
+                    renotify: true
                 });
             }
         } catch(e) {

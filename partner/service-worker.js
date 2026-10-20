@@ -60,7 +60,8 @@ self.addEventListener('push', event => {
         vibrate: [200, 100, 200, 100, 200],
         data: { url: datiNotifica.url },
         requireInteraction: true,
-        tag: 'driverbook-notifiche'
+        tag: 'driverbook-notifiche',
+        renotify: true
     };
 
     event.waitUntil(
