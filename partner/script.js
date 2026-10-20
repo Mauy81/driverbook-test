@@ -367,6 +367,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     return;
                 }
                 
+                if (percorsoAttuale === 'bacheca.html' && typeof segnaBachecaComeLetta === 'function') {
+                    const btnLette = document.getElementById('btn_segna_lette');
+                    if (btnLette && !btnLette.classList.contains('hidden')) {
+                        segnaBachecaComeLetta(true);
+                    }
+                }
+                
                 setTimeout(() => {
                     window.location.href = urlDestinazione;
                 }, 20);
@@ -1351,7 +1358,32 @@ async function inviaAssistenza(event) {
     }
 }
 
-function esciAccount() {
+async function esciAccount() {
+    const token = localStorage.getItem('driverbook_auth_token') || sessionStorage.getItem('driverbook_auth_token');
+    if (token) {
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        try {
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}`, {
+                    method: "DELETE",
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+            }
+        } catch (e) {}
+    }
+
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) await sub.unsubscribe();
+        } catch (e) {}
+    }
+
     const chiaviDaCancellare = [
         'driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
@@ -1366,28 +1398,7 @@ function esciAccount() {
     });
     localStorage.removeItem('driverbook_ricordami');
     sessionStorage.removeItem('finestra_attiva');
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(reg => {
-            reg.pushManager.getSubscription().then(sub => {
-                if (sub) {
-                    sub.unsubscribe().then(() => {
-                        window.location.href = 'index.html';
-                    }).catch(() => {
-                        window.location.href = 'index.html';
-                    });
-                } else {
-                    window.location.href = 'index.html';
-                }
-            }).catch(() => {
-                window.location.href = 'index.html';
-            });
-        }).catch(() => {
-            window.location.href = 'index.html';
-        });
-    } else {
-        window.location.href = 'index.html';
-    }
+    window.location.href = 'index.html';
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -2290,7 +2301,7 @@ async function caricaBachecaRichieste() {
         if (!userRes.ok) throw new Error("Utente non loggato");
         const userData = await userRes.json();
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=zona_operativa_lat,zona_operativa_lng`, {
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=zona_operativa_lat,zona_operativa_lng,ultimo_accesso_bacheca`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         if (!partnerRes.ok) throw new Error("Errore recupero zona partner");
@@ -2304,6 +2315,7 @@ async function caricaBachecaRichieste() {
 
         const latPartner = partnerData[0].zona_operativa_lat;
         const lngPartner = partnerData[0].zona_operativa_lng;
+        const ultimoAccesso = new Date(partnerData[0].ultimo_accesso_bacheca || 0);
 
         const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&select=modello`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -2318,7 +2330,7 @@ async function caricaBachecaRichieste() {
             return;
         }
 
-        const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&order=data_partenza.asc,ora_partenza.asc", {
+        const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&select=*,created_at&order=data_partenza.asc,ora_partenza.asc", {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         if (!prenotazioniRes.ok) throw new Error("Errore recupero prenotazioni");
@@ -2347,21 +2359,43 @@ async function caricaBachecaRichieste() {
         });
 
         msgLoading.classList.add('hidden');
-        aggiornaBadgeMenu(richiesteFiltrate.length);
 
         if (richiesteFiltrate.length === 0) {
             msgVuota.classList.remove('hidden');
+            aggiornaBadgeMenu(0);
             return;
         }
 
         const template = document.getElementById('template_bacheca_card');
-        
         if (!template) {
             console.error("Template bacheca non trovato.");
             return;
         }
 
-        richiesteFiltrate.forEach(viaggio => {
+        let richiesteNuove = [];
+        let richiesteVecchie = [];
+
+        richiesteFiltrate.forEach(p => {
+            if (p.created_at && new Date(p.created_at) > ultimoAccesso) {
+                richiesteNuove.push(p);
+            } else {
+                richiesteVecchie.push(p);
+            }
+        });
+
+        aggiornaBadgeMenu(richiesteNuove.length);
+
+        const btnLette = document.getElementById('btn_segna_lette');
+        if (btnLette) {
+            if (richiesteNuove.length > 0) {
+                btnLette.classList.remove('hidden');
+                btnLette.onclick = () => segnaBachecaComeLetta(false);
+            } else {
+                btnLette.classList.add('hidden');
+            }
+        }
+
+        const renderizzaCard = (viaggio, isNuova) => {
             let dataCompatta = viaggio.data_partenza;
             let dataEstesa = viaggio.data_partenza;
             
@@ -2378,6 +2412,11 @@ async function caricaBachecaRichieste() {
             
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector('.card-bacheca-minimal');
+            
+            if (isNuova) {
+                card.classList.add('card-nuova-evidenza');
+                clone.querySelector('[data-bind-container="badge_nuova_container"]').style.display = 'inline-block';
+            }
             
             clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
                 card.classList.toggle('aperta');
@@ -2448,7 +2487,19 @@ async function caricaBachecaRichieste() {
             btnAccetta.onclick = function() { accettaCorsa(viaggio.codice_prenotazione); };
 
             listaCard.appendChild(clone);
-        });
+        };
+
+        if (richiesteNuove.length > 0) {
+            richiesteNuove.forEach(v => renderizzaCard(v, true));
+            if (richiesteVecchie.length > 0) {
+                const separatore = document.createElement('div');
+                separatore.className = 'separatore-bacheca';
+                separatore.innerHTML = '<span>Richieste già viste</span>';
+                listaCard.appendChild(separatore);
+            }
+        }
+        
+        richiesteVecchie.forEach(v => renderizzaCard(v, false));
 
     } catch (errore) {
         console.error(errore);
@@ -2457,12 +2508,45 @@ async function caricaBachecaRichieste() {
     }
 }
 
+async function segnaBachecaComeLetta(skipReload = false) {
+    const token = localStorage.getItem('driverbook_auth_token');
+    if (!token) return;
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    const btnLette = document.getElementById('btn_segna_lette');
+    if (btnLette) btnLette.classList.add('hidden');
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const userData = await userRes.json();
+
+        await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}`, {
+            method: "PATCH",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            body: JSON.stringify({ ultimo_accesso_bacheca: new Date().toISOString() })
+        });
+
+        if (!skipReload) {
+            caricaBachecaRichieste();
+        }
+    } catch (e) {
+        console.error("Errore salvataggio data accesso:", e);
+    }
+}
+
 function aggiornaBadgeMenu(numero) {
     const linkBacheca = document.getElementById('link_menu_bacheca');
     if (linkBacheca) {
         const testoBase = 'Bacheca Richieste';
         if (numero > 0) {
-            linkBacheca.innerHTML = `<span>${testoBase}</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">${numero}</span>`;
+            linkBacheca.innerHTML = `<span>${testoBase}</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">NUOVE</span>`;
         } else {
             linkBacheca.innerHTML = `<span>${testoBase}</span>`;
         }
@@ -2483,6 +2567,7 @@ function gestisciModaleNotifiche() {
     
     if (Notification.permission === "granted" || Notification.permission === "denied") {
         if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+        if (Notification.permission === "granted") attivaAbbonamentoPush();
         return;
     }
 
@@ -2669,7 +2754,7 @@ function avviaConnessioneRealtime(token) {
             } else {
                 const linkBacheca = document.getElementById('link_menu_bacheca');
                 if (linkBacheca) {
-                    linkBacheca.innerHTML = `<span>Bacheca Richieste</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">NUOVA</span>`;
+                    linkBacheca.innerHTML = `<span>Bacheca Richieste</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">NUOVE</span>`;
                 }
             }
         })
@@ -2686,13 +2771,33 @@ async function verificaBadgeBacheca() {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&select=codice_prenotazione`, {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) return;
+        const userData = await userRes.json();
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=ultimo_accesso_bacheca`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        let ultimoAccesso = 0;
+        if (partnerRes.ok) {
+            const partnerData = await partnerRes.json();
+            if (partnerData && partnerData.length > 0) {
+                ultimoAccesso = new Date(partnerData[0].ultimo_accesso_bacheca || 0);
+            }
+        }
+
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&select=codice_prenotazione,created_at`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const viaggiAttesa = await res.json();
         
         if (viaggiAttesa && viaggiAttesa.length > 0) {
-            aggiornaBadgeMenu(viaggiAttesa.length);
+            const nuove = viaggiAttesa.filter(v => new Date(v.created_at) > ultimoAccesso);
+            aggiornaBadgeMenu(nuove.length);
+        } else {
+            aggiornaBadgeMenu(0);
         }
     } catch (e) {
         console.error("Errore lettura stato bacheca:", e);

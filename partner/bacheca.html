@@ -59,6 +59,10 @@
                 </div>
 
                 <div id="lista_card_bacheca"></div>
+                
+                <button id="btn_segna_lette" class="btn-fluttuante-bacheca hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
             </div>
 
             <template id="template_bacheca_card">
@@ -69,6 +73,7 @@
                                 <div class="bacheca-dati-servizio">
                                     <span class="bacheca-data-evidenziata" data-bind="data_ora"></span>
                                     <span data-bind="tipo_vettura"></span>
+                                    <span data-bind-container="badge_nuova_container" style="display: none;"><span class="badge-nuova-bacheca">NUOVA</span></span>
                                 </div>
                                 <div class="bacheca-prezzo-sintesi" data-bind="prezzo"></div>
                             </div>
