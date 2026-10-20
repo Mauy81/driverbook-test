@@ -65,14 +65,12 @@ self.addEventListener('push', event => {
             body: "Controlla la bacheca per i dettagli.",
             icon: '../logo/icona-pwa-prt.png',
             badge: '../logo/badge-bianco.png',
-            vibrate: [200, 100, 200, 100, 200],
             data: { 
                 url: urlDestinazione,
                 conteggio: conteggio 
             },
             requireInteraction: true,
             tag: 'driverbook-notifiche',
-            renotify: true,
             silent: true
         };
 
