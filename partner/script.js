@@ -1359,8 +1359,21 @@ async function inviaAssistenza(event) {
 }
 
 async function esciAccount() {
+    let endpointCorrente = null;
+    
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) {
+                endpointCorrente = sub.endpoint;
+                await sub.unsubscribe();
+            }
+        } catch (e) {}
+    }
+
     const token = localStorage.getItem('driverbook_auth_token') || sessionStorage.getItem('driverbook_auth_token');
-    if (token) {
+    if (token && endpointCorrente) {
         const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
         try {
             const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -1368,19 +1381,11 @@ async function esciAccount() {
             });
             if (userRes.ok) {
                 const userData = await userRes.json();
-                await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}`, {
+                await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}&dati_abbonamento->>endpoint=eq.${encodeURIComponent(endpointCorrente)}`, {
                     method: "DELETE",
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                 });
             }
-        } catch (e) {}
-    }
-
-    if ('serviceWorker' in navigator) {
-        try {
-            const reg = await navigator.serviceWorker.ready;
-            const sub = await reg.pushManager.getSubscription();
-            if (sub) await sub.unsubscribe();
         } catch (e) {}
     }
 
