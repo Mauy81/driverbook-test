@@ -1360,16 +1360,20 @@ async function inviaAssistenza(event) {
 
 async function esciAccount() {
     let endpointCorrente = null;
+    let subCorrente = null;
     
     if ('serviceWorker' in navigator) {
         try {
-            const reg = await navigator.serviceWorker.ready;
-            const sub = await reg.pushManager.getSubscription();
-            if (sub) {
-                endpointCorrente = sub.endpoint;
-                await sub.unsubscribe();
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) {
+                subCorrente = await reg.pushManager.getSubscription();
+                if (subCorrente) {
+                    endpointCorrente = subCorrente.endpoint;
+                }
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error("Errore recupero subscription:", e);
+        }
     }
 
     const token = localStorage.getItem('driverbook_auth_token') || sessionStorage.getItem('driverbook_auth_token');
@@ -1381,11 +1385,20 @@ async function esciAccount() {
             });
             if (userRes.ok) {
                 const userData = await userRes.json();
+                
                 await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}&dati_abbonamento->>endpoint=eq.${encodeURIComponent(endpointCorrente)}`, {
                     method: "DELETE",
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                 });
             }
+        } catch (e) {
+            console.error("Errore cancellazione DB:", e);
+        }
+    }
+
+    if (subCorrente) {
+        try {
+            await subCorrente.unsubscribe();
         } catch (e) {}
     }
 
