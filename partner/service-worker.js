@@ -36,37 +36,50 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('push', event => {
-    let datiNotifica = {
-        titolo: 'DriverBook',
-        corpo: 'Hai una nuova notifica',
-        url: './bacheca.html'
-    };
-
+    let urlDestinazione = './bacheca.html';
+    
     if (event.data) {
         try {
             const payload = event.data.json();
-            datiNotifica.titolo = payload.title || datiNotifica.titolo;
-            datiNotifica.corpo = payload.body || datiNotifica.corpo;
-            datiNotifica.url = payload.url || datiNotifica.url;
-        } catch (e) {
-            datiNotifica.corpo = event.data.text();
-        }
+            if (payload.url) urlDestinazione = payload.url;
+        } catch (e) {}
     }
 
-    const opzioni = {
-        body: datiNotifica.corpo,
-        icon: '../logo/icona-pwa-prt.png',
-        badge: '../logo/badge-bianco.png',
-        vibrate: [200, 100, 200, 100, 200],
-        data: { url: datiNotifica.url },
-        requireInteraction: true,
-        tag: 'driverbook-notifiche',
-        renotify: true
-    };
+    const gestisciNotifica = self.registration.getNotifications({ tag: 'driverbook-notifiche' }).then(notifiche => {
+        let conteggio = 1;
+        
+        if (notifiche && notifiche.length > 0) {
+            const vecchia = notifiche[0];
+            if (vecchia.data && vecchia.data.conteggio) {
+                conteggio = vecchia.data.conteggio + 1;
+            }
+        }
 
-    event.waitUntil(
-        self.registration.showNotification(datiNotifica.titolo, opzioni)
-    );
+        let titoloNotifica = conteggio === 1 ? "1 nuovo servizio disponibile" : `${conteggio} nuovi servizi disponibili`;
+
+        if ('setAppBadge' in navigator) {
+            navigator.setAppBadge(conteggio).catch(() => {});
+        }
+
+        const opzioni = {
+            body: "Controlla la bacheca per i dettagli.",
+            icon: '../logo/icona-pwa-prt.png',
+            badge: '../logo/badge-bianco.png',
+            vibrate: [200, 100, 200, 100, 200],
+            data: { 
+                url: urlDestinazione,
+                conteggio: conteggio 
+            },
+            requireInteraction: true,
+            tag: 'driverbook-notifiche',
+            renotify: true,
+            silent: true
+        };
+
+        return self.registration.showNotification(titoloNotifica, opzioni);
+    });
+
+    event.waitUntil(gestisciNotifica);
 });
 
 self.addEventListener('notificationclick', event => {
