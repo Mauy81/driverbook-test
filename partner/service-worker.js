@@ -59,9 +59,7 @@ self.addEventListener('push', event => {
         badge: '../logo/badge-bianco.png',
         vibrate: [200, 100, 200, 100, 200],
         data: { url: datiNotifica.url },
-        requireInteraction: true,
-        tag: 'driverbook-notifiche',
-        renotify: true
+        requireInteraction: true
     };
 
     event.waitUntil(

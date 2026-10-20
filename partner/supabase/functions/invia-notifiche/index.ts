@@ -41,7 +41,8 @@ serve(async (req) => {
     const invii = abbonamenti.map(sub => 
       webpush.sendNotification(sub.dati_abbonamento, notificationPayload, {
         headers: {
-          "Urgency": "high"
+          "Urgency": "high",
+          "Topic": "driverbook-corse"
         }
       })
       .catch(err => console.error("Errore invio:", err))
