@@ -2724,14 +2724,16 @@ function innescaNotificaNativa() {
                         body: "Controlla la bacheca per i dettagli.",
                         icon: "../logo/icona-pwa-prt.png",
                         vibrate: [200, 100, 200],
-                        requireInteraction: true
+                        requireInteraction: true,
+                        tag: 'driverbook-notifiche'
                     });
                 });
             } else {
                 new Notification("Nuova Corsa Disponibile!", {
                     body: "Controlla la bacheca per i dettagli.",
                     icon: "../logo/icona-pwa-prt.png",
-                    requireInteraction: true
+                    requireInteraction: true,
+                    tag: 'driverbook-notifiche'
                 });
             }
         } catch(e) {
@@ -2820,4 +2822,22 @@ async function verificaBadgeBacheca() {
     } catch (e) {
         console.error("Errore lettura stato bacheca:", e);
     }
+}
+
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible" && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.getNotifications({ tag: 'driverbook-notifiche' }).then(notifiche => {
+                notifiche.forEach(n => n.close());
+            });
+        }).catch(() => {});
+    }
+});
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+        reg.getNotifications({ tag: 'driverbook-notifiche' }).then(notifiche => {
+            notifiche.forEach(n => n.close());
+        });
+    }).catch(() => {});
 }
