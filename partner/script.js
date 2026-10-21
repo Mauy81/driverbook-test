@@ -2821,3 +2821,25 @@ async function verificaBadgeBacheca() {
         console.error("Errore lettura stato bacheca:", e);
     }
 }
+
+function azzeraNotifichePWA() {
+    if ('clearAppBadge' in navigator) {
+        navigator.clearAppBadge().catch(() => {});
+    }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.getNotifications({ tag: 'driverbook-notifiche' }).then(notifiche => {
+                notifiche.forEach(notifica => notifica.close());
+            });
+        });
+    }
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        azzeraNotifichePWA();
+    }
+});
+
+window.addEventListener('focus', azzeraNotifichePWA);
+window.addEventListener('load', azzeraNotifichePWA);
