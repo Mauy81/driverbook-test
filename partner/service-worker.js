@@ -41,20 +41,16 @@ self.addEventListener('push', event => {
             const cache = await caches.open('driverbook-partner-session');
             const res = await cache.match('/auth-status');
             
-            if (!res) {
-                const sub = await self.registration.pushManager.getSubscription();
-                if (sub) await sub.unsubscribe();
-                return;
-            }
+            if (res) {
+                const authStatus = await res.json();
+                const finestre = await clients.matchAll({ type: 'window', includeUncontrolled: true });
 
-            const authStatus = await res.json();
-            const finestre = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-
-            if (!authStatus.ricordami && finestre.length === 0) {
-                const sub = await self.registration.pushManager.getSubscription();
-                if (sub) await sub.unsubscribe();
-                await cache.delete('/auth-status');
-                return;
+                if (!authStatus.ricordami && finestre.length === 0) {
+                    const sub = await self.registration.pushManager.getSubscription();
+                    if (sub) await sub.unsubscribe();
+                    await cache.delete('/auth-status');
+                    return;
+                }
             }
 
             let urlDestinazione = './bacheca.html';

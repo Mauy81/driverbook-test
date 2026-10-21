@@ -1386,7 +1386,7 @@ function caricaRiepilogo() {
     if (!tipoServizio || !partenza) {
         mostraUiRedirectCheckout('body');
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'dashboard.html';
         }, 5000);
         return;
     }
