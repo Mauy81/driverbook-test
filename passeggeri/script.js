@@ -529,6 +529,10 @@ document.addEventListener("DOMContentLoaded", function() {
             const acPartenza = new google.maps.places.Autocomplete(inputPartenza, opzioniGoogle);
             const acArrivo = new google.maps.places.Autocomplete(inputArrivo, opzioniGoogle);
 
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function() {});
+            }
+
             acPartenza.addListener('place_changed', function() {
                 const place = acPartenza.getPlace();
                 if (place && place.geometry) {

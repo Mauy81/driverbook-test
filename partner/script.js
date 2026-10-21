@@ -455,6 +455,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function() {});
+        }
     }
 
     if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
