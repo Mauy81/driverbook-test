@@ -455,23 +455,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const circle = new google.maps.Circle({
-                    center: { lat: position.coords.latitude, lng: position.coords.longitude },
-                    radius: 50000
-                });
-                if (acZona) {
-                    acZona.setBounds(circle.getBounds());
-                    acZona.setOptions({ strictBounds: false });
-                }
-                if (acProfZona) {
-                    acProfZona.setBounds(circle.getBounds());
-                    acProfZona.setOptions({ strictBounds: false });
-                }
-            });
-        }
     }
 
     if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
