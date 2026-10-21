@@ -36,48 +36,70 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('push', event => {
-    let urlDestinazione = './bacheca.html';
-    
-    if (event.data) {
+    event.waitUntil((async () => {
         try {
-            const payload = event.data.json();
-            if (payload.url) urlDestinazione = payload.url;
-        } catch (e) {}
-    }
-
-    const gestisciNotifica = self.registration.getNotifications({ tag: 'driverbook-notifiche' }).then(notifiche => {
-        let conteggio = 1;
-        
-        if (notifiche && notifiche.length > 0) {
-            const vecchia = notifiche[0];
-            if (vecchia.data && vecchia.data.conteggio) {
-                conteggio = vecchia.data.conteggio + 1;
+            const cache = await caches.open('driverbook-session');
+            const res = await cache.match('/auth-status');
+            
+            if (!res) {
+                const sub = await self.registration.pushManager.getSubscription();
+                if (sub) await sub.unsubscribe();
+                return;
             }
+
+            const authStatus = await res.json();
+            const finestre = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+
+            if (!authStatus.ricordami && finestre.length === 0) {
+                const sub = await self.registration.pushManager.getSubscription();
+                if (sub) await sub.unsubscribe();
+                await cache.delete('/auth-status');
+                return;
+            }
+
+            let urlDestinazione = './bacheca.html';
+            if (event.data) {
+                try {
+                    const payload = event.data.json();
+                    if (payload.url) urlDestinazione = payload.url;
+                } catch (e) {}
+            }
+
+            const notifiche = await self.registration.getNotifications({ tag: 'driverbook-notifiche' });
+            let conteggio = 1;
+            
+            if (notifiche && notifiche.length > 0) {
+                const vecchia = notifiche[0];
+                if (vecchia.data && vecchia.data.conteggio) {
+                    conteggio = vecchia.data.conteggio + 1;
+                }
+            }
+
+            let titoloNotifica = conteggio === 1 ? "1 nuovo servizio disponibile" : `${conteggio} nuovi servizi disponibili`;
+
+            if ('setAppBadge' in navigator) {
+                navigator.setAppBadge(conteggio).catch(() => {});
+            }
+
+            const opzioni = {
+                body: "Controlla la bacheca per i dettagli.",
+                icon: '../logo/icona-pwa-prt.png',
+                badge: '../logo/badge-bianco.png',
+                data: { 
+                    url: urlDestinazione,
+                    conteggio: conteggio 
+                },
+                requireInteraction: true,
+                tag: 'driverbook-notifiche',
+                silent: true
+            };
+
+            await self.registration.showNotification(titoloNotifica, opzioni);
+
+        } catch (e) {
+            console.error(e);
         }
-
-        let titoloNotifica = conteggio === 1 ? "1 nuovo servizio disponibile" : `${conteggio} nuovi servizi disponibili`;
-
-        if ('setAppBadge' in navigator) {
-            navigator.setAppBadge(conteggio).catch(() => {});
-        }
-
-        const opzioni = {
-            body: "Controlla la bacheca per i dettagli.",
-            icon: '../logo/icona-pwa-prt.png',
-            badge: '../logo/badge-bianco.png',
-            data: { 
-                url: urlDestinazione,
-                conteggio: conteggio 
-            },
-            requireInteraction: true,
-            tag: 'driverbook-notifiche',
-            silent: true
-        };
-
-        return self.registration.showNotification(titoloNotifica, opzioni);
-    });
-
-    event.waitUntil(gestisciNotifica);
+    })());
 });
 
 self.addEventListener('notificationclick', event => {

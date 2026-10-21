@@ -639,6 +639,12 @@ async function inviaLogin(event) {
             sessionStorage.setItem('finestra_attiva', 'true');
         }
 
+        if ('caches' in window) {
+            caches.open('driverbook-session').then(cache => {
+                cache.put('/auth-status', new Response(JSON.stringify({ ricordami: usaLocalStorage })));
+            });
+        }
+
         storage.setItem('driverbook_auth_token', datiSessione.access_token);
         storage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
 
@@ -1373,10 +1379,13 @@ async function esciAccount() {
             if (userRes.ok) {
                 const userData = await userRes.json();
                 
-                await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}&dati_abbonamento->>endpoint=eq.${encodeURIComponent(endpointCorrente)}`, {
-                    method: "DELETE",
-                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-                });
+                const deviceId = localStorage.getItem('driverbook_device_id');
+                if (deviceId) {
+                    await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}&device_id=eq.${deviceId}`, {
+                        method: "DELETE",
+                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                    });
+                }
             }
         } catch (e) {
             console.error("Errore cancellazione DB:", e);
@@ -1403,6 +1412,9 @@ async function esciAccount() {
     });
     localStorage.removeItem('driverbook_ricordami');
     sessionStorage.removeItem('finestra_attiva');
+	if ('caches' in window) {
+        caches.delete('driverbook-session');
+    }
     window.location.href = 'index.html';
 }
 
@@ -2646,6 +2658,12 @@ async function attivaAbbonamentoPush() {
         const token = localStorage.getItem('driverbook_auth_token');
         if (!token) return;
 
+        let deviceId = localStorage.getItem('driverbook_device_id');
+        if (!deviceId) {
+            deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem('driverbook_device_id', deviceId);
+        }
+
         const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
         const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2672,30 +2690,21 @@ async function attivaAbbonamentoPush() {
             codice_utente: codiceUtente,
             ruolo: "partner",
             user_id: userId,
+            device_id: deviceId,
+            ultimo_accesso: new Date().toISOString(),
             dati_abbonamento: JSON.parse(JSON.stringify(abbonamento))
         };
 
-        const checkSub = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userId}`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?on_conflict=user_id,device_id", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify(payloadAbbonamento)
         });
-
-        let esisteGia = false;
-        if (checkSub.ok) {
-            const subsEsistenti = await checkSub.json();
-            esisteGia = subsEsistenti.some(sub => sub.dati_abbonamento.endpoint === abbonamento.endpoint);
-        }
-
-        if (!esisteGia) {
-            await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push", {
-                method: "POST",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payloadAbbonamento)
-            });
-        }
 
     } catch (errore) {
         console.error(errore);

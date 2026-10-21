@@ -25,7 +25,7 @@ serve(async (req) => {
 
     const { data: abbonamenti, error } = await supabase
       .from("abbonamenti_push")
-      .select("dati_abbonamento");
+      .select("id, dati_abbonamento");
 
     if (error || !abbonamenti) {
       throw new Error("Errore lettura abbonamenti");
@@ -45,7 +45,14 @@ serve(async (req) => {
           "Topic": "driverbook-corse"
         }
       })
-      .catch(err => console.error("Errore invio:", err))
+      .catch(async (err) => {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await supabase
+            .from("abbonamenti_push")
+            .delete()
+            .eq("id", sub.id);
+        }
+      })
     );
 
     await Promise.all(invii);

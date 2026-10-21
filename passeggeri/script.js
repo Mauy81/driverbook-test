@@ -3227,4 +3227,3 @@ async function eseguiAnnullamento(codice) {
         alert(dict.js_annulla_error || "Impossibile annullare la richiesta al momento. Riprova più tardi.");
     }
 }
-
