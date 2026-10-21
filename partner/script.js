@@ -89,6 +89,13 @@ document.addEventListener("DOMContentLoaded", function() {
     } else if (!blacklistPubblicaAccesso.includes(paginaCorrenteSicurezza)) {
         rinnovaSessioneSilenziosa(); 
         setInterval(rinnovaSessioneSilenziosa, 50 * 60 * 1000); 
+        
+        if ('caches' in window) {
+            caches.open('driverbook-partner-session').then(cache => {
+                const usaLocalStorage = localStorage.getItem('driverbook_ricordami') === 'true';
+                cache.put('/auth-status', new Response(JSON.stringify({ ricordami: usaLocalStorage })));
+            });
+        }
     }
     
     if (paginaCorrenteSicurezza === 'index.html' && localStorage.getItem('driverbook_auth_token')) {
