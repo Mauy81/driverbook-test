@@ -1,4 +1,4 @@
-const CACHE_NAME = 'driverbook-cache';
+const CACHE_NAME = 'driverbook-pax-cache';
 const urlsToCache = [
     './',
     './index.html',

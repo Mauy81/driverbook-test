@@ -640,7 +640,7 @@ async function inviaLogin(event) {
         }
 
         if ('caches' in window) {
-            caches.open('driverbook-session').then(cache => {
+            caches.open('driverbook-partner-session').then(cache => {
                 cache.put('/auth-status', new Response(JSON.stringify({ ricordami: usaLocalStorage })));
             });
         }
@@ -1413,7 +1413,7 @@ async function esciAccount() {
     localStorage.removeItem('driverbook_ricordami');
     sessionStorage.removeItem('finestra_attiva');
 	if ('caches' in window) {
-        caches.delete('driverbook-session');
+        caches.delete('driverbook-partner-session');
     }
     window.location.href = 'index.html';
 }
@@ -2831,9 +2831,24 @@ function azzeraNotifichePWA() {
     }
 }
 
-document.addEventListener('visibilitychange', () => {
+document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         azzeraNotifichePWA();
+        
+        if (localStorage.getItem('driverbook_auth_token')) {
+            await rinnovaSessioneSilenziosa();
+            
+            if (document.getElementById('contenitore_bacheca') && typeof caricaBachecaRichieste === 'function') {
+                caricaBachecaRichieste();
+            }
+            if ((document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome')) && typeof caricaDatiDashboardPartner === 'function') {
+                caricaDatiDashboardPartner();
+                verificaBadgeBacheca();
+            }
+            if (document.getElementById('sezione_elenco_veicoli') && typeof caricaFlotta === 'function') {
+                caricaFlotta();
+            }
+        }
     }
 });
 

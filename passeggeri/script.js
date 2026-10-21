@@ -812,6 +812,12 @@ async function inviaLogin(event) {
             sessionStorage.setItem('finestra_attiva', 'true');
         }
 
+        if ('caches' in window) {
+            caches.open('driverbook-pax-session').then(cache => {
+                cache.put('/auth-status', new Response(JSON.stringify({ ricordami: usaLocalStorage })));
+            });
+        }
+
         storage.setItem('driverbook_auth_token', datiSessione.access_token);
         storage.setItem('driverbook_refresh_token', datiSessione.refresh_token);
 
@@ -2212,6 +2218,9 @@ function esciAccount() {
     });
     localStorage.removeItem('driverbook_ricordami');
     sessionStorage.removeItem('finestra_attiva');
+    if ('caches' in window) {
+        caches.delete('driverbook-pax-session');
+    }
     window.location.href = 'index.html';
 }
 
@@ -3227,3 +3236,18 @@ async function eseguiAnnullamento(codice) {
         alert(dict.js_annulla_error || "Impossibile annullare la richiesta al momento. Riprova più tardi.");
     }
 }
+
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+        if (localStorage.getItem('driverbook_auth_token')) {
+            await rinnovaSessioneSilenziosa();
+            
+            if (document.getElementById('lista_viaggi_attivi_edit') && typeof caricaViaggiProgrammati === 'function') {
+                caricaViaggiProgrammati();
+            }
+            if ((document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome')) && typeof caricaDatiDashboardPasseggero === 'function') {
+                caricaDatiDashboardPasseggero();
+            }
+        }
+    }
+});

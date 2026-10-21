@@ -38,7 +38,7 @@ self.addEventListener('fetch', event => {
 self.addEventListener('push', event => {
     event.waitUntil((async () => {
         try {
-            const cache = await caches.open('driverbook-session');
+            const cache = await caches.open('driverbook-partner-session');
             const res = await cache.match('/auth-status');
             
             if (!res) {
