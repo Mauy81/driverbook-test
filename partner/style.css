@@ -965,6 +965,12 @@ body.page-flotta,
     margin-bottom: 0 !important; 
 }
 
+body.bacheca-barra-attiva .login-wrapper,
+body.bacheca-barra-attiva #card_bacheca_richieste {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 .btn-elimina-veicolo {
     background: transparent;
     border: none;
@@ -1446,32 +1452,19 @@ body.page-flotta,
     stroke: #00FF66 !important;
 }
 
-.btn-fluttuante-bacheca {
-    position: fixed;
-    bottom: 30px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background-color: #00FF66;
-    color: #000000;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 255, 102, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 90;
-    transition: all 0.3s ease;
+#barra_segna_lette {
+    position: sticky;
+    bottom: 0;
+    background-color: #000000;
+    padding: 16px 0 26px 0;
+    text-align: center;
+    z-index: 10;
 }
 
-.btn-fluttuante-bacheca:hover {
-    transform: scale(1.05);
-    background-color: #ffffff;
-}
-
-.btn-fluttuante-bacheca svg {
-    stroke: #000000;
+#barra_segna_lette .btn-primary {
+    width: auto;
+    padding: 12px 40px;
+    margin: 0;
 }
 
 .separatore-bacheca {

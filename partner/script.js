@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', async function(e) {
             if (urlDestinazione && urlDestinazione !== '#') {
                 e.preventDefault();
                 
@@ -375,15 +375,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 
                 if (percorsoAttuale === 'bacheca.html' && typeof segnaBachecaComeLetta === 'function') {
-                    const btnLette = document.getElementById('btn_segna_lette');
-                    if (btnLette && !btnLette.classList.contains('hidden')) {
-                        segnaBachecaComeLetta(true);
+                    const barraLette = document.getElementById('barra_segna_lette');
+                    if (barraLette && !barraLette.classList.contains('hidden')) {
+                        await segnaBachecaComeLetta(true);
                     }
                 }
                 
-                setTimeout(() => {
-                    window.location.href = urlDestinazione;
-                }, 20);
+                window.location.href = urlDestinazione;
             }
         });
     });
@@ -1762,7 +1760,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    document.body.addEventListener('click', function(e) {
+    document.body.addEventListener('click', async function(e) {
         const link = e.target.closest('a');
         
         if (!link) return;
@@ -1775,13 +1773,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
         e.preventDefault();
 
-        const pathAttuale = window.location.pathname.split('/').pop();
+        const pathAttuale = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
 
         if (typeof moduloSporco !== 'undefined' && moduloSporco && pathAttuale !== 'login.html') {
             mostraModaleSalvataggio(destinazione);
-        } else {
-            window.location.href = destinazione;
+            return;
         }
+
+        if (pathAttuale === 'bacheca.html' && typeof segnaBachecaComeLetta === 'function') {
+            const barraLette = document.getElementById('barra_segna_lette');
+            if (barraLette && !barraLette.classList.contains('hidden')) {
+                await segnaBachecaComeLetta(true);
+            }
+        }
+
+        window.location.href = destinazione;
     }, true);
 });
 
@@ -2411,13 +2417,16 @@ async function caricaBachecaRichieste() {
 
         aggiornaBadgeMenu(richiesteNuove.length);
 
+        const barraLette = document.getElementById('barra_segna_lette');
         const btnLette = document.getElementById('btn_segna_lette');
-        if (btnLette) {
+        if (barraLette && btnLette) {
             if (richiesteNuove.length > 0) {
-                btnLette.classList.remove('hidden');
+                barraLette.classList.remove('hidden');
+                document.body.classList.add('bacheca-barra-attiva');
                 btnLette.onclick = () => segnaBachecaComeLetta(false);
             } else {
-                btnLette.classList.add('hidden');
+                barraLette.classList.add('hidden');
+                document.body.classList.remove('bacheca-barra-attiva');
             }
         }
 
@@ -2487,6 +2496,15 @@ async function caricaBachecaRichieste() {
             clone.querySelector('[data-bind="vettura_full"]').textContent = vetturaPulita;
             clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${viaggio.ora_partenza}`;
 
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const apriNavigatore = (indirizzo) => {
+                if (isMobile) {
+                    window.location.href = `geo:0,0?q=${encodeURIComponent(indirizzo)}`;
+                } else {
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`, '_blank');
+                }
+            };
+
             const spanPartenza = clone.querySelector('[data-bind="partenza_full"]');
             if (viaggio.partenza) {
                 spanPartenza.textContent = viaggio.partenza;
@@ -2494,7 +2512,7 @@ async function caricaBachecaRichieste() {
                 spanPartenza.style.cursor = "pointer";
                 spanPartenza.onclick = function(e) {
                     e.stopPropagation();
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaggio.partenza)}`, '_blank');
+                    apriNavigatore(viaggio.partenza);
                 };
             } else {
                 spanPartenza.textContent = '-';
@@ -2509,7 +2527,7 @@ async function caricaBachecaRichieste() {
                     spanArrivo.style.cursor = "pointer";
                     spanArrivo.onclick = function(e) {
                         e.stopPropagation();
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaggio.arrivo)}`, '_blank');
+                        apriNavigatore(viaggio.arrivo);
                     };
                 } else {
                     spanArrivo.textContent = '-';
@@ -2561,8 +2579,11 @@ async function segnaBachecaComeLetta(skipReload = false) {
     if (!token) return;
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     
-    const btnLette = document.getElementById('btn_segna_lette');
-    if (btnLette) btnLette.classList.add('hidden');
+    const barraLette = document.getElementById('barra_segna_lette');
+    if (barraLette) {
+        barraLette.classList.add('hidden');
+        document.body.classList.remove('bacheca-barra-attiva');
+    }
 
     try {
         const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2868,17 +2889,6 @@ document.addEventListener('visibilitychange', async () => {
         
         if (localStorage.getItem('driverbook_auth_token')) {
             await rinnovaSessioneSilenziosa();
-            
-            if (document.getElementById('contenitore_bacheca') && typeof caricaBachecaRichieste === 'function') {
-                caricaBachecaRichieste();
-            }
-            if ((document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome')) && typeof caricaDatiDashboardPartner === 'function') {
-                caricaDatiDashboardPartner();
-                verificaBadgeBacheca();
-            }
-            if (document.getElementById('sezione_elenco_veicoli') && typeof caricaFlotta === 'function') {
-                caricaFlotta();
-            }
         }
     }
 });
