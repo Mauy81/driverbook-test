@@ -2315,6 +2315,8 @@ async function caricaBachecaRichieste() {
     msgErroreRete.classList.add('hidden');
     listaCard.innerHTML = '';
 
+    await rinnovaSessioneSilenziosa();
+    
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
@@ -2439,7 +2441,6 @@ async function caricaBachecaRichieste() {
             
             if (isNuova) {
                 card.classList.add('card-nuova-evidenza');
-                clone.querySelector('[data-bind-container="badge_nuova_container"]').style.display = 'inline-block';
             }
             
             clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
@@ -2486,10 +2487,33 @@ async function caricaBachecaRichieste() {
             clone.querySelector('[data-bind="vettura_full"]').textContent = vetturaPulita;
             clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${viaggio.ora_partenza}`;
 
-            clone.querySelector('[data-bind="partenza_full"]').textContent = viaggio.partenza || '-';
+            const spanPartenza = clone.querySelector('[data-bind="partenza_full"]');
+            if (viaggio.partenza) {
+                spanPartenza.textContent = viaggio.partenza;
+                spanPartenza.style.textDecoration = "underline";
+                spanPartenza.style.cursor = "pointer";
+                spanPartenza.onclick = function(e) {
+                    e.stopPropagation();
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaggio.partenza)}`, '_blank');
+                };
+            } else {
+                spanPartenza.textContent = '-';
+            }
+
             if (viaggio.tipo_servizio === 'TRANSFER') {
                 clone.querySelector('[data-bind-container="arrivo_full_block"]').style.display = 'flex';
-                clone.querySelector('[data-bind="arrivo_full"]').textContent = viaggio.arrivo || '-';
+                const spanArrivo = clone.querySelector('[data-bind="arrivo_full"]');
+                if (viaggio.arrivo) {
+                    spanArrivo.textContent = viaggio.arrivo;
+                    spanArrivo.style.textDecoration = "underline";
+                    spanArrivo.style.cursor = "pointer";
+                    spanArrivo.onclick = function(e) {
+                        e.stopPropagation();
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viaggio.arrivo)}`, '_blank');
+                    };
+                } else {
+                    spanArrivo.textContent = '-';
+                }
             } else {
                 clone.querySelector('[data-bind-container="itinerario_previsto_block"]').style.display = 'flex';
                 clone.querySelector('[data-bind="itinerario_previsto"]').textContent = viaggio.itinerario_previsto || '-';

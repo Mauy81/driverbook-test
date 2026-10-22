@@ -63,20 +63,11 @@ function estraiCittaEViaDaGoogle(place) {
     
     if (!citta && place && place.name) citta = place.name;
     
-    let stringaCitta = citta;
-    
-    if (nazione !== "IT" && place && place.formatted_address && citta) {
-        if (!place.formatted_address.includes(citta)) {
-            const fette = place.formatted_address.split(',');
-            if (fette.length >= 2) {
-                let estratto = fette[fette.length - 2].trim();
-                if (cap) {
-                    estratto = estratto.replace(cap, '').trim();
-                }
-                stringaCitta = estratto;
-            }
-        }
+    if (nazione !== "IT" && place && place.formatted_address) {
+        return { citta: place.formatted_address, via: "" };
     }
+
+    let stringaCitta = citta;
     
     if (provincia && provincia.length === 2) {
         stringaCitta = stringaCitta + " (" + provincia + ")";
@@ -2924,6 +2915,8 @@ async function caricaViaggiProgrammati() {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     
     contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+    
+    await rinnovaSessioneSilenziosa();
     
     const token = localStorage.getItem('driverbook_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
