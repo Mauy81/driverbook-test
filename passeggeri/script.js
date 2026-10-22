@@ -1,5 +1,5 @@
 (function() {
-    const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page'];
+    const chiaviIsolate = ['driverbook_auth_token', 'driverbook_refresh_token', 'driverbook_ruolo', 'driverbook_last_user', 'driverbook_last_page', 'driverbook_ricordami'];
     
     function getPrefissoApp() {
         return 'pax_';
