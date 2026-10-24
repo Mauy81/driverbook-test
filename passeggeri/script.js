@@ -1112,8 +1112,8 @@ function calcolaPrezzi(tentativo = 1) {
         if (typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService) {
             const service = new google.maps.DistanceMatrixService();
             service.getDistanceMatrix({
-                origins: [partenza],
-                destinations: [arrivo],
+                origins: [latLngPartenza],
+                destinations: [latLngArrivo],
                 travelMode: 'DRIVING',
                 unitSystem: google.maps.UnitSystem.METRIC
             }, function(response, status) {
