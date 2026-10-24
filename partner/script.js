@@ -765,8 +765,6 @@ function validaNotificheDashboard() {
 
 async function inviaRegistrazione(event) {
     event.preventDefault();
-    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) {
@@ -774,8 +772,16 @@ async function inviaRegistrazione(event) {
     }
 
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
-        event.preventDefault();
         return;
+    }
+
+    const btnSubmit = event.target.querySelector('button[type="submit"]') || document.querySelector('button[type="submit"]');
+    let testoOriginale = "REGISTRATI";
+    if (btnSubmit) {
+        testoOriginale = btnSubmit.textContent;
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = "Elaborazione...";
+        btnSubmit.style.opacity = "0.7";
     }
 
     let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
@@ -792,6 +798,7 @@ async function inviaRegistrazione(event) {
     let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
     const corpoDati = {
+        display_name: document.getElementById('nome').value,
         nome_cognome: document.getElementById('nome').value,
         tel_partner: telefonoFinale,
         ragione_sociale: document.getElementById('ragioneSociale').value,
@@ -811,7 +818,7 @@ async function inviaRegistrazione(event) {
         zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
         notifica_push: document.getElementById('notificaPush').checked,
         notifica_email: document.getElementById('notificaEmail').checked,
-        linguaggio: linguaAttuale
+        linguaggio: 'it'
     };
 
     try {
@@ -838,14 +845,20 @@ async function inviaRegistrazione(event) {
         mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = testoOriginale;
+            btnSubmit.style.opacity = "1";
+        }
+
         let testoErrore = errore.message;
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = dict.js_reg_err_exists;
+            testoErrore = "Questa email risulta già registrata. Inserisci un indirizzo diverso oppure vai alla pagina di Login.";
         } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
-            testoErrore = dict.js_reg_err_email_send;
+            testoErrore = "Errore del server durante l'invio dell'email di conferma. Riprova più tardi.";
         } else {
-            testoErrore = dict.js_reg_err_generic + testoErrore;
+            testoErrore = "Non è stato possibile completare la registrazione: " + testoErrore;
         }
         
         if (msgErroreServer) {
