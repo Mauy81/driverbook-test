@@ -1680,9 +1680,14 @@ async function inviaRegistrazionePasseggero(event) {
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
         return;
     }
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
-        event.preventDefault();
-        return;
+
+    const btnSubmit = event.target.querySelector('button[type="submit"]') || document.querySelector('button[type="submit"]');
+    let testoOriginale = "REGISTRATI";
+    if (btnSubmit) {
+        testoOriginale = btnSubmit.textContent;
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = dict.js_reg_loading || "Elaborazione...";
+        btnSubmit.style.opacity = "0.7";
     }
 
     let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
@@ -1742,6 +1747,12 @@ async function inviaRegistrazionePasseggero(event) {
         mostraUiRegistrazioneOk('.login-wrapper');
 
     } catch (errore) {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = testoOriginale;
+            btnSubmit.style.opacity = "1";
+        }
+
         let testoErrore = errore.message;
         
         if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
