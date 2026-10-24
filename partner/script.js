@@ -782,7 +782,6 @@ async function inviaRegistrazione(event) {
     let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
 
     const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
-    const urlPartner = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
@@ -792,6 +791,29 @@ async function inviaRegistrazione(event) {
     let numeroDigitato = document.getElementById('telefono').value.trim();
     let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
+    const corpoDati = {
+        nome_cognome: document.getElementById('nome').value,
+        tel_partner: telefonoFinale,
+        ragione_sociale: document.getElementById('ragioneSociale').value,
+        piva: document.getElementById('piva').value,
+        codice_sdi: document.getElementById('codice_sdi').value || null,
+        pec: document.getElementById('pec').value || null,
+        indirizzo_via: document.getElementById('indirizzo_via').value,
+        indirizzo_cap: document.getElementById('indirizzo_cap').value,
+        indirizzo_citta: document.getElementById('indirizzo_citta').value,
+        indirizzo_provincia: document.getElementById('indirizzo_provincia').value,
+        iban: document.getElementById('iban').value,
+        intestatario_conto: document.getElementById('intestatario_conto').value,
+        ruolo_conducenti: document.getElementById('ruoloConducenti').value,
+        autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
+        zona_operativa: document.getElementById('zonaOperativa').value,
+        zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
+        zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
+        notifica_push: document.getElementById('notificaPush').checked,
+        notifica_email: document.getElementById('notificaEmail').checked,
+        linguaggio: linguaAttuale
+    };
+
     try {
         const authResponse = await fetch(urlAuth, {
             method: "POST",
@@ -800,59 +822,16 @@ async function inviaRegistrazione(event) {
                 "Authorization": "Bearer " + chiaveAnon,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: email, password: password })
+            body: JSON.stringify({ 
+                email: email, 
+                password: password,
+                data: corpoDati
+            })
         });
 
         if (!authResponse.ok) {
             const authError = await authResponse.json();
             throw new Error(authError.msg || authError.message || "Errore nella registrazione delle credenziali");
-        }
-
-        const authData = await authResponse.json();
-        const authUserId = authData.id || (authData.user && authData.user.id);
-
-        if (!authUserId) {
-            throw new Error("ID utente non ricevuto da Supabase.");
-        }
-
-        const corpoDati = {
-            id_partner: authUserId,
-            nome_cognome: document.getElementById('nome').value,
-            email: email,
-            tel_partner: telefonoFinale,
-            ragione_sociale: document.getElementById('ragioneSociale').value,
-            piva: document.getElementById('piva').value,
-            codice_sdi: document.getElementById('codice_sdi').value || null,
-            pec: document.getElementById('pec').value || null,
-            indirizzo_via: document.getElementById('indirizzo_via').value,
-            indirizzo_cap: document.getElementById('indirizzo_cap').value,
-            indirizzo_citta: document.getElementById('indirizzo_citta').value,
-            indirizzo_provincia: document.getElementById('indirizzo_provincia').value,
-            iban: document.getElementById('iban').value,
-            intestatario_conto: document.getElementById('intestatario_conto').value,
-            ruolo_conducenti: document.getElementById('ruoloConducenti').value,
-            autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
-            zona_operativa: document.getElementById('zonaOperativa').value,
-            zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
-            zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
-            linguaggio: linguaAttuale
-        };
-
-        const dbResponse = await fetch(urlPartner, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!dbResponse.ok) {
-            throw new Error("Errore nel salvataggio del profilo");
         }
 
         if (typeof svuotaBozze === 'function') svuotaBozze();

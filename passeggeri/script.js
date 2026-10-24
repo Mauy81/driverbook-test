@@ -1689,7 +1689,6 @@ async function inviaRegistrazionePasseggero(event) {
     let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
 
     const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
-    const urlPasseggeri = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
@@ -1699,6 +1698,25 @@ async function inviaRegistrazionePasseggero(event) {
     let numeroDigitato = document.getElementById('telefono').value.trim();
     let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
+    const richiedeFattura = document.getElementById('richiedeFattura').checked;
+
+    const corpoDati = {
+        nome_cognome: document.getElementById('nome').value,
+        telefono: telefonoFinale,
+        richiede_fattura: richiedeFattura,
+        ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
+        piva_cf: richiedeFattura ? document.getElementById('piva_cf').value : null,
+        codice_sdi: richiedeFattura ? document.getElementById('codice_sdi').value : null,
+        pec: richiedeFattura ? document.getElementById('pec').value : null,
+        indirizzo_via: richiedeFattura ? document.getElementById('indirizzo_via').value : null,
+        indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
+        indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
+        indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
+        notifica_push: document.getElementById('notificaPush').checked,
+        notifica_email: document.getElementById('notificaEmail').checked,
+        linguaggio: linguaAttuale
+    };
+
     try {
         const authResponse = await fetch(urlAuth, {
             method: "POST",
@@ -1707,55 +1725,16 @@ async function inviaRegistrazionePasseggero(event) {
                 "Authorization": "Bearer " + chiaveAnon,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: email, password: password })
+            body: JSON.stringify({ 
+                email: email, 
+                password: password,
+                data: corpoDati
+            })
         });
 
         if (!authResponse.ok) {
             const authError = await authResponse.json();
             throw new Error(authError.msg || authError.message || "Errore credenziali");
-        }
-
-        const authData = await authResponse.json();
-        const authUserId = authData.id || (authData.user && authData.user.id);
-
-        if (!authUserId) {
-            throw new Error("ID utente mancante.");
-        }
-
-        const richiedeFattura = document.getElementById('richiedeFattura').checked;
-
-        const corpoDati = {
-            id_passeggero: authUserId,
-            nome_cognome: document.getElementById('nome').value,
-            email: email,
-            telefono: telefonoFinale,
-            richiede_fattura: richiedeFattura,
-            ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
-            piva_cf: richiedeFattura ? document.getElementById('piva_cf').value : null,
-            codice_sdi: richiedeFattura ? document.getElementById('codice_sdi').value : null,
-            pec: richiedeFattura ? document.getElementById('pec').value : null,
-            indirizzo_via: richiedeFattura ? document.getElementById('indirizzo_via').value : null,
-            indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
-            indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
-            indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
-            linguaggio: linguaAttuale
-        };
-
-        const dbResponse = await fetch(urlPasseggeri, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!dbResponse.ok) {
-            throw new Error("Errore database");
         }
 
         if (typeof svuotaBozze === 'function') svuotaBozze();
