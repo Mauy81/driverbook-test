@@ -548,6 +548,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         
+        inputPartenza.addEventListener('keydown', function(e) { if(e.key !== 'Tab' && e.key !== 'Enter') latLngPartenza = null; });
+        inputArrivo.addEventListener('keydown', function(e) { if(e.key !== 'Tab' && e.key !== 'Enter') latLngArrivo = null; });
         inputPartenza.addEventListener('blur', calcolaPrezzi);
         inputArrivo.addEventListener('blur', calcolaPrezzi);
         document.getElementById('ore').addEventListener('change', calcolaPrezzi);
@@ -1058,10 +1060,20 @@ function validaOrario() {
 }
 
 function calcolaPrezzi(tentativo = 1) {
+    const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const tipoServizio = document.getElementById('tipo_servizio').value;
+    const btnSubmit = document.getElementById('btn_submit');
+    
     if (!tipoServizio) return;
 
     if (tipoServizio === 'DISPOSIZIONE') {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = dict.btn_procedi;
+            btnSubmit.style.opacity = "1";
+            btnSubmit.style.borderColor = "";
+        }
         const ore = parseInt(document.getElementById('ore').value) || 3;
         
         aggiornaGraficaPrezzo('CLASSE_E', ore * CONFIG_TARIFFE.CLASSE_E.oraDisposizione);
@@ -1075,6 +1087,26 @@ function calcolaPrezzi(tentativo = 1) {
         if (!partenza || !arrivo) {
             nascondiPrezzi();
             return;
+        }
+
+        if (!latLngPartenza || !latLngArrivo) {
+            nascondiPrezzi();
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = dict.err_no_coord || "INDIRIZZO NON VALIDO: USA LA TENDINA";
+                btnSubmit.style.opacity = "0.5";
+                btnSubmit.style.borderColor = "#777777";
+                btnSubmit.style.color = "#ffffff";
+            }
+            return;
+        }
+
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = dict.btn_procedi_calc || "CALCOLO IN CORSO...";
+            btnSubmit.style.opacity = "0.7";
+            btnSubmit.style.borderColor = "#777777";
+            btnSubmit.style.color = "#ffffff";
         }
 
         if (typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService) {
@@ -1097,9 +1129,21 @@ function calcolaPrezzi(tentativo = 1) {
                         }
                     }
 
-                    if (!distanzaValida && tentativo === 1) {
-                        setTimeout(() => calcolaPrezzi(2), 200);
-                        return;
+                    if (!distanzaValida) {
+                        if (tentativo < 5) {
+                            setTimeout(() => calcolaPrezzi(tentativo + 1), 3000);
+                            return;
+                        } else {
+                            nascondiPrezzi();
+                            if (btnSubmit) {
+                                btnSubmit.disabled = true;
+                                btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
+                                btnSubmit.style.opacity = "0.5";
+                                btnSubmit.style.borderColor = "#777777";
+                                btnSubmit.style.color = "#ffffff";
+                            }
+                            return;
+                        }
                     }
                     
                     let prezzoE = km * CONFIG_TARIFFE.CLASSE_E.allAlKm;
@@ -1117,8 +1161,27 @@ function calcolaPrezzi(tentativo = 1) {
                     aggiornaGraficaPrezzo('CLASSE_E', prezzoE);
                     aggiornaGraficaPrezzo('CLASSE_V', prezzoV);
                     aggiornaGraficaPrezzo('CLASSE_S', prezzoS);
+
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = dict.btn_procedi;
+                        btnSubmit.style.opacity = "1";
+                        btnSubmit.style.borderColor = "";
+                    }
                 } else {
-                    nascondiPrezzi();
+                    if (tentativo < 5) {
+                        setTimeout(() => calcolaPrezzi(tentativo + 1), 3000);
+                        return;
+                    } else {
+                        nascondiPrezzi();
+                        if (btnSubmit) {
+                            btnSubmit.disabled = true;
+                            btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
+                            btnSubmit.style.opacity = "0.5";
+                            btnSubmit.style.borderColor = "#777777";
+                            btnSubmit.style.color = "#ffffff";
+                        }
+                    }
                 }
             });
         }
