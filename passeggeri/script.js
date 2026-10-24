@@ -1701,6 +1701,7 @@ async function inviaRegistrazionePasseggero(event) {
     const richiedeFattura = document.getElementById('richiedeFattura').checked;
 
     const corpoDati = {
+        display_name: document.getElementById('nome').value,
         nome_cognome: document.getElementById('nome').value,
         telefono: telefonoFinale,
         richiede_fattura: richiedeFattura,
