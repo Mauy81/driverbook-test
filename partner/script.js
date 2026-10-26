@@ -468,6 +468,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (document.getElementById('dash_nome_partner') || document.getElementById('profilo_nome') || document.getElementById('btn_modifica_password') || document.getElementById('form_assistenza_interna')) {
         caricaDatiDashboardPartner();
+    }
+    if (localStorage.getItem('driverbook_auth_token')) {
         verificaBadgeBacheca();
     }
 
@@ -2348,6 +2350,9 @@ async function caricaBachecaRichieste() {
         if (richiesteFiltrate.length === 0) {
             msgVuota.classList.remove('hidden');
             aggiornaBadgeMenu(0);
+            if (typeof segnaBachecaComeLetta === 'function') {
+                segnaBachecaComeLetta(true);
+            }
             return;
         }
 
@@ -2771,10 +2776,7 @@ function avviaConnessioneRealtime(token) {
             if (document.getElementById('contenitore_bacheca')) {
                 caricaBachecaRichieste();
             } else {
-                const linkBacheca = document.getElementById('link_menu_bacheca');
-                if (linkBacheca) {
-                    linkBacheca.innerHTML = `<span>Bacheca Richieste</span> <span style="background-color: #00FF66; color: #000000; font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 12px; margin-left: auto;">NUOVE</span>`;
-                }
+                if (typeof verificaBadgeBacheca === 'function') verificaBadgeBacheca();
             }
         })
         .subscribe();
@@ -2807,16 +2809,24 @@ async function verificaBadgeBacheca() {
             }
         }
 
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&select=codice_prenotazione,created_at`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_corse_disponibili", {
+            method: "POST",
+            headers: { 
+                "apikey": chiaveAnon, 
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ p_id_partner: userData.id })
         });
-        const viaggiAttesa = await res.json();
         
-        if (viaggiAttesa && viaggiAttesa.length > 0) {
-            const nuove = viaggiAttesa.filter(v => new Date(v.created_at) > ultimoAccesso);
-            aggiornaBadgeMenu(nuove.length);
-        } else {
-            aggiornaBadgeMenu(0);
+        if (res.ok) {
+            const viaggiAttesa = await res.json();
+            if (viaggiAttesa && viaggiAttesa.length > 0) {
+                const nuove = viaggiAttesa.filter(v => new Date(v.created_at) > ultimoAccesso);
+                aggiornaBadgeMenu(nuove.length);
+            } else {
+                aggiornaBadgeMenu(0);
+            }
         }
     } catch (e) {
         console.error("Errore lettura stato bacheca:", e);
