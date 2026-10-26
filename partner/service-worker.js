@@ -86,7 +86,6 @@ self.addEventListener('push', event => {
                     url: urlDestinazione,
                     conteggio: conteggio 
                 },
-                requireInteraction: true,
                 tag: 'driverbook-notifiche',
                 silent: true
             };

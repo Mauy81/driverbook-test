@@ -2729,15 +2729,13 @@ function innescaNotificaNativa() {
                     registration.showNotification("Nuova Corsa Disponibile!", {
                         body: "Controlla la bacheca per i dettagli.",
                         icon: "../logo/icona-pwa-prt.png",
-                        vibrate: [200, 100, 200],
-                        requireInteraction: true
+                        vibrate: [200, 100, 200]
                     });
                 });
             } else {
                 new Notification("Nuova Corsa Disponibile!", {
                     body: "Controlla la bacheca per i dettagli.",
-                    icon: "../logo/icona-pwa-prt.png",
-                    requireInteraction: true
+                    icon: "../logo/icona-pwa-prt.png"
                 });
             }
         } catch(e) {
