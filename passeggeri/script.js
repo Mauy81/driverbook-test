@@ -1071,8 +1071,6 @@ function calcolaPrezzi(tentativo = 1) {
         if (btnSubmit) {
             btnSubmit.disabled = false;
             btnSubmit.textContent = dict.btn_procedi;
-            btnSubmit.style.opacity = "1";
-            btnSubmit.style.borderColor = "";
         }
         const ore = parseInt(document.getElementById('ore').value) || 3;
         
@@ -1094,9 +1092,6 @@ function calcolaPrezzi(tentativo = 1) {
             if (btnSubmit) {
                 btnSubmit.disabled = true;
                 btnSubmit.textContent = dict.err_no_coord || "INDIRIZZO NON VALIDO: USA LA TENDINA";
-                btnSubmit.style.opacity = "0.5";
-                btnSubmit.style.borderColor = "#777777";
-                btnSubmit.style.color = "#ffffff";
             }
             return;
         }
@@ -1104,9 +1099,6 @@ function calcolaPrezzi(tentativo = 1) {
         if (btnSubmit) {
             btnSubmit.disabled = true;
             btnSubmit.textContent = dict.btn_procedi_calc || "CALCOLO IN CORSO...";
-            btnSubmit.style.opacity = "0.7";
-            btnSubmit.style.borderColor = "#777777";
-            btnSubmit.style.color = "#ffffff";
         }
 
         if (typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService) {
@@ -1138,9 +1130,6 @@ function calcolaPrezzi(tentativo = 1) {
                             if (btnSubmit) {
                                 btnSubmit.disabled = true;
                                 btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
-                                btnSubmit.style.opacity = "0.5";
-                                btnSubmit.style.borderColor = "#777777";
-                                btnSubmit.style.color = "#ffffff";
                             }
                             return;
                         }
@@ -1165,8 +1154,6 @@ function calcolaPrezzi(tentativo = 1) {
                     if (btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.textContent = dict.btn_procedi;
-                        btnSubmit.style.opacity = "1";
-                        btnSubmit.style.borderColor = "";
                     }
                 } else {
                     if (tentativo < 5) {
@@ -1177,9 +1164,6 @@ function calcolaPrezzi(tentativo = 1) {
                         if (btnSubmit) {
                             btnSubmit.disabled = true;
                             btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
-                            btnSubmit.style.opacity = "0.5";
-                            btnSubmit.style.borderColor = "#777777";
-                            btnSubmit.style.color = "#ffffff";
                         }
                     }
                 }
