@@ -2286,15 +2286,6 @@ window.svuotaBozze = function() {
     }
 };
 
-function calcolaDistanzaAria(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
-
 async function caricaBachecaRichieste() {
     const contenitore = document.getElementById('contenitore_bacheca');
     if (!contenitore) return;
@@ -2337,50 +2328,20 @@ async function caricaBachecaRichieste() {
             return;
         }
 
-        const latPartner = partnerData[0].zona_operativa_lat;
-        const lngPartner = partnerData[0].zona_operativa_lng;
         const ultimoAccesso = new Date(partnerData[0].ultimo_accesso_bacheca || 0);
 
-        const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&select=modello`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_corse_disponibili", {
+            method: "POST",
+            headers: { 
+                "apikey": chiaveAnon, 
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ p_id_partner: userData.id })
         });
-        if (!flottaRes.ok) throw new Error("Errore recupero flotta");
-        const flottaData = await flottaRes.json();
-        const modelliPosseduti = flottaData.map(v => v.modello);
-
-        if (modelliPosseduti.length === 0) {
-            msgLoading.classList.add('hidden');
-            msgNoVeicoli.classList.remove('hidden');
-            return;
-        }
-
-        const prenotazioniRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?stato=eq.IN_ATTESA&select=*,created_at&order=data_partenza.asc,ora_partenza.asc", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
+        
         if (!prenotazioniRes.ok) throw new Error("Errore recupero prenotazioni");
-        const prenotazioni = await prenotazioniRes.json();
-
-        let richiesteFiltrate = [];
-
-        prenotazioni.forEach(p => {
-            if (!modelliPosseduti.includes(p.vettura_selezionata)) {
-                return;
-            }
-
-            let distanzaPartenza = 9999;
-            let distanzaArrivo = 9999;
-
-            if (p.partenza_lat && p.partenza_lng) {
-                distanzaPartenza = calcolaDistanzaAria(latPartner, lngPartner, p.partenza_lat, p.partenza_lng);
-            }
-            if (p.arrivo_lat && p.arrivo_lng) {
-                distanzaArrivo = calcolaDistanzaAria(latPartner, lngPartner, p.arrivo_lat, p.arrivo_lng);
-            }
-
-            if (distanzaPartenza <= 80 || distanzaArrivo <= 80) {
-                richiesteFiltrate.push(p);
-            }
-        });
+        const richiesteFiltrate = await prenotazioniRes.json();
 
         msgLoading.classList.add('hidden');
 
