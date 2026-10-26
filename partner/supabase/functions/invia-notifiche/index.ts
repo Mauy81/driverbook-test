@@ -57,6 +57,7 @@ serve(async (req) => {
 
     const invii = abbonamenti.map(sub => 
       webpush.sendNotification(sub.dati_abbonamento, notificationPayload, {
+        TTL: 129600,
         headers: {
           "Urgency": "high",
           "Topic": "driverbook-corse"
