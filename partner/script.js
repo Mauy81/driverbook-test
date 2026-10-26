@@ -2583,6 +2583,33 @@ function aggiornaBadgeMenu(numero) {
     }
 }
 
+function mostraModaleEsito(titolo, messaggio) {
+    let overlay = document.getElementById('modale_esito_corsa');
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_esito_corsa';
+        overlay.className = 'modale-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    overlay.innerHTML = `
+        <div class="modale-box">
+            <h3 class="modale-titolo">${titolo}</h3>
+            <p class="modale-testo">${messaggio}</p>
+            <div class="modale-bottoni-container btn-singolo-container">
+                <button id="btn_ok_esito" class="btn-modale-bianco">OK</button>
+            </div>
+        </div>
+    `;
+    
+    overlay.style.display = 'flex';
+    
+    document.getElementById('btn_ok_esito').onclick = function() {
+        overlay.style.display = 'none';
+    };
+}
+
 async function accettaCorsa(codice, bottone) {
     if (bottone) {
         bottone.disabled = true;
@@ -2606,7 +2633,7 @@ async function accettaCorsa(codice, bottone) {
         const partnerData = await partnerRes.json();
         const codicePartner = partnerData[0].codice_partner;
 
-        const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN ATTESA`, {
+        const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN_ATTESA`, {
             method: "PATCH",
             headers: {
                 "apikey": chiaveAnon,
@@ -2620,29 +2647,29 @@ async function accettaCorsa(codice, bottone) {
             })
         });
 
-        if (!updateRes.ok) throw new Error("Errore aggiornamento corsa nel database");
+        if (!updateRes.ok) throw new Error("Errore aggiornamento database");
         
         const datiAggiornati = await updateRes.json();
         
         if (datiAggiornati.length === 0) {
-            alert("Spiacenti, un altro partner è stato più veloce o la corsa è stata annullata.");
+            mostraModaleEsito("Spiacenti", "Il servizio non è più disponibile.");
+            if (bottone) {
+                bottone.disabled = false;
+                bottone.textContent = "ACCETTA CORSA";
+            }
             caricaBachecaRichieste();
             return;
         }
 
-        if (bottone) {
-            bottone.textContent = "CORSA ASSEGNATA!";
+        mostraModaleEsito("Servizio acquisito", "Ti è stato assegnato con successo, lo trovi nel calendario servizi.");
+        
+        if (document.getElementById('contenitore_bacheca')) {
+            caricaBachecaRichieste();
         }
 
-        setTimeout(() => {
-            if (document.getElementById('contenitore_bacheca')) {
-                caricaBachecaRichieste();
-            }
-        }, 1500);
-
     } catch (errore) {
-        console.error("Errore accettazione corsa:", errore);
-        alert("Si è verificato un errore di connessione. Riprova.");
+        console.error(errore);
+        mostraModaleEsito("Errore", "Si è verificato un errore di connessione. Riprova.");
         if (bottone) {
             bottone.disabled = false;
             bottone.textContent = "ACCETTA CORSA";

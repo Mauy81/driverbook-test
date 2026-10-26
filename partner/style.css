@@ -846,6 +846,16 @@ textarea.input {
     color: #000000;
 }
 
+.btn-singolo-container {
+    justify-content: center;
+}
+
+.btn-singolo-container .btn-modale-bianco {
+    width: 48%;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
 .vettura-card {
     background-color: transparent;
     border: 1px solid #ffffff;
