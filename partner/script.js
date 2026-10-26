@@ -2852,6 +2852,12 @@ document.addEventListener('visibilitychange', async () => {
         
         if (localStorage.getItem('driverbook_auth_token')) {
             await rinnovaSessioneSilenziosa();
+            
+            if (document.getElementById('contenitore_bacheca')) {
+                caricaBachecaRichieste();
+            } else if (typeof verificaBadgeBacheca === 'function') {
+                verificaBadgeBacheca();
+            }
         }
     }
 });
