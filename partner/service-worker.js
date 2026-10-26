@@ -43,9 +43,10 @@ self.addEventListener('push', event => {
             
             if (res) {
                 const authStatus = await res.json();
-                const finestre = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+                const tutteLeFinestre = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+                const finestrePartner = tutteLeFinestre.filter(c => c.url.includes('/partner/'));
 
-                if (authStatus.ricordami === false && finestre.length === 0) {
+                if (authStatus.ricordami === false && finestrePartner.length === 0) {
                     const sub = await self.registration.pushManager.getSubscription();
                     if (sub) await sub.unsubscribe();
                     await cache.delete('/auth-status');
