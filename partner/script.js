@@ -2508,7 +2508,7 @@ async function caricaBachecaRichieste() {
             clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
 
             const btnAccetta = clone.querySelector('[data-bind-action="accetta"]');
-            btnAccetta.onclick = function() { accettaCorsa(viaggio.codice_prenotazione); };
+            btnAccetta.onclick = function(e) { accettaCorsa(viaggio.codice_prenotazione, e.currentTarget); };
 
             listaCard.appendChild(clone);
         };
@@ -2583,8 +2583,71 @@ function aggiornaBadgeMenu(numero) {
     }
 }
 
-async function accettaCorsa(codice) {
-    alert("Funzione 'Accetta' in arrivo nel prossimo step! Hai cliccato la corsa: " + codice);
+async function accettaCorsa(codice, bottone) {
+    if (bottone) {
+        bottone.disabled = true;
+        bottone.textContent = "VERIFICA IN CORSO...";
+    }
+
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Errore sessione utente");
+        const userData = await userRes.json();
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=codice_partner`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!partnerRes.ok) throw new Error("Errore recupero codice partner");
+        const partnerData = await partnerRes.json();
+        const codicePartner = partnerData[0].codice_partner;
+
+        const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN ATTESA`, {
+            method: "PATCH",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "return=representation"
+            },
+            body: JSON.stringify({
+                stato: "ASSEGNATO",
+                codice_partner_assegnato: codicePartner
+            })
+        });
+
+        if (!updateRes.ok) throw new Error("Errore aggiornamento corsa nel database");
+        
+        const datiAggiornati = await updateRes.json();
+        
+        if (datiAggiornati.length === 0) {
+            alert("Spiacenti, un altro partner è stato più veloce o la corsa è stata annullata.");
+            caricaBachecaRichieste();
+            return;
+        }
+
+        if (bottone) {
+            bottone.textContent = "CORSA ASSEGNATA!";
+        }
+
+        setTimeout(() => {
+            if (document.getElementById('contenitore_bacheca')) {
+                caricaBachecaRichieste();
+            }
+        }, 1500);
+
+    } catch (errore) {
+        console.error("Errore accettazione corsa:", errore);
+        alert("Si è verificato un errore di connessione. Riprova.");
+        if (bottone) {
+            bottone.disabled = false;
+            bottone.textContent = "ACCETTA CORSA";
+        }
+    }
 }
 
 function gestisciModaleNotifiche() {
@@ -2770,7 +2833,7 @@ function avviaConnessioneRealtime(token) {
     });
 
     clientSupa.channel('bacheca-globale')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'prenotazioni' }, payload => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, payload => {
             if (document.getElementById('contenitore_bacheca')) {
                 caricaBachecaRichieste();
             } else {
