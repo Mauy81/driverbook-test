@@ -3005,6 +3005,17 @@ function inizializzaCalendario() {
                 caricaServiziCalendario();
             }
         });
+
+        const contenitoreData = inputData.closest('.data-selezionata-container');
+        if (contenitoreData) {
+            contenitoreData.addEventListener('click', () => {
+                if (typeof inputData.showPicker === 'function') {
+                    inputData.showPicker();
+                } else {
+                    inputData.click();
+                }
+            });
+        }
     }
 
     caricaServiziCalendario();
