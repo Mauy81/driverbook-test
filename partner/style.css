@@ -851,7 +851,8 @@ textarea.input {
 }
 
 .btn-singolo-container .btn-modale-bianco {
-    width: 48%;
+    flex: none;
+    width: 40%;
     padding: 10px;
     font-size: 0.9rem;
 }

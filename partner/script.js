@@ -2299,6 +2299,17 @@ async function caricaBachecaRichieste() {
     const msgVuota = document.getElementById('msg_bacheca_vuota');
     const msgErroreRete = document.getElementById('msg_bacheca_errore_rete');
 
+    let codiciAperti = [];
+    if (listaCard) {
+        const cardAperte = listaCard.querySelectorAll('.card-bacheca-minimal.aperta');
+        cardAperte.forEach(card => {
+            const spanCodice = card.querySelector('[data-bind="codice_prenotazione_dettaglio"]');
+            if (spanCodice) {
+                codiciAperti.push(spanCodice.textContent);
+            }
+        });
+    }
+
     msgLoading.classList.remove('hidden');
     msgNoZona.classList.add('hidden');
     msgNoVeicoli.classList.add('hidden');
@@ -2408,6 +2419,10 @@ async function caricaBachecaRichieste() {
             
             if (isNuova) {
                 card.classList.add('card-nuova-evidenza');
+            }
+
+            if (codiciAperti.includes(viaggio.codice_prenotazione)) {
+                card.classList.add('aperta');
             }
             
             clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
