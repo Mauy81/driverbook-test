@@ -1604,3 +1604,17 @@ body.page-calendario .login-wrapper,
     color: #000000;
     background-color: #00FF66;
 }
+
+.calendario-riga-indirizzo {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    margin-bottom: 0px;
+    line-height: 1;
+    align-items: start;
+}
+
+@media (max-width: 450px) {
+    .calendario-riga-indirizzo {
+        grid-template-columns: 28px 1fr;
+    }
+}
