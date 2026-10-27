@@ -1737,7 +1737,7 @@ let moduloSporco = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'swipe_logout_range' || e.target.closest('#formLogin')) {
+        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.closest('#formLogin')) {
             return;
         }
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
@@ -2236,7 +2236,7 @@ window.applicaBozze = function() {
 
     if (!blacklistPagineAutosave.includes(paginaAutosave)) {
         localStorage.removeItem(prefix + 'db_draft_' + paginaAutosave + '_swipe_logout_range');
-        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range), textarea, select').forEach(campo => {
+        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range):not(#input_data_calendario), textarea, select').forEach(campo => {
             if (campo.id) {
                 const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
                 if (valoreSalvato !== null) {
@@ -2269,7 +2269,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.addEventListener('input', function(e) {
             const campo = e.target;
             if (campo.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(campo.tagName) && campo.id) {
-                if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file' && campo.id !== 'swipe_logout_range') {
+                if (campo.type !== 'password' && campo.type !== 'hidden' && campo.type !== 'file' && campo.id !== 'swipe_logout_range' && campo.id !== 'input_data_calendario') {
                     const valore = (campo.type === 'checkbox' || campo.type === 'radio') ? campo.checked : campo.value;
                     localStorage.setItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`, valore);
                 }
@@ -3090,6 +3090,8 @@ async function caricaServiziCalendario() {
             let tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'Transfer' : 'Disposizione';
             let arrivoSintesi = servizio.tipo_servizio === 'TRANSFER' ? (servizio.arrivo || '-') : (servizio.itinerario_previsto || '-');
             
+            const mostraA = servizio.tipo_servizio === 'TRANSFER' ? 'display: grid;' : 'display: none;';
+            
             const htmlCard = `
                 <div class="card-calendario-compatta" id="cal_${servizio.codice_prenotazione}">
                     <div class="cal-header-riga">
@@ -3097,21 +3099,21 @@ async function caricaServiziCalendario() {
                         <span class="cal-badge-stato ${classeBadge}">${testoBadge}</span>
                     </div>
                     <div class="cal-body-riga">
-                        <div class="cal-dettaglio-testo">
-                            <span class="cal-label">Tipo:</span>
-                            <span>${tipoServizioStr} - ${servizio.vettura_selezionata || '-'}</span>
+                        <div class="cal-riga-tipo">
+                            <span class="cal-tipo-servizio">${tipoServizioStr}</span>
+                            <span class="cal-vettura">${servizio.vettura_selezionata || '-'}</span>
                         </div>
-                        <div class="cal-dettaglio-testo">
-                            <span class="cal-label">Da:</span>
-                            <span class="cal-valore-destra">${servizio.partenza || '-'}</span>
+                        <div class="cal-riga-indirizzo">
+                            <span class="cal-label">DA:</span> 
+                            <span class="cal-valore">${servizio.partenza || '-'}</span>
                         </div>
-                        <div class="cal-dettaglio-testo">
-                            <span class="cal-label">A:</span>
-                            <span class="cal-valore-destra">${arrivoSintesi}</span>
+                        <div class="cal-riga-indirizzo" style="${mostraA}">
+                            <span class="cal-label">A:</span> 
+                            <span class="cal-valore">${arrivoSintesi}</span>
                         </div>
-                        <div class="cal-dettaglio-testo">
-                            <span class="cal-label">Pax:</span>
-                            <span>${servizio.nome_passeggero || '-'}</span>
+                        <div class="cal-riga-indirizzo">
+                            <span class="cal-label">PAX:</span> 
+                            <span class="cal-valore">${servizio.nome_passeggero || '-'}</span>
                         </div>
                     </div>
                 </div>
