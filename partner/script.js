@@ -477,6 +477,10 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaBachecaRichieste();
     }
 
+    if (document.getElementById('barra_data_calendario')) {
+        inizializzaCalendario();
+    }
+
     const formProfilo = document.getElementById('formModificaProfilo');
     if (formProfilo) {
         formProfilo.addEventListener('submit', function(event) {
@@ -2967,3 +2971,68 @@ document.addEventListener('visibilitychange', async () => {
 
 window.addEventListener('focus', azzeraNotifichePWA);
 window.addEventListener('load', azzeraNotifichePWA);
+
+let dataCalendarioAttuale = new Date();
+
+function inizializzaCalendario() {
+    aggiornaUISelezioneData();
+
+    const btnPrec = document.getElementById('btn_giorno_prec');
+    const btnSucc = document.getElementById('btn_giorno_succ');
+    const inputData = document.getElementById('input_data_calendario');
+
+    if (btnPrec) {
+        btnPrec.addEventListener('click', () => {
+            dataCalendarioAttuale.setDate(dataCalendarioAttuale.getDate() - 1);
+            aggiornaUISelezioneData();
+            caricaServiziCalendario();
+        });
+    }
+
+    if (btnSucc) {
+        btnSucc.addEventListener('click', () => {
+            dataCalendarioAttuale.setDate(dataCalendarioAttuale.getDate() + 1);
+            aggiornaUISelezioneData();
+            caricaServiziCalendario();
+        });
+    }
+
+    if (inputData) {
+        inputData.addEventListener('change', (e) => {
+            if (e.target.value) {
+                dataCalendarioAttuale = new Date(e.target.value);
+                aggiornaUISelezioneData();
+                caricaServiziCalendario();
+            }
+        });
+    }
+
+    caricaServiziCalendario();
+}
+
+function aggiornaUISelezioneData() {
+    const testoData = document.getElementById('testo_data_selezionata');
+    const inputData = document.getElementById('input_data_calendario');
+
+    if (!testoData || !inputData) return;
+
+    const anno = dataCalendarioAttuale.getFullYear();
+    const mese = String(dataCalendarioAttuale.getMonth() + 1).padStart(2, '0');
+    const giorno = String(dataCalendarioAttuale.getDate()).padStart(2, '0');
+    
+    inputData.value = `${anno}-${mese}-${giorno}`;
+
+    const opzioni = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
+    testoData.textContent = dataCalendarioAttuale.toLocaleDateString('it-IT', opzioni);
+}
+
+async function caricaServiziCalendario() {
+    const contenitore = document.getElementById('lista_servizi_calendario');
+    if (!contenitore) return;
+    
+    contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+    
+    setTimeout(() => {
+        contenitore.innerHTML = '<div class="msg-caricamento">Nessun servizio in questa data.</div>';
+    }, 500);
+}
