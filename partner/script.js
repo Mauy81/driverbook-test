@@ -3143,11 +3143,42 @@ async function caricaServiziCalendario() {
             }
             clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${servizio.ora_partenza}`;
 
-            clone.querySelector('[data-bind="partenza_full"]').textContent = servizio.partenza || '-';
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const apriNavigatore = (indirizzo) => {
+                if (isMobile) {
+                    window.location.href = `geo:0,0?q=${encodeURIComponent(indirizzo)}`;
+                } else {
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`, '_blank');
+                }
+            };
+
+            const spanPartenza = clone.querySelector('[data-bind="partenza_full"]');
+            if (servizio.partenza) {
+                spanPartenza.textContent = servizio.partenza;
+                spanPartenza.style.textDecoration = "underline";
+                spanPartenza.style.cursor = "pointer";
+                spanPartenza.onclick = function(e) {
+                    e.stopPropagation();
+                    apriNavigatore(servizio.partenza);
+                };
+            } else {
+                spanPartenza.textContent = '-';
+            }
             
             if (servizio.tipo_servizio === 'TRANSFER') {
                 clone.querySelector('[data-bind-container="arrivo_full_block"]').classList.remove('hidden');
-                clone.querySelector('[data-bind="arrivo_full"]').textContent = servizio.arrivo || '-';
+                const spanArrivo = clone.querySelector('[data-bind="arrivo_full"]');
+                if (servizio.arrivo) {
+                    spanArrivo.textContent = servizio.arrivo;
+                    spanArrivo.style.textDecoration = "underline";
+                    spanArrivo.style.cursor = "pointer";
+                    spanArrivo.onclick = function(e) {
+                        e.stopPropagation();
+                        apriNavigatore(servizio.arrivo);
+                    };
+                } else {
+                    spanArrivo.textContent = '-';
+                }
             } else {
                 clone.querySelector('[data-bind-container="itinerario_previsto_block"]').classList.remove('hidden');
                 clone.querySelector('[data-bind="itinerario_previsto"]').textContent = servizio.itinerario_previsto || '-';

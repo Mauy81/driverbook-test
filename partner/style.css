@@ -1374,7 +1374,7 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     stroke: #888888;
     position: absolute;
     right: 20px;
-    bottom: 0px;
+    bottom: -2px;
 }
 
 .card-bacheca-minimal.aperta .icona-tendina-mini {
