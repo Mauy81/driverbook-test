@@ -3003,11 +3003,17 @@ async function caricaViaggiProgrammati() {
         }
         
         viaggi.forEach(viaggio => {
-            const isAttesa = viaggio.stato === 'IN_ATTESA';
-            const classeBadge = isAttesa ? 'badge-attesa' : 'badge-assegnato';
-            const testoStato = isAttesa ? (dict.js_stato_in_attesa || 'IN ATTESA DI ASSEGNAZIONE') : (dict.js_stato_assegnato || 'ASSEGNATO');
+            let classeBadge = 'badge-attesa';
+            let testoStato = dict.js_stato_in_attesa || 'IN ATTESA DI ASSEGNAZIONE';
+            
+            if (viaggio.stato === 'CONFERMATO') {
+                testoStato = dict.js_stato_confermato || 'VIAGGIO CONFERMATO';
+            } else if (viaggio.stato === 'ASSEGNATO') {
+                classeBadge = 'badge-assegnato';
+                testoStato = dict.js_stato_assegnato || 'AUTISTA ASSEGNATO';
+            }
 
-            const htmlLimbo = isAttesa ? `
+            const htmlLimbo = (viaggio.stato === 'IN_ATTESA' || viaggio.stato === 'CONFERMATO') ? `
                 <div class="viaggio-limbo-box">
                     ${dict.js_limbo_info || 'Nei servizi NCC, le assegnazioni definitive per i viaggi programmati avvengono solitamente nei giorni precedenti la partenza, in base alla pianificazione logistica dei turni. Riceverai una notifica immediata non appena il tuo autista prenderà in carico la corsa.'}
                 </div>
