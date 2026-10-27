@@ -2952,6 +2952,14 @@ async function caricaViaggiProgrammati() {
     const linguaAttuale = localStorage.getItem('driverbook_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     
+    let codiciAperti = [];
+    const cardAperte = contenitore.querySelectorAll('.card-viaggio.aperta');
+    cardAperte.forEach(card => {
+        if (card.id && card.id.startsWith('card_')) {
+            codiciAperti.push(card.id.replace('card_', ''));
+        }
+    });
+    
     contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
     
     await rinnovaSessioneSilenziosa();
@@ -3070,8 +3078,10 @@ async function caricaViaggiProgrammati() {
             
             let noteServizio = (viaggio.note_servizio && viaggio.note_servizio.trim() !== '') ? viaggio.note_servizio : (dict.js_nessuna_nota || "Nessuna nota o richiesta particolare inserita.");
 
+            const classeAperta = codiciAperti.includes(viaggio.codice_prenotazione) ? ' aperta' : '';
+
             const htmlCard = `
-                <div class="card-viaggio" id="card_${viaggio.codice_prenotazione}">
+                <div class="card-viaggio${classeAperta}" id="card_${viaggio.codice_prenotazione}">
                     
                     <div class="viaggio-header-touch" onclick="document.getElementById('card_${viaggio.codice_prenotazione}').classList.toggle('aperta')">
                         <div class="viaggio-header-info">
