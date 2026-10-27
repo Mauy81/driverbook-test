@@ -1520,7 +1520,6 @@ body.page-calendario .login-wrapper,
     background-color: #000000;
     padding: 15px 20px 25px 20px;
     z-index: 10;
-    border-top: 1px solid #222222;
 }
 
 .calendario-nav-container {
@@ -1532,7 +1531,7 @@ body.page-calendario .login-wrapper,
 }
 
 .btn-freccia-calendario {
-    background: transparent;
+    background: #000000;
     border: 1px solid #333333;
     color: #ffffff;
     border-radius: 8px;
@@ -1546,8 +1545,8 @@ body.page-calendario .login-wrapper,
 }
 
 .btn-freccia-calendario:hover {
-    background: #111111;
-    border-color: #555555;
+    background: #000000;
+    border-color: #ffffff;
 }
 
 .data-selezionata-container {
@@ -1557,20 +1556,21 @@ body.page-calendario .login-wrapper,
     margin: 0 15px;
     cursor: pointer;
     padding: 10px;
-    background: #111111;
+    background: #000000;
     border-radius: 8px;
     border: 1px solid #333333;
     transition: all 0.2s ease;
 }
 
 .data-selezionata-container:hover {
-    border-color: #00FF66;
+    background: #000000;
+    border-color: #ffffff;
 }
 
 #testo_data_selezionata {
     font-weight: bold;
     font-size: 0.95rem;
-    color: #00FF66;
+    color: #ffffff;
     text-transform: uppercase;
 }
 
