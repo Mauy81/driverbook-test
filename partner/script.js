@@ -341,7 +341,7 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_assist': 'assistenza.html',
         'link_menu_flotta': 'flotta.html',
         'link_menu_guidatori': 'autisti.html',
-        'link_menu_calendario': '#'
+        'link_menu_calendario': 'calendario.html'
     };
     
     menuLinks.forEach(link => {
