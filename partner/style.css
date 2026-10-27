@@ -1294,7 +1294,7 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
 .bacheca-riga-intestazione {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: baseline;
     margin-bottom: 0px;
     width: 100%;
 }
@@ -1306,7 +1306,7 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     column-gap: 12px;
     color: #ffffff;
     font-weight: bold;
-    font-size: 0.75rem;
+    font-size: 0.70rem;
     line-height: 1;
 }
 
@@ -1335,13 +1335,13 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
 .bacheca-label-indirizzo {
     color: #ffffff;
     font-weight: bold;
-    font-size: 0.75rem;
+    font-size: 0.70rem;
 }
 
 .bacheca-valore-indirizzo {
     color: #aaaaaa;
     font-weight: normal;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1350,17 +1350,17 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
 
 @media (max-width: 450px) {
     .bacheca-dati-servizio {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         row-gap: 4px;
     }
     .bacheca-prezzo-sintesi {
         font-size: 0.75rem;
     }
     .bacheca-label-indirizzo {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
     }
     .bacheca-valore-indirizzo {
-        font-size: 0.65rem;
+        font-size: 0.60rem;
         padding-right: 50px;
     }
     .bacheca-riga-indirizzo {
@@ -1586,23 +1586,47 @@ body.page-calendario .login-wrapper,
 }
 
 .cal-badge-stato {
-    font-size: 0.65rem;
+    font-size: 0.70rem;
     font-weight: bold;
-    padding: 3px 6px;
-    border-radius: 4px;
     text-transform: uppercase;
-    border: 1px solid transparent;
-    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+@media (max-width: 450px) {
+    .cal-badge-stato {
+        font-size: 0.65rem;
+    }
 }
 
 .cal-stato-da-assegnare {
-    color: #000000;
-    background-color: #ffffff;
+    color: #ffffff;
 }
 
 .cal-stato-assegnato {
-    color: #000000;
-    background-color: #00FF66;
+    color: #00FF66;
+}
+
+#lista_servizi_calendario .bacheca-header-touch {
+    position: relative;
+}
+
+#lista_servizi_calendario .bacheca-info-sintesi {
+    padding-right: 0;
+}
+
+#lista_servizi_calendario .icona-tendina-mini {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#lista_servizi_calendario .card-bacheca-minimal.aperta .icona-tendina-mini {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+#lista_servizi_calendario .bacheca-valore-indirizzo {
+    padding-right: 35px;
 }
 
 .calendario-riga-indirizzo {
