@@ -22,6 +22,117 @@
 
             <div id="lista_servizi_calendario" class="sezione-vetture"></div>
 
+            <template id="template_calendario_card">
+                <div class="card-bacheca-minimal">
+                    <div class="bacheca-header-touch" data-bind-action="toggle">
+                        <div class="bacheca-info-sintesi">
+                            <div class="bacheca-riga-intestazione">
+                                <div class="bacheca-dati-servizio">
+                                    <span class="bacheca-data-evidenziata" data-bind="intestazione_unificata"></span>
+                                </div>
+                                <div class="bacheca-prezzo-sintesi">
+                                    <span class="cal-badge-stato" data-bind="badge_stato"></span>
+                                </div>
+                            </div>
+                            <div class="bacheca-riga-indirizzo">
+                                <span class="bacheca-label-indirizzo">DA:</span> <span class="bacheca-valore-indirizzo" data-bind="partenza_sintesi"></span>
+                            </div>
+                            <div class="bacheca-riga-indirizzo hidden" data-bind-container="arrivo_sintesi_riga">
+                                <span class="bacheca-label-indirizzo">A:</span> <span class="bacheca-valore-indirizzo" data-bind="arrivo_sintesi"></span>
+                            </div>
+                            <div class="bacheca-riga-indirizzo">
+                                <span class="bacheca-label-indirizzo">PAX:</span> <span class="bacheca-valore-indirizzo" data-bind="pax_sintesi"></span>
+                            </div>
+                        </div>
+                        <svg class="icona-tendina-mini" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <div class="bacheca-body-dettaglio">
+                        <div class="checkout-style-block" style="margin-top: 15px;">
+                            <div class="bacheca-sezione-titolo">PASSEGGERO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Nome e Cognome</span>
+                                <span class="checkout-style-value" data-bind="nome_passeggero"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Telefono Passeggero</span>
+                                <span class="checkout-style-value" data-bind="tel_passeggero"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block hidden" data-bind-container="referente_block">
+                            <div class="bacheca-sezione-titolo">REFERENTE PRENOTAZIONE</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Nome Azienda / Referente</span>
+                                <span class="checkout-style-value" data-bind="nome_referente"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Telefono Referente</span>
+                                <span class="checkout-style-value" data-bind="tel_referente"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">DETTAGLI SERVIZIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Tipologia Servizio</span>
+                                <span class="checkout-style-value" data-bind="tipo_servizio_full"></span>
+                            </div>
+                            <div class="checkout-style-row hidden" data-bind-container="durata_block">
+                                <span class="checkout-style-label">Durata Disposizione</span>
+                                <span class="checkout-style-value" data-bind="durata"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Vettura Richiesta</span>
+                                <span class="checkout-style-value" data-bind="vettura_full"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Data e Ora Partenza</span>
+                                <span class="checkout-style-value" data-bind="data_ora_dettaglio"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">ITINERARIO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Luogo di Partenza</span>
+                                <span class="checkout-style-value" data-bind="partenza_full"></span>
+                            </div>
+                            <div class="checkout-style-row hidden" data-bind-container="arrivo_full_block">
+                                <span class="checkout-style-label">Luogo di Destinazione</span>
+                                <span class="checkout-style-value" data-bind="arrivo_full"></span>
+                            </div>
+                            <div class="checkout-style-row hidden" data-bind-container="itinerario_previsto_block">
+                                <span class="checkout-style-label">Itinerario Previsto</span>
+                                <span class="checkout-style-value" data-bind="itinerario_previsto"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="bacheca-sezione-titolo">LOGISTICA E NOTE</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Passeggeri e Bagagli</span>
+                                <span class="checkout-style-value"><span data-bind="pax"></span><br><span data-bind="grandi"></span><br><span data-bind="mano"></span> Trolley</span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Note e Richieste Particolari</span>
+                                <span class="checkout-style-value" data-bind="note_servizio"></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="checkout-style-row bacheca-riga-codice">
+                                <span class="checkout-style-label">CODICE PRENOTAZIONE:</span>
+                                <span class="checkout-style-value bacheca-valore-codice" data-bind="codice_prenotazione_dettaglio"></span>
+                            </div>
+                            <div class="checkout-style-row bacheca-riga-prezzo">
+                                <span class="checkout-style-value bacheca-valore-prezzo" data-bind="prezzo_dettaglio"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
         </div>
     </main>
 

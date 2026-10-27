@@ -3082,43 +3082,90 @@ async function caricaServiziCalendario() {
             return;
         }
         
+        const template = document.getElementById('template_calendario_card');
+
         servizi.forEach(servizio => {
             const isAssegnato = servizio.autista_assegnato ? true : false;
-            const classeBadge = isAssegnato ? 'cal-stato-assegnato' : 'cal-stato-da-assegnare';
-            const testoBadge = isAssegnato ? 'ASSEGNATO' : 'DA ASSEGNARE';
             
-            let tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'Transfer' : 'Disposizione';
-            let arrivoSintesi = servizio.tipo_servizio === 'TRANSFER' ? (servizio.arrivo || '-') : (servizio.itinerario_previsto || '-');
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.card-bacheca-minimal');
+
+            clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+                card.classList.toggle('aperta');
+            };
+
+            const tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
+            const vetturaPulita = servizio.vettura_selezionata || '';
+            clone.querySelector('[data-bind="intestazione_unificata"]').textContent = `${servizio.ora_partenza} - ${tipoServizioStr} - ${vetturaPulita}`;
+
+            const badgeStato = clone.querySelector('[data-bind="badge_stato"]');
+            if (isAssegnato) {
+                badgeStato.textContent = 'ASSEGNATO';
+                badgeStato.classList.add('cal-stato-assegnato');
+            } else {
+                badgeStato.textContent = 'DA ASSEGNARE';
+                badgeStato.classList.add('cal-stato-da-assegnare');
+            }
+
+            let stringaPartenza = (servizio.partenza_citta && servizio.partenza_via) ? `${servizio.partenza_citta}, ${servizio.partenza_via}` : (servizio.partenza || '-');
+            clone.querySelector('[data-bind="partenza_sintesi"]').textContent = stringaPartenza;
+
+            if (servizio.tipo_servizio === 'TRANSFER') {
+                let stringaArrivo = (servizio.arrivo_citta && servizio.arrivo_via) ? `${servizio.arrivo_citta}, ${servizio.arrivo_via}` : (servizio.arrivo || '-');
+                clone.querySelector('[data-bind="arrivo_sintesi"]').textContent = stringaArrivo;
+                clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').classList.remove('hidden');
+            }
+
+            clone.querySelector('[data-bind="pax_sintesi"]').textContent = servizio.nome_passeggero || '-';
+
+            clone.querySelector('[data-bind="nome_passeggero"]').textContent = servizio.nome_passeggero || '-';
+            clone.querySelector('[data-bind="tel_passeggero"]').textContent = servizio.tel_passeggero || '-';
             
-            const mostraA = servizio.tipo_servizio === 'TRANSFER' ? 'display: grid;' : 'display: none;';
+            if (servizio.chk_referente && (servizio.nome_referente || servizio.tel_referente)) {
+                clone.querySelector('[data-bind-container="referente_block"]').classList.remove('hidden');
+                clone.querySelector('[data-bind="nome_referente"]').textContent = servizio.nome_referente || '-';
+                clone.querySelector('[data-bind="tel_referente"]').textContent = servizio.tel_referente || '-';
+            }
+
+            clone.querySelector('[data-bind="tipo_servizio_full"]').textContent = tipoServizioStr;
+            if (servizio.tipo_servizio === 'DISPOSIZIONE') {
+                clone.querySelector('[data-bind-container="durata_block"]').classList.remove('hidden');
+                clone.querySelector('[data-bind="durata"]').textContent = servizio.ore ? `${servizio.ore} Ore` : '-';
+            }
+            clone.querySelector('[data-bind="vettura_full"]').textContent = vetturaPulita;
             
-            const htmlCard = `
-                <div class="card-calendario-compatta" id="cal_${servizio.codice_prenotazione}">
-                    <div class="cal-header-riga">
-                        <span class="cal-ora">${servizio.ora_partenza}</span>
-                        <span class="cal-badge-stato ${classeBadge}">${testoBadge}</span>
-                    </div>
-                    <div class="cal-body-riga">
-                        <div class="cal-riga-tipo">
-                            <span class="cal-tipo-servizio">${tipoServizioStr}</span>
-                            <span class="cal-vettura">${servizio.vettura_selezionata || '-'}</span>
-                        </div>
-                        <div class="cal-riga-indirizzo">
-                            <span class="cal-label">DA:</span> 
-                            <span class="cal-valore">${servizio.partenza || '-'}</span>
-                        </div>
-                        <div class="cal-riga-indirizzo" style="${mostraA}">
-                            <span class="cal-label">A:</span> 
-                            <span class="cal-valore">${arrivoSintesi}</span>
-                        </div>
-                        <div class="cal-riga-indirizzo">
-                            <span class="cal-label">PAX:</span> 
-                            <span class="cal-valore">${servizio.nome_passeggero || '-'}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            contenitore.insertAdjacentHTML('beforeend', htmlCard);
+            let dataEstesa = dataQuery;
+            if (servizio.data_partenza) {
+                const parti = servizio.data_partenza.split('-');
+                if (parti.length === 3) {
+                    dataEstesa = `${parti[2]}/${parti[1]}/${parti[0]}`;
+                }
+            }
+            clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${servizio.ora_partenza}`;
+
+            clone.querySelector('[data-bind="partenza_full"]').textContent = servizio.partenza || '-';
+            
+            if (servizio.tipo_servizio === 'TRANSFER') {
+                clone.querySelector('[data-bind-container="arrivo_full_block"]').classList.remove('hidden');
+                clone.querySelector('[data-bind="arrivo_full"]').textContent = servizio.arrivo || '-';
+            } else {
+                clone.querySelector('[data-bind-container="itinerario_previsto_block"]').classList.remove('hidden');
+                clone.querySelector('[data-bind="itinerario_previsto"]').textContent = servizio.itinerario_previsto || '-';
+            }
+
+            const numPax = servizio.passeggeri || 1;
+            clone.querySelector('[data-bind="pax"]').textContent = numPax + (numPax === 1 ? ' Passeggero' : ' Passeggeri');
+            const numGrandi = servizio.bagagli_grandi || 0;
+            clone.querySelector('[data-bind="grandi"]').textContent = numGrandi + (numGrandi === 1 ? ' Valigia Grande' : ' Valigie Grandi');
+            clone.querySelector('[data-bind="mano"]').textContent = servizio.bagagli_mano || 0;
+            
+            clone.querySelector('[data-bind="note_servizio"]').textContent = servizio.note_servizio || 'Nessuna nota';
+            clone.querySelector('[data-bind="codice_prenotazione_dettaglio"]').textContent = servizio.codice_prenotazione;
+            
+            const importoFormattato = servizio.prezzo_totale ? servizio.prezzo_totale.toFixed(2).replace('.', ',') : '0,00';
+            clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${importoFormattato} €`;
+
+            contenitore.appendChild(clone);
         });
         
     } catch (errore) {

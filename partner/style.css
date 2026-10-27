@@ -1585,33 +1585,10 @@ body.page-calendario .login-wrapper,
     color-scheme: dark;
 }
 
-.card-calendario-compatta {
-    background-color: #000000;
-    border: none;
-    border-radius: 0;
-    padding: 2px 20px 15px 20px;
-    margin-bottom: 16px;
-}
-
-.cal-header-riga {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.cal-ora {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #ffffff;
-    border-left: 2px solid #00FF66;
-    padding-left: 6px;
-}
-
 .cal-badge-stato {
     font-size: 0.65rem;
     font-weight: bold;
-    padding: 2px 6px;
+    padding: 3px 6px;
     border-radius: 4px;
     text-transform: uppercase;
     border: 1px solid transparent;
@@ -1626,46 +1603,4 @@ body.page-calendario .login-wrapper,
 .cal-stato-assegnato {
     color: #000000;
     background-color: #00FF66;
-}
-
-.cal-body-riga {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-right: 15px;
-}
-
-.cal-riga-indirizzo {
-    display: grid;
-    grid-template-columns: 35px 1fr;
-    line-height: 1.2;
-    align-items: start;
-}
-
-.cal-label {
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 0.75rem;
-}
-
-.cal-valore {
-    color: #aaaaaa;
-    font-weight: normal;
-    font-size: 0.75rem;
-    white-space: normal;
-    word-break: break-word;
-}
-
-.cal-riga-tipo {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 2px;
-}
-
-.cal-tipo-servizio,
-.cal-vettura {
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 0.75rem;
-    text-transform: uppercase;
 }
