@@ -3043,7 +3043,83 @@ async function caricaServiziCalendario() {
     
     contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
     
-    setTimeout(() => {
-        contenitore.innerHTML = '<div class="msg-caricamento">Nessun servizio in questa data.</div>';
-    }, 500);
+    const token = localStorage.getItem('driverbook_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Errore sessione");
+        const userData = await userRes.json();
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=codice_partner`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!partnerRes.ok) throw new Error("Errore partner");
+        const partnerData = await partnerRes.json();
+        const codicePartner = partnerData[0].codice_partner;
+
+        const anno = dataCalendarioAttuale.getFullYear();
+        const mese = String(dataCalendarioAttuale.getMonth() + 1).padStart(2, '0');
+        const giorno = String(dataCalendarioAttuale.getDate()).padStart(2, '0');
+        const dataQuery = `${anno}-${mese}-${giorno}`;
+
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_partner_assegnato=eq.${codicePartner}&data_partenza=eq.${dataQuery}&stato=neq.ANNULLATO&order=ora_partenza.asc`, {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+        
+        if (!res.ok) throw new Error("Errore recupero prenotazioni");
+        const servizi = await res.json();
+        
+        contenitore.innerHTML = '';
+        
+        if (servizi.length === 0) {
+            contenitore.innerHTML = '<div class="msg-caricamento">Nessun servizio in questa data.</div>';
+            return;
+        }
+        
+        servizi.forEach(servizio => {
+            const isAssegnato = servizio.autista_assegnato ? true : false;
+            const classeBadge = isAssegnato ? 'cal-stato-assegnato' : 'cal-stato-da-assegnare';
+            const testoBadge = isAssegnato ? 'ASSEGNATO' : 'DA ASSEGNARE';
+            
+            let tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'Transfer' : 'Disposizione';
+            let arrivoSintesi = servizio.tipo_servizio === 'TRANSFER' ? (servizio.arrivo || '-') : (servizio.itinerario_previsto || '-');
+            
+            const htmlCard = `
+                <div class="card-calendario-compatta" id="cal_${servizio.codice_prenotazione}">
+                    <div class="cal-header-riga">
+                        <span class="cal-ora">${servizio.ora_partenza}</span>
+                        <span class="cal-badge-stato ${classeBadge}">${testoBadge}</span>
+                    </div>
+                    <div class="cal-body-riga">
+                        <div class="cal-dettaglio-testo">
+                            <span class="cal-label">Tipo:</span>
+                            <span>${tipoServizioStr} - ${servizio.vettura_selezionata || '-'}</span>
+                        </div>
+                        <div class="cal-dettaglio-testo">
+                            <span class="cal-label">Da:</span>
+                            <span class="cal-valore-destra">${servizio.partenza || '-'}</span>
+                        </div>
+                        <div class="cal-dettaglio-testo">
+                            <span class="cal-label">A:</span>
+                            <span class="cal-valore-destra">${arrivoSintesi}</span>
+                        </div>
+                        <div class="cal-dettaglio-testo">
+                            <span class="cal-label">Pax:</span>
+                            <span>${servizio.nome_passeggero || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            contenitore.insertAdjacentHTML('beforeend', htmlCard);
+        });
+        
+    } catch (errore) {
+        contenitore.innerHTML = '<div class="msg-errore-viaggi">Impossibile caricare i servizi. Riprova.</div>';
+    }
 }

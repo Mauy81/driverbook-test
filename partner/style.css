@@ -1584,3 +1584,74 @@ body.page-calendario .login-wrapper,
     cursor: pointer;
     color-scheme: dark;
 }
+
+.card-calendario-compatta {
+    background-color: #000000;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cal-header-riga {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #222222;
+    padding-bottom: 8px;
+}
+
+.cal-ora {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #00FF66;
+}
+
+.cal-badge-stato {
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    letter-spacing: 0.5px;
+}
+
+.cal-stato-da-assegnare {
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.cal-stato-assegnato {
+    color: #ffffff;
+    border-color: #00FF66;
+}
+
+.cal-body-riga {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cal-dettaglio-testo {
+    font-size: 0.85rem;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.cal-label {
+    color: #777777;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.cal-valore-destra {
+    text-align: right;
+    word-break: break-word;
+}
