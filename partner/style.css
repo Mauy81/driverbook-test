@@ -971,7 +971,10 @@ input:-webkit-autofill:active {
 
 body.page-flotta, 
 .page-flotta .login-wrapper, 
-#card_flotta { 
+#card_flotta,
+body.page-dipendenti, 
+.page-dipendenti .login-wrapper, 
+#card_dipendenti { 
     padding-bottom: 0 !important; 
     margin-bottom: 0 !important; 
 }
@@ -1049,7 +1052,8 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     }
 }
 
-#barra_aggiungi_veicolo {
+#barra_aggiungi_veicolo,
+#barra_aggiungi_dipendente {
     position: sticky;
     bottom: 0;
     background-color: #000000;
@@ -1058,7 +1062,8 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     z-index: 10;
 }
 
-#barra_aggiungi_veicolo .btn-primary {
+#barra_aggiungi_veicolo .btn-primary,
+#barra_aggiungi_dipendente .btn-primary {
     width: auto;
     padding: 12px 40px;
     margin: 0;

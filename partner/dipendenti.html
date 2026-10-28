@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestione Dipendenti - DriverBook</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
+</head>
+<body class="page-dipendenti">
+    <div id="menu-principale"></div>
+    
+    <main class="login-wrapper">
+        <div class="auth-card" id="card_dipendenti">
+            
+            <div class="auth-header">
+                <h1>Gestione Dipendenti</h1>
+            </div>
+
+            <div id="sezione_elenco_dipendenti">
+                <div id="lista_dipendenti" class="sezione-vetture"></div>
+            </div>
+
+            <div id="form_container_dipendente" class="hidden" style="margin-top: 40px;">
+                <h2 id="titolo_form_dipendente" class="bacheca-sezione-titolo" style="margin-bottom: 25px;">Nuovo Dipendente</h2>
+                <form id="formGestioneDipendente">
+                    <div class="form-group">
+                        <label class="label">Nome</label>
+                        <input type="text" id="dip_nome" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Cognome</label>
+                        <input type="text" id="dip_cognome" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Email (Username di accesso)</label>
+                        <input type="email" id="dip_email" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Telefono Cellulare</label>
+                        <input type="tel" id="dip_telefono" class="input" required>
+                    </div>
+                    <div class="form-group pass-box" id="box_password_dipendente">
+                        <label class="label">Password Iniziale</label>
+                        <input type="password" id="dip_password" class="input" required>
+                        <button type="button" class="eye-btn" onclick="togglePassword('dip_password', this)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label class="label">Ruolo Aziendale</label>
+                        <select id="dip_ruolo" class="input" required>
+                            <option value="" disabled selected>Seleziona ruolo...</option>
+                            <option value="OPERATIVO">Operativo di Segreteria</option>
+                            <option value="AUTISTA">Autista</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-group hidden" id="gruppo_spunta_guida">
+                        <input type="checkbox" id="dip_abilitato_guida" class="checkbox-input">
+                        <label for="dip_abilitato_guida" class="checkbox-label">Abilitato alla guida (esce in servizio)</label>
+                    </div>
+
+                    <div id="sezione_dati_guida" class="gruppo-dinamico hidden">
+                        <div class="form-group">
+                            <label class="label">Numero Iscrizione a Ruolo</label>
+                            <input type="text" id="dip_numero_ruolo" class="input">
+                        </div>
+                        <div class="form-group">
+                            <label class="label">Provincia Iscrizione</label>
+                            <input type="text" id="dip_provincia_ruolo" class="input" maxlength="2" placeholder="Es. MI">
+                        </div>
+                        <div class="checkbox-group form-group-autocert">
+                            <input type="checkbox" id="dip_autocert_patente" class="checkbox-input">
+                            <label for="dip_autocert_patente" class="checkbox-label">Dichiaro di possedere patente B valida e abilitazione CAP/KB (Art. 46-47 DPR 445/2000)</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label class="label">Preferenze Notifiche</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="dip_notifica_push" class="checkbox-input" checked>
+                            <label for="dip_notifica_push" class="checkbox-label">Ricevi notifiche Push sull'App</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="dip_notifica_email" class="checkbox-input" checked>
+                            <label for="dip_notifica_email" class="checkbox-label">Ricevi avvisi via Email</label>
+                        </div>
+                    </div>
+
+                    <div class="form-bottoni-veicolo">
+                        <button type="button" id="btn_annulla_dipendente" class="btn btn-ghost btn-veicolo-azione">ANNULLA</button>
+                        <button type="submit" id="btn_salva_dipendente" class="btn btn-primary btn-veicolo-azione">SALVA</button>
+                    </div>
+                </form>
+            </div>
+
+            <template id="template_dipendente_card">
+                <div class="card-bacheca-minimal">
+                    <div class="bacheca-header-touch" data-bind-action="toggle">
+                        <div class="bacheca-info-sintesi">
+                            <div class="bacheca-riga-intestazione">
+                                <div class="bacheca-dati-servizio">
+                                    <span class="bacheca-data-evidenziata" data-bind="nome_cognome_sintesi"></span>
+                                </div>
+                                <div class="bacheca-prezzo-sintesi">
+                                    <span class="cal-badge-stato" data-bind="badge_stato"></span>
+                                </div>
+                            </div>
+                            <div class="calendario-riga-indirizzo">
+                                <span class="bacheca-label-indirizzo">RUOLO:</span> <span class="bacheca-valore-indirizzo" data-bind="ruolo_sintesi"></span>
+                            </div>
+                        </div>
+                        <svg class="icona-tendina-mini" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <div class="bacheca-body-dettaglio">
+                        <div class="checkout-style-block" style="margin-top: 15px;">
+                            <div class="bacheca-sezione-titolo">CONTATTI E ACCESSO</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Email (Username)</span>
+                                <span class="checkout-style-value"><a data-bind="email_link" style="color: #ffffff; text-decoration: none;"></a></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Telefono Cellulare</span>
+                                <span class="checkout-style-value"><a data-bind="tel_link" style="color: #ffffff; text-decoration: none;"></a></span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block hidden" data-bind-container="dati_guida_block">
+                            <div class="bacheca-sezione-titolo">DATI ABILITAZIONE GUIDA</div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Iscrizione a Ruolo / Provincia</span>
+                                <span class="checkout-style-value" data-bind="ruolo_provincia"></span>
+                            </div>
+                            <div class="checkout-style-row">
+                                <span class="checkout-style-label">Autocertificazione Patente e KB</span>
+                                <span class="checkout-style-value" style="color: #00FF66;">Dichiarazione Accettata</span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-style-block">
+                            <div class="form-bottoni-veicolo" style="margin-top: 25px;">
+                                <button type="button" data-bind-action="modifica" class="btn btn-ghost btn-veicolo-azione" style="font-size: 0.75rem;">MODIFICA</button>
+                                <button type="button" data-bind-action="sospendi" class="btn btn-danger-outline btn-veicolo-azione" style="font-size: 0.75rem;"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+    </main>
+
+    <div id="barra_aggiungi_dipendente">
+        <button id="btn_apri_form_dipendente" class="btn btn-primary">AGGIUNGI DIPENDENTE</button>
+    </div>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

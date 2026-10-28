@@ -306,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a id="link_menu_home" class="menu-item">Pannello Utente</a>
                 <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
                 <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
-                <a id="link_menu_guidatori" class="menu-item">Gestione Autisti</a>
+                <a id="link_menu_dipendenti" class="menu-item">Gestione Dipendenti</a>
                 <a id="link_menu_viaggi" class="menu-item">I Miei Servizi</a>
                 <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
                 <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function() {
         'link_menu_pub_reg': 'registrazione.html',
         'link_menu_pub_assist': 'assistenza.html',
         'link_menu_flotta': 'flotta.html',
-        'link_menu_guidatori': 'autisti.html',
+        'link_menu_dipendenti': 'dipendenti.html',
         'link_menu_calendario': 'calendario.html'
     };
     
