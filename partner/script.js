@@ -3203,3 +3203,76 @@ async function caricaServiziCalendario() {
         contenitore.innerHTML = '<div class="msg-errore-viaggi">Impossibile caricare i servizi. Riprova.</div>';
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const btnApriDip = document.getElementById('barra_aggiungi_dipendente');
+    if (!btnApriDip) return;
+
+    const btnAnnullaDip = document.getElementById('btn_annulla_dipendente');
+    const formContainerDip = document.getElementById('form_container_dipendente');
+    const elencoDipendenti = document.getElementById('sezione_elenco_dipendenti');
+    const titoloFormDip = document.getElementById('titolo_form_dipendente');
+    const formGestioneDip = document.getElementById('formGestioneDipendente');
+
+    const selectRuolo = document.getElementById('dip_ruolo');
+    const gruppoSpuntaGuida = document.getElementById('gruppo_spunta_guida');
+    const checkAbilitatoGuida = document.getElementById('dip_abilitato_guida');
+    const sezioneDatiGuida = document.getElementById('sezione_dati_guida');
+    const checkAutocertPatente = document.getElementById('dip_autocert_patente');
+
+    function aggiornaCampiGuida() {
+        const ruolo = selectRuolo.value;
+        const isGuida = (ruolo === 'AUTISTA') || (ruolo === 'OPERATIVO' && checkAbilitatoGuida.checked);
+
+        if (ruolo === 'OPERATIVO') {
+            gruppoSpuntaGuida.classList.remove('hidden');
+        } else {
+            gruppoSpuntaGuida.classList.add('hidden');
+            checkAbilitatoGuida.checked = false;
+        }
+
+        if (isGuida) {
+            sezioneDatiGuida.classList.remove('hidden');
+            checkAutocertPatente.required = true;
+        } else {
+            sezioneDatiGuida.classList.add('hidden');
+            checkAutocertPatente.required = false;
+            checkAutocertPatente.checked = false;
+            document.getElementById('dip_numero_ruolo').value = '';
+            document.getElementById('dip_provincia_ruolo').value = '';
+        }
+    }
+
+    function apriFormDipendente() {
+        formContainerDip.classList.remove('hidden');
+        btnApriDip.classList.add('hidden');
+        elencoDipendenti.classList.add('hidden');
+        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '40px', 'important');
+        window.scrollTo(0, 0);
+    }
+
+    function chiudiFormDipendente() {
+        formContainerDip.classList.add('hidden');
+        btnApriDip.classList.remove('hidden');
+        elencoDipendenti.classList.remove('hidden');
+        document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
+        window.scrollTo(0, 0);
+        formGestioneDip.reset();
+        aggiornaCampiGuida();
+        if (typeof moduloSporco !== 'undefined') moduloSporco = false;
+    }
+
+    btnApriDip.addEventListener('click', () => {
+        formGestioneDip.reset();
+        titoloFormDip.textContent = 'Nuovo Dipendente';
+        aggiornaCampiGuida();
+        apriFormDipendente();
+    });
+
+    btnAnnullaDip.addEventListener('click', () => {
+        chiudiFormDipendente();
+    });
+
+    selectRuolo.addEventListener('change', aggiornaCampiGuida);
+    checkAbilitatoGuida.addEventListener('change', aggiornaCampiGuida);
+});
