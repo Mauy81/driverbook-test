@@ -32,6 +32,7 @@
 
 let phoneInput;
 let itiProfiloPartner;
+let itiDipendente;
 let latLngZonaOperativa = null;
 let latLngProfiloZonaOperativa = null;
 
@@ -426,6 +427,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputTelProfilo = document.getElementById('profilo_telefono');
     if (inputTelProfilo && window.intlTelInput) {
         itiProfiloPartner = window.intlTelInput(inputTelProfilo, {
+            preferredCountries: ['it'],
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+        });
+    }
+
+    const inputTelDipendente = document.getElementById('dip_telefono');
+    if (inputTelDipendente && window.intlTelInput) {
+        itiDipendente = window.intlTelInput(inputTelDipendente, {
             preferredCountries: ['it'],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
@@ -3220,6 +3229,67 @@ document.addEventListener("DOMContentLoaded", function() {
     const sezioneDatiGuida = document.getElementById('sezione_dati_guida');
     const checkAutocertPatente = document.getElementById('dip_autocert_patente');
 
+    const inputPassDip = document.getElementById('dip_password');
+    const inputConfPassDip = document.getElementById('dip_conferma_password');
+    const errPassDip = document.getElementById('errore_password_dip');
+    const errConfPassDip = document.getElementById('errore_coincidenza_dip');
+
+    function validaPasswordDipendente() {
+        const pass = inputPassDip.value;
+        const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (pass.length === 0) {
+            errPassDip.style.display = 'none';
+            return false;
+        }
+        if (!regexPassword.test(pass)) {
+            errPassDip.style.display = 'block';
+            return false;
+        }
+        errPassDip.style.display = 'none';
+        return true;
+    }
+
+    function validaCoincidenzaDipendente() {
+        const pass = inputPassDip.value;
+        const confPass = inputConfPassDip.value;
+        if (confPass.length === 0) {
+            errConfPassDip.style.display = 'none';
+            return false;
+        }
+        if (pass !== confPass) {
+            errConfPassDip.style.display = 'block';
+            return false;
+        }
+        errConfPassDip.style.display = 'none';
+        return true;
+    }
+
+    if (inputPassDip && inputConfPassDip) {
+        inputPassDip.addEventListener('input', () => {
+            validaPasswordDipendente();
+            if (inputConfPassDip.value.length > 0) validaCoincidenzaDipendente();
+        });
+        inputConfPassDip.addEventListener('input', validaCoincidenzaDipendente);
+    }
+
+    const checkNotificaPushDip = document.getElementById('dip_notifica_push');
+    const checkNotificaEmailDip = document.getElementById('dip_notifica_email');
+    const errNotificheDip = document.getElementById('errore_notifiche_dip');
+
+    function validaNotificheDipendente() {
+        if (!checkNotificaPushDip.checked && !checkNotificaEmailDip.checked) {
+            errNotificheDip.style.display = 'block';
+            return false;
+        }
+        errNotificheDip.style.display = 'none';
+        return true;
+    }
+
+    if (checkNotificaPushDip && checkNotificaEmailDip) {
+        checkNotificaPushDip.addEventListener('change', validaNotificheDipendente);
+        checkNotificaEmailDip.addEventListener('change', validaNotificheDipendente);
+    }
+
     function aggiornaCampiGuida() {
         const ruolo = selectRuolo.value;
         const isGuida = (ruolo === 'AUTISTA') || (ruolo === 'OPERATIVO' && checkAbilitatoGuida.checked);
@@ -3233,13 +3303,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (isGuida) {
             sezioneDatiGuida.classList.remove('hidden');
+            document.getElementById('dip_numero_ruolo').required = true;
             checkAutocertPatente.required = true;
         } else {
             sezioneDatiGuida.classList.add('hidden');
+            document.getElementById('dip_numero_ruolo').required = false;
+            document.getElementById('dip_numero_ruolo').value = '';
             checkAutocertPatente.required = false;
             checkAutocertPatente.checked = false;
-            document.getElementById('dip_numero_ruolo').value = '';
-            document.getElementById('dip_provincia_ruolo').value = '';
         }
     }
 
@@ -3258,6 +3329,9 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector('.login-wrapper').style.setProperty('padding-bottom', '0px', 'important');
         window.scrollTo(0, 0);
         formGestioneDip.reset();
+        if (errPassDip) errPassDip.style.display = 'none';
+        if (errConfPassDip) errConfPassDip.style.display = 'none';
+        if (errNotificheDip) errNotificheDip.style.display = 'none';
         aggiornaCampiGuida();
         if (typeof moduloSporco !== 'undefined') moduloSporco = false;
     }

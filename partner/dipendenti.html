@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestione Dipendenti - DriverBook</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
@@ -25,8 +25,10 @@
                 <div id="lista_dipendenti" class="sezione-vetture"></div>
             </div>
 
-            <div id="form_container_dipendente" class="hidden" style="margin-top: 40px;">
-                <h2 id="titolo_form_dipendente" class="bacheca-sezione-titolo" style="margin-bottom: 25px;">Nuovo Dipendente</h2>
+            <div id="form_container_dipendente" class="hidden">
+                <div class="auth-header">
+                    <h2 id="titolo_form_dipendente">Nuovo Dipendente</h2>
+                </div>
                 <form id="formGestioneDipendente">
                     <div class="form-group">
                         <label class="label">Nome</label>
@@ -44,20 +46,34 @@
                         <label class="label">Telefono Cellulare</label>
                         <input type="tel" id="dip_telefono" class="input" required>
                     </div>
-                    <div class="form-group pass-box" id="box_password_dipendente">
-                        <label class="label">Password Iniziale</label>
-                        <input type="password" id="dip_password" class="input" required>
-                        <button type="button" class="eye-btn" onclick="togglePassword('dip_password', this)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        </button>
+                    <div class="form-group">
+                        <label class="label">Password Provvisoria</label>
+                        <div class="pass-box">
+                            <input type="password" id="dip_password" class="input" required>
+                            <button type="button" class="eye-btn" onclick="togglePassword('dip_password', this)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_password_dip" class="error-message">La password deve contenere almeno 8 caratteri, di cui una maiuscola, una minuscola e un numero.</div>
                     </div>
 
-                    <div class="form-group" style="margin-top: 30px;">
+                    <div class="form-group">
+                        <label class="label">Conferma Password Provvisoria</label>
+                        <div class="pass-box">
+                            <input type="password" id="dip_conferma_password" class="input" required>
+                            <button type="button" class="eye-btn" onclick="togglePassword('dip_conferma_password', this)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_coincidenza_dip" class="error-message">Le password non coincidono.</div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="label">Ruolo Aziendale</label>
                         <select id="dip_ruolo" class="input" required>
                             <option value="" disabled selected>Seleziona ruolo...</option>
-                            <option value="OPERATIVO">Operativo di Segreteria</option>
                             <option value="AUTISTA">Autista</option>
+                            <option value="OPERATIVO">Operativo</option>
                         </select>
                     </div>
 
@@ -68,12 +84,8 @@
 
                     <div id="sezione_dati_guida" class="gruppo-dinamico hidden">
                         <div class="form-group">
-                            <label class="label">Numero Iscrizione a Ruolo</label>
+                            <label class="label">N° Ruolo e Provincia</label>
                             <input type="text" id="dip_numero_ruolo" class="input">
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Provincia Iscrizione</label>
-                            <input type="text" id="dip_provincia_ruolo" class="input" maxlength="2" placeholder="Es. MI">
                         </div>
                         <div class="checkbox-group form-group-autocert">
                             <input type="checkbox" id="dip_autocert_patente" class="checkbox-input">
@@ -81,15 +93,21 @@
                         </div>
                     </div>
 
-                    <div class="form-group" style="margin-top: 30px;">
-                        <label class="label">Preferenze Notifiche</label>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="dip_notifica_push" class="checkbox-input" checked>
-                            <label for="dip_notifica_push" class="checkbox-label">Ricevi notifiche Push sull'App</label>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="dip_notifica_email" class="checkbox-input" checked>
-                            <label for="dip_notifica_email" class="checkbox-label">Ricevi avvisi via Email</label>
+                    <div class="form-group">
+                        <label class="label">Come vuoi ricevere le notifiche?</label>
+                        <div class="gruppo-dinamico">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="dip_notifica_push" class="checkbox-input" checked>
+                                <label for="dip_notifica_push" class="checkbox-label">
+                                    Notifiche Push (Consigliata)
+                                    <div class="label-nota">Istantanea su smartphone e PC.</div>
+                                </label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="dip_notifica_email" class="checkbox-input">
+                                <label for="dip_notifica_email" class="checkbox-label">Email</label>
+                            </div>
+                            <div id="errore_notifiche_dip" class="error-message">Seleziona almeno un metodo per ricevere le notifiche.</div>
                         </div>
                     </div>
 
@@ -181,6 +199,7 @@
         <div class="menu-items scrollable-menu"></div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
     <script src="script.js"></script>
 </body>

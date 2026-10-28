@@ -1069,7 +1069,8 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     margin: 0;
 }
 
-#form_container_veicolo {
+#form_container_veicolo,
+#form_container_dipendente {
     margin-top: 60px;
 }
 
@@ -1627,4 +1628,13 @@ body.page-calendario .login-wrapper,
     .calendario-riga-indirizzo {
         grid-template-columns: 28px 1fr;
     }
+}
+
+#barra_aggiungi_veicolo {
+    position: sticky;
+    bottom: 0;
+    background-color: #000000;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    z-index: 10;
 }
