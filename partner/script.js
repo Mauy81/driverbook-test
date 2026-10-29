@@ -3344,9 +3344,281 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     btnAnnullaDip.addEventListener('click', () => {
-        chiudiFormDipendente();
+            chiudiFormDipendente();
+        });
+
+        selectRuolo.addEventListener('change', aggiornaCampiGuida);
+        checkAbilitatoGuida.addEventListener('change', aggiornaCampiGuida);
+
+        caricaDipendenti();
+
+        formGestioneDip.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
+                return;
+            }
+
+            const btnSalva = document.getElementById('btn_salva_dipendente');
+            const testoOriginale = btnSalva.textContent;
+            btnSalva.disabled = true;
+            btnSalva.textContent = "SALVATAGGIO...";
+
+            const token = localStorage.getItem('driverbook_auth_token');
+            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+            try {
+                const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                const userData = await userRes.json();
+                const currentUserId = userData.id;
+
+                let idPartnerEffettivo = currentUserId;
+                let codicePartnerEffettivo = "";
+
+                const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                const dataPartner = await checkPartner.json();
+
+                if (dataPartner && dataPartner.length > 0) {
+                    idPartnerEffettivo = dataPartner[0].id_partner;
+                    codicePartnerEffettivo = dataPartner[0].codice_partner;
+                } else {
+                    const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                    });
+                    const dataDip = await checkDip.json();
+                    if (dataDip && dataDip.length > 0) {
+                        idPartnerEffettivo = dataDip[0].id_partner;
+                        codicePartnerEffettivo = dataDip[0].codice_partner;
+                    } else {
+                        throw new Error("Permessi aziendali non validi per l'inserimento.");
+                    }
+                }
+
+                let prefissoTel = itiDipendente ? "+" + itiDipendente.getSelectedCountryData().dialCode : "+39";
+                let numeroDigitato = document.getElementById('dip_telefono').value.trim();
+                let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
+
+                const emailDip = document.getElementById('dip_email').value.trim();
+                const passwordDip = inputPassDip.value;
+                const nomeDip = document.getElementById('dip_nome').value.trim();
+                const cognomeDip = document.getElementById('dip_cognome').value.trim();
+
+                const signupRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup", {
+                    method: "POST",
+                    headers: {
+                        "apikey": chiaveAnon,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: emailDip,
+                        password: passwordDip,
+                        data: {
+                            is_dipendente: true,
+                            nome_cognome: nomeDip + ' ' + cognomeDip
+                        }
+                    })
+                });
+
+                if (!signupRes.ok) {
+                    const err = await signupRes.json();
+                    if (JSON.stringify(err).toLowerCase().includes("already registered")) {
+                        throw new Error("EMAIL_ESISTENTE");
+                    }
+                    throw new Error("Errore account: " + (err.msg || err.message));
+                }
+
+                const signupData = await signupRes.json();
+                const newUserId = signupData.user ? signupData.user.id : signupData.id;
+
+                if (!newUserId) throw new Error("ID Utente non generato dal server.");
+
+                const corpoDipendente = {
+                    id_dipendente: newUserId,
+                    id_partner: idPartnerEffettivo,
+                    codice_partner: codicePartnerEffettivo,
+                    nome: nomeDip,
+                    cognome: cognomeDip,
+                    email: emailDip,
+                    telefono: telefonoFinale,
+                    ruolo: selectRuolo.value,
+                    abilitato_guida: checkAbilitatoGuida.checked,
+                    numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim(),
+                    autocert_patente: checkAutocertPatente.checked,
+                    notifica_push: checkNotificaPushDip.checked,
+                    notifica_email: checkNotificaEmailDip.checked,
+                    stato_attivo: true,
+                    linguaggio: 'it'
+                };
+
+                const insertRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti", {
+                    method: "POST",
+                    headers: {
+                        "apikey": chiaveAnon,
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(corpoDipendente)
+                });
+
+                if (!insertRes.ok) {
+                    throw new Error("Errore durante il salvataggio dell'anagrafica.");
+                }
+
+                chiudiFormDipendente();
+                caricaDipendenti();
+
+            } catch (errore) {
+                let msg = "Si è verificato un errore.";
+                if (errore.message === "EMAIL_ESISTENTE") {
+                    msg = "Questa email risulta già registrata a sistema.";
+                } else {
+                    msg = errore.message;
+                }
+                
+                let overlay = document.getElementById('modale_errore_dipendente');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'modale_errore_dipendente';
+                    overlay.className = 'modale-overlay';
+                    overlay.innerHTML = `
+                        <div class="modale-box">
+                            <h3 class="modale-titolo">Attenzione</h3>
+                            <p class="modale-testo" id="testo_errore_dipendente"></p>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                }
+                document.getElementById('testo_errore_dipendente').innerHTML = msg;
+                overlay.style.display = 'flex';
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 5000);
+            }
+
+            btnSalva.textContent = testoOriginale;
+            btnSalva.disabled = false;
+        });
     });
 
-    selectRuolo.addEventListener('change', aggiornaCampiGuida);
-    checkAbilitatoGuida.addEventListener('change', aggiornaCampiGuida);
-});
+    async function caricaDipendenti() {
+        const contenitore = document.getElementById('lista_dipendenti');
+        if (!contenitore) return;
+
+        contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Caricamento dipendenti...</div>';
+
+        const token = localStorage.getItem('driverbook_auth_token');
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+        try {
+            const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?order=cognome.asc,nome.asc", {
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!res.ok) throw new Error("Errore caricamento");
+            const dipendenti = await res.json();
+
+            contenitore.innerHTML = '';
+            
+            if (dipendenti.length === 0) {
+                contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun dipendente registrato nella tua flotta.</div>';
+                return;
+            }
+
+            const template = document.getElementById('template_dipendente_card');
+
+            dipendenti.forEach(dip => {
+                const clone = template.content.cloneNode(true);
+                const card = clone.querySelector('.card-bacheca-minimal');
+
+                clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+                    card.classList.toggle('aperta');
+                };
+
+                clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
+
+                const badge = clone.querySelector('[data-bind="badge_stato"]');
+                if (dip.stato_attivo) {
+                    badge.textContent = "ATTIVO";
+                    badge.style.color = "#00FF66";
+                } else {
+                    badge.textContent = "SOSPESO";
+                    badge.style.color = "#dc3545";
+                }
+
+                clone.querySelector('[data-bind="ruolo_sintesi"]').textContent = dip.ruolo;
+
+                const emailLink = clone.querySelector('[data-bind="email_link"]');
+                emailLink.textContent = dip.email;
+                emailLink.href = 'mailto:' + dip.email;
+
+                const telLink = clone.querySelector('[data-bind="tel_link"]');
+                telLink.textContent = dip.telefono;
+                telLink.href = 'tel:' + dip.telefono;
+
+                if (dip.ruolo === 'AUTISTA' || dip.abilitato_guida) {
+                    clone.querySelector('[data-bind-container="dati_guida_block"]').classList.remove('hidden');
+                    clone.querySelector('[data-bind="ruolo_provincia"]').textContent = dip.numero_ruolo_provincia || '-';
+                }
+
+                const btnModifica = clone.querySelector('[data-bind-action="modifica"]');
+                btnModifica.onclick = function() {
+                    alert("Funzione di modifica in arrivo.");
+                };
+
+                const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
+                btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "RIATTIVA";
+                if (!dip.stato_attivo) {
+                    btnSospendi.classList.remove('btn-danger-outline');
+                    btnSospendi.classList.add('btn-primary');
+                    btnSospendi.style.color = "#000000";
+                    btnSospendi.style.borderColor = "#00FF66";
+                }
+                btnSospendi.onclick = function() {
+                    cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
+                };
+
+                contenitore.appendChild(clone);
+            });
+            
+        } catch (e) {
+            contenitore.innerHTML = '<div style="text-align: center; color: #dc3545; padding: 20px;">Errore di caricamento.</div>';
+        }
+    }
+
+    async function cambiaStatoDipendente(id_dipendente, nuovoStato, btn) {
+        btn.disabled = true;
+        btn.textContent = "...";
+        
+        const token = localStorage.getItem('driverbook_auth_token');
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+        try {
+            const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${id_dipendente}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ stato_attivo: nuovoStato })
+            });
+            
+            if (res.ok) {
+                caricaDipendenti();
+            } else {
+                btn.disabled = false;
+                btn.textContent = "ERRORE";
+            }
+        } catch(e) {
+            btn.disabled = false;
+            btn.textContent = "ERRORE";
+        }
+    }
