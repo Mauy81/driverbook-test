@@ -3528,7 +3528,7 @@ document.addEventListener("DOMContentLoaded", function() {
             contenitore.innerHTML = '';
             
             if (dipendenti.length === 0) {
-                contenitore.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">Nessun dipendente registrato nella tua flotta.</div>';
+                contenitore.innerHTML = '<div class="messaggio-vuoto">Nessun dipendente registrato nella tua azienda.</div>';
                 return;
             }
 

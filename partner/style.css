@@ -1638,3 +1638,9 @@ body.page-calendario .login-wrapper,
     padding-bottom: 20px;
     z-index: 10;
 }
+
+.messaggio-vuoto {
+    text-align: center;
+    color: #888888;
+    padding: 20px;
+}
