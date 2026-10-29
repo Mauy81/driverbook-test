@@ -3418,7 +3418,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         password: passwordDip,
                         data: {
                             is_dipendente: true,
-                            nome_cognome: nomeDip + ' ' + cognomeDip
+                            nome_cognome: nomeDip + ' ' + cognomeDip,
+                            display_name: cognomeDip + ' ' + nomeDip
                         }
                     })
                 });
@@ -3445,7 +3446,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     email: emailDip,
                     telefono: telefonoFinale,
                     ruolo: selectRuolo.value,
-                    abilitato_guida: checkAbilitatoGuida.checked,
+                    abilitato_guida: selectRuolo.value === 'AUTISTA' ? true : checkAbilitatoGuida.checked,
                     numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim(),
                     autocert_patente: checkAutocertPatente.checked,
                     notifica_push: checkNotificaPushDip.checked,
