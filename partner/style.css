@@ -1644,3 +1644,41 @@ body.page-calendario .login-wrapper,
     color: #888888;
     padding: 20px;
 }
+
+.page-dipendenti .bacheca-dati-servizio {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.page-dipendenti .bacheca-prezzo-sintesi .cal-badge-stato {
+    color: #ffffff;
+    font-size: 0.70rem;
+}
+
+.page-dipendenti .bacheca-label-indirizzo {
+    color: #aaaaaa;
+    font-size: 0.70rem;
+    font-weight: bold;
+}
+
+.page-dipendenti .bacheca-valore-indirizzo {
+    color: #ffffff;
+    font-size: 0.70rem;
+    font-weight: bold;
+}
+
+.page-dipendenti .calendario-riga-indirizzo {
+    grid-template-columns: auto 1fr;
+    gap: 3px;
+    align-items: center;
+}
+
+@media (max-width: 450px) {
+    .page-dipendenti .calendario-riga-indirizzo {
+        grid-template-columns: auto 1fr;
+    }
+}
+
+.page-dipendenti .bacheca-sezione-titolo {
+    color: #ffffff;
+}

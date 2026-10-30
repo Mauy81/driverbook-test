@@ -3546,13 +3546,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
 
                 const badge = clone.querySelector('[data-bind="badge_stato"]');
-                if (dip.stato_attivo) {
-                    badge.textContent = "ATTIVO";
-                    badge.style.color = "#00FF66";
-                } else {
-                    badge.textContent = "SOSPESO";
-                    badge.style.color = "#dc3545";
-                }
+            if (dip.stato_attivo) {
+                badge.textContent = "ATTIVO";
+            } else {
+                badge.textContent = "SOSPESO";
+            }
 
                 clone.querySelector('[data-bind="ruolo_sintesi"]').textContent = dip.ruolo;
 
@@ -3575,13 +3573,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 };
 
                 const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
-                btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "RIATTIVA";
-                if (!dip.stato_attivo) {
-                    btnSospendi.classList.remove('btn-danger-outline');
-                    btnSospendi.classList.add('btn-primary');
-                    btnSospendi.style.color = "#000000";
-                    btnSospendi.style.borderColor = "#00FF66";
-                }
+                btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "ATTIVA";
+                btnSospendi.classList.remove('btn-primary');
+                btnSospendi.classList.add('btn-ghost');
                 btnSospendi.onclick = function() {
                     cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
                 };

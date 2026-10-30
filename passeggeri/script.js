@@ -1539,6 +1539,7 @@ async function confermaPrenotazione() {
 
     const corpoDati = {
         codice_passeggero: codicePasseggero,
+        id_passeggero: userData.id,
         nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
         tel_passeggero: localStorage.getItem('db_tel_passeggero') || null,
         chk_referente: localStorage.getItem('db_chk_referente') === 'true',
