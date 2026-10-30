@@ -1512,6 +1512,7 @@ async function confermaPrenotazione() {
 
     let emailUtente = null;
     let codicePasseggero = null;
+    let idUtente = null;
     
     if (token) {
         try {
@@ -1521,6 +1522,7 @@ async function confermaPrenotazione() {
             if (userRes.ok) {
                 const userData = await userRes.json();
                 emailUtente = userData.email;
+                idUtente = userData.id;
                 
                 const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero`, {
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -1539,7 +1541,7 @@ async function confermaPrenotazione() {
 
     const corpoDati = {
         codice_passeggero: codicePasseggero,
-        id_passeggero: userData.id,
+        id_passeggero: idUtente,
         nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
         tel_passeggero: localStorage.getItem('db_tel_passeggero') || null,
         chk_referente: localStorage.getItem('db_chk_referente') === 'true',
