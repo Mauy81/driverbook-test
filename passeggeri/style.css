@@ -897,6 +897,17 @@ textarea.input {
     color: #000000;
 }
 
+.btn-singolo-container {
+    justify-content: center;
+}
+
+.btn-singolo-container .btn-modale-bianco {
+    flex: none;
+    width: 40%;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
 .sezione-vetture {
     display: flex;
     flex-direction: column;
