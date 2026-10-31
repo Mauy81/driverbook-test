@@ -1747,33 +1747,47 @@ async function inviaRegistrazionePasseggero(event) {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
-    let numeroDigitato = document.getElementById('telefono').value.trim();
-    let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-    const richiedeFattura = document.getElementById('richiedeFattura').checked;
-
-    const corpoDati = {
-        display_name: document.getElementById('nome').value,
-        nome_cognome: document.getElementById('nome').value,
-        telefono: telefonoFinale,
-        richiede_fattura: richiedeFattura,
-        ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
-        piva_cf: richiedeFattura ? document.getElementById('piva_cf').value : null,
-        codice_sdi: richiedeFattura ? document.getElementById('codice_sdi').value : null,
-        pec: richiedeFattura ? document.getElementById('pec').value : null,
-        indirizzo_via: richiedeFattura ? document.getElementById('indirizzo_via').value : null,
-        indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
-        indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
-        indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
-        notifica_push: document.getElementById('notificaPush').checked,
-        notifica_email: document.getElementById('notificaEmail').checked,
-        linguaggio: linguaAttuale
-    };
 
     try {
+        const checkEmail = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/check_email_esistente", {
+            method: "POST",
+            headers: { 
+                "apikey": chiaveAnon, 
+                "Authorization": "Bearer " + chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email_check: email })
+        });
+        
+        const emailEsiste = await checkEmail.json();
+        if (emailEsiste === true) throw new Error("EMAIL_ESISTENTE");
+
+        const password = document.getElementById('password').value;
+
+        let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
+        let numeroDigitato = document.getElementById('telefono').value.trim();
+        let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
+
+        const richiedeFattura = document.getElementById('richiedeFattura').checked;
+
+        const corpoDati = {
+            display_name: document.getElementById('nome').value,
+            nome_cognome: document.getElementById('nome').value,
+            telefono: telefonoFinale,
+            richiede_fattura: richiedeFattura,
+            ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
+            piva_cf: richiedeFattura ? document.getElementById('piva_cf').value : null,
+            codice_sdi: richiedeFattura ? document.getElementById('codice_sdi').value : null,
+            pec: richiedeFattura ? document.getElementById('pec').value : null,
+            indirizzo_via: richiedeFattura ? document.getElementById('indirizzo_via').value : null,
+            indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
+            indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
+            indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
+            notifica_push: document.getElementById('notificaPush').checked,
+            notifica_email: document.getElementById('notificaEmail').checked,
+            linguaggio: linguaAttuale
+        };
+
         const authResponse = await fetch(urlAuth, {
             method: "POST",
             headers: {
@@ -1803,17 +1817,23 @@ async function inviaRegistrazionePasseggero(event) {
             btnSubmit.style.opacity = "1";
         }
 
-        let testoErrore = errore.message;
+        let testoErrore = dict.js_reg_err_generic + errore.message;
         
-        if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
+        if (errore.message === "EMAIL_ESISTENTE" || errore.message.toLowerCase().includes("user already registered") || errore.message.toLowerCase().includes("already")) {
             testoErrore = dict.js_reg_err_exists;
-        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
+        } else if (errore.message.toLowerCase().includes("sending confirmation email")) {
             testoErrore = dict.js_reg_err_email_send;
-        } else {
-            testoErrore = dict.js_reg_err_generic + testoErrore;
         }
         
-        if (msgErroreServer) {
+        const overlay = document.getElementById('modale_errore_registrazione');
+        if (overlay) {
+            document.getElementById('testo_errore_registrazione').innerHTML = testoErrore;
+            overlay.classList.remove('hidden');
+            
+            document.getElementById('btn_chiudi_errore_reg').onclick = function() {
+                overlay.classList.add('hidden');
+            };
+        } else if (msgErroreServer) {
             msgErroreServer.textContent = testoErrore;
             msgErroreServer.style.display = 'block';
         }
