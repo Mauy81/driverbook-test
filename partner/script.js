@@ -3369,6 +3369,17 @@ document.addEventListener("DOMContentLoaded", function() {
             const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
             try {
+                const emailDip = document.getElementById('dip_email').value.trim();
+                
+                const checkEmailRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(emailDip)}&select=id_dipendente`, {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                const emailData = await checkEmailRes.json();
+                
+                if (emailData && emailData.length > 0) {
+                    throw new Error("EMAIL_ESISTENTE");
+                }
+
                 const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                 });
@@ -3403,7 +3414,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 let numeroDigitato = document.getElementById('dip_telefono').value.trim();
                 let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
-                const emailDip = document.getElementById('dip_email').value.trim();
                 const passwordDip = inputPassDip.value;
                 const nomeDip = document.getElementById('dip_nome').value.trim();
                 const cognomeDip = document.getElementById('dip_cognome').value.trim();
@@ -3481,25 +3491,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     msg = errore.message;
                 }
                 
-                let overlay = document.getElementById('modale_errore_dipendente');
-                if (!overlay) {
-                    overlay = document.createElement('div');
-                    overlay.id = 'modale_errore_dipendente';
-                    overlay.className = 'modale-overlay';
-                    overlay.innerHTML = `
-                        <div class="modale-box">
-                            <h3 class="modale-titolo">Attenzione</h3>
-                            <p class="modale-testo" id="testo_errore_dipendente"></p>
-                        </div>
-                    `;
-                    document.body.appendChild(overlay);
+                const overlay = document.getElementById('modale_errore_dipendente');
+                if (overlay) {
+                    document.getElementById('testo_errore_dipendente').innerHTML = msg;
+                    overlay.style.display = 'flex';
+                    
+                    document.getElementById('btn_chiudi_errore_dip').onclick = function() {
+                        overlay.style.display = 'none';
+                    };
+                } else {
+                    alert(msg);
                 }
-                document.getElementById('testo_errore_dipendente').innerHTML = msg;
-                overlay.style.display = 'flex';
-                
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 5000);
             }
 
             btnSalva.textContent = testoOriginale;
