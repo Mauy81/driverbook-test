@@ -3370,15 +3370,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
             try {
                 const emailDip = document.getElementById('dip_email').value.trim();
-                
-                const checkEmailRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(emailDip)}&select=id_dipendente`, {
-                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-                });
-                const emailData = await checkEmailRes.json();
-                
-                if (emailData && emailData.length > 0) {
-                    throw new Error("EMAIL_ESISTENTE");
-                }
+
+                const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(emailDip)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+                const dataPartner = await checkPartner.json();
+                if (dataPartner && dataPartner.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+                const checkPax = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?email=eq.${encodeURIComponent(emailDip)}&select=id_passeggero`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+                const dataPax = await checkPax.json();
+                if (dataPax && dataPax.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+                const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(emailDip)}&select=id_dipendente`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+                const dataDip = await checkDip.json();
+                if (dataDip && dataDip.length > 0) throw new Error("EMAIL_ESISTENTE");
 
                 const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -3389,22 +3392,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 let idPartnerEffettivo = currentUserId;
                 let codicePartnerEffettivo = "";
 
-                const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                const checkPartnerCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${currentUserId}&select=id_partner,codice_partner`, {
                     headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                 });
-                const dataPartner = await checkPartner.json();
+                const dataPartnerCorrente = await checkPartnerCorrente.json();
 
-                if (dataPartner && dataPartner.length > 0) {
-                    idPartnerEffettivo = dataPartner[0].id_partner;
-                    codicePartnerEffettivo = dataPartner[0].codice_partner;
+                if (dataPartnerCorrente && dataPartnerCorrente.length > 0) {
+                    idPartnerEffettivo = dataPartnerCorrente[0].id_partner;
+                    codicePartnerEffettivo = dataPartnerCorrente[0].codice_partner;
                 } else {
-                    const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                    const checkDipCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${currentUserId}&select=id_partner,codice_partner`, {
                         headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                     });
-                    const dataDip = await checkDip.json();
-                    if (dataDip && dataDip.length > 0) {
-                        idPartnerEffettivo = dataDip[0].id_partner;
-                        codicePartnerEffettivo = dataDip[0].codice_partner;
+                    const dataDipCorrente = await checkDipCorrente.json();
+                    if (dataDipCorrente && dataDipCorrente.length > 0) {
+                        idPartnerEffettivo = dataDipCorrente[0].id_partner;
+                        codicePartnerEffettivo = dataDipCorrente[0].codice_partner;
                     } else {
                         throw new Error("Permessi aziendali non validi per l'inserimento.");
                     }
@@ -3486,7 +3489,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } catch (errore) {
                 let msg = "Si è verificato un errore.";
                 if (errore.message === "EMAIL_ESISTENTE") {
-                    msg = "Questa email risulta già registrata a sistema.";
+                    msg = "Questa email risulta già registrata a sistema. Usa un indirizzo diverso.";
                 } else {
                     msg = errore.message;
                 }
@@ -3494,10 +3497,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 const overlay = document.getElementById('modale_errore_dipendente');
                 if (overlay) {
                     document.getElementById('testo_errore_dipendente').innerHTML = msg;
-                    overlay.style.display = 'flex';
+                    overlay.classList.remove('hidden');
                     
                     document.getElementById('btn_chiudi_errore_dip').onclick = function() {
-                        overlay.style.display = 'none';
+                        overlay.classList.add('hidden');
                     };
                 } else {
                     alert(msg);
