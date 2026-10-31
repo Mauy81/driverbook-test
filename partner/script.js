@@ -806,37 +806,50 @@ async function inviaRegistrazione(event) {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
-    let numeroDigitato = document.getElementById('telefono').value.trim();
-    let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-    const corpoDati = {
-        display_name: document.getElementById('nome').value,
-        nome_cognome: document.getElementById('nome').value,
-        tel_partner: telefonoFinale,
-        ragione_sociale: document.getElementById('ragioneSociale').value,
-        piva: document.getElementById('piva').value,
-        codice_sdi: document.getElementById('codice_sdi').value || null,
-        pec: document.getElementById('pec').value || null,
-        indirizzo_via: document.getElementById('indirizzo_via').value,
-        indirizzo_cap: document.getElementById('indirizzo_cap').value,
-        indirizzo_citta: document.getElementById('indirizzo_citta').value,
-        indirizzo_provincia: document.getElementById('indirizzo_provincia').value,
-        iban: document.getElementById('iban').value,
-        intestatario_conto: document.getElementById('intestatario_conto').value,
-        ruolo_conducenti: document.getElementById('ruoloConducenti').value,
-        autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
-        zona_operativa: document.getElementById('zonaOperativa').value,
-        zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
-        zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
-        notifica_push: document.getElementById('notificaPush').checked,
-        notifica_email: document.getElementById('notificaEmail').checked,
-        linguaggio: 'it'
-    };
 
     try {
+        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(email)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
+        const dataPartner = await checkPartner.json();
+        if (dataPartner && dataPartner.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+        const checkPax = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?email=eq.${encodeURIComponent(email)}&select=id_passeggero`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
+        const dataPax = await checkPax.json();
+        if (dataPax && dataPax.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+        const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(email)}&select=id_dipendente`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
+        const dataDip = await checkDip.json();
+        if (dataDip && dataDip.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+        const password = document.getElementById('password').value;
+
+        let prefissoTel = phoneInput ? "+" + phoneInput.getSelectedCountryData().dialCode : "+39";
+        let numeroDigitato = document.getElementById('telefono').value.trim();
+        let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
+
+        const corpoDati = {
+            display_name: document.getElementById('nome').value,
+            nome_cognome: document.getElementById('nome').value,
+            tel_partner: telefonoFinale,
+            ragione_sociale: document.getElementById('ragioneSociale').value,
+            piva: document.getElementById('piva').value,
+            codice_sdi: document.getElementById('codice_sdi').value || null,
+            pec: document.getElementById('pec').value || null,
+            indirizzo_via: document.getElementById('indirizzo_via').value,
+            indirizzo_cap: document.getElementById('indirizzo_cap').value,
+            indirizzo_citta: document.getElementById('indirizzo_citta').value,
+            indirizzo_provincia: document.getElementById('indirizzo_provincia').value,
+            iban: document.getElementById('iban').value,
+            intestatario_conto: document.getElementById('intestatario_conto').value,
+            ruolo_conducenti: document.getElementById('ruoloConducenti').value,
+            autocertificazione_kb: document.getElementById('autocertificazioneKb').checked,
+            zona_operativa: document.getElementById('zonaOperativa').value,
+            zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
+            zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
+            notifica_push: document.getElementById('notificaPush').checked,
+            notifica_email: document.getElementById('notificaEmail').checked,
+            linguaggio: 'it'
+        };
+
         const authResponse = await fetch(urlAuth, {
             method: "POST",
             headers: {
@@ -866,17 +879,23 @@ async function inviaRegistrazione(event) {
             btnSubmit.style.opacity = "1";
         }
 
-        let testoErrore = errore.message;
+        let testoErrore = "Non è stato possibile completare la registrazione: " + errore.message;
         
-        if (testoErrore.toLowerCase().includes("user already registered") || testoErrore.toLowerCase().includes("already")) {
-            testoErrore = "Questa email risulta già registrata. Inserisci un indirizzo diverso oppure vai alla pagina di Login.";
-        } else if (testoErrore.toLowerCase().includes("sending confirmation email")) {
+        if (errore.message === "EMAIL_ESISTENTE" || errore.message.toLowerCase().includes("user already registered") || errore.message.toLowerCase().includes("already")) {
+            testoErrore = "Questa email risulta già registrata a sistema. Usa un indirizzo diverso.";
+        } else if (errore.message.toLowerCase().includes("sending confirmation email")) {
             testoErrore = "Errore del server durante l'invio dell'email di conferma. Riprova più tardi.";
-        } else {
-            testoErrore = "Non è stato possibile completare la registrazione: " + testoErrore;
         }
         
-        if (msgErroreServer) {
+        const overlay = document.getElementById('modale_errore_registrazione');
+        if (overlay) {
+            document.getElementById('testo_errore_registrazione').innerHTML = testoErrore;
+            overlay.classList.remove('hidden');
+            
+            document.getElementById('btn_chiudi_errore_reg').onclick = function() {
+                overlay.classList.add('hidden');
+            };
+        } else if (msgErroreServer) {
             msgErroreServer.textContent = testoErrore;
             msgErroreServer.style.display = 'block';
         }
