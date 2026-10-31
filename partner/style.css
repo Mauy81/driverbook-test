@@ -1678,3 +1678,9 @@ body.page-calendario .login-wrapper,
         grid-template-columns: auto 1fr;
     }
 }
+
+.btn-errore-feedback {
+    background-color: #000000 !important;
+    color: #00FF66 !important;
+    border-color: #00FF66 !important;
+}

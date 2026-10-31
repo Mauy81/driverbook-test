@@ -837,15 +837,11 @@ async function inviaLogin(event) {
 
     } catch (errore) {
         btnSubmit.textContent = errore.message;
-        btnSubmit.style.backgroundColor = "#dc3545";
-        btnSubmit.style.color = "#ffffff";
-        btnSubmit.style.borderColor = "#dc3545";
+        btnSubmit.classList.add('btn-errore-feedback');
 
         setTimeout(() => {
             btnSubmit.textContent = testoOriginale;
-            btnSubmit.style.backgroundColor = "";
-            btnSubmit.style.color = "";
-            btnSubmit.style.borderColor = "";
+            btnSubmit.classList.remove('btn-errore-feedback');
             btnSubmit.disabled = false;
         }, 5000);
     }

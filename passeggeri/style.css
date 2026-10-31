@@ -1384,3 +1384,9 @@ input:-webkit-autofill:active {
     color: #000000;
     box-shadow: none;
 }
+
+.btn-errore-feedback {
+    background-color: #000000 !important;
+    color: #00FF66 !important;
+    border-color: #00FF66 !important;
+}
