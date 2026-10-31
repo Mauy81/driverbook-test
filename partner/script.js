@@ -2671,7 +2671,8 @@ async function accettaCorsa(codice, bottone) {
             },
             body: JSON.stringify({
                 stato: "ASSEGNATO",
-                codice_partner_assegnato: codicePartner
+                codice_partner_assegnato: codicePartner,
+                id_partner: userData.id
             })
         });
 
