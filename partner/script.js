@@ -3461,7 +3461,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     telefono: telefonoFinale,
                     ruolo: selectRuolo.value,
                     abilitato_guida: selectRuolo.value === 'AUTISTA' ? true : checkAbilitatoGuida.checked,
-                    numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim(),
+                    numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim() || null,
                     autocert_patente: checkAutocertPatente.checked,
                     notifica_push: checkNotificaPushDip.checked,
                     notifica_email: checkNotificaEmailDip.checked,
