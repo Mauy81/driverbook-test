@@ -1398,7 +1398,7 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
 }
 
 .bacheca-sezione-titolo {
-    color: #00FF66;
+    color: #ffffff;
     border-left: 2px solid #00FF66;
     padding-left: 6px;
     font-size: 0.75rem;
@@ -1677,8 +1677,4 @@ body.page-calendario .login-wrapper,
     .page-dipendenti .calendario-riga-indirizzo {
         grid-template-columns: auto 1fr;
     }
-}
-
-.page-dipendenti .bacheca-sezione-titolo {
-    color: #ffffff;
 }
