@@ -638,14 +638,35 @@ async function inviaLogin(event) {
 
         const datiSessione = await risposta.json();
         const userId = datiSessione.user.id;
+        
+        let ruoloAssegnato = null;
 
-        const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner,linguaggio`, {
+        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=id_partner`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
         });
-        const datiPartner = await checkResponse.json();
+        const datiPartner = await checkPartner.json();
 
-        if (!datiPartner || datiPartner.length === 0) {
-            throw new Error("Account non autorizzato come Partner.");
+        if (datiPartner && datiPartner.length > 0) {
+            ruoloAssegnato = 'partner';
+        } else {
+            const checkDipendente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}&select=ruolo,stato_attivo`, {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
+            });
+            const datiDipendente = await checkDipendente.json();
+
+            if (!datiDipendente || datiDipendente.length === 0) {
+                throw new Error("Account non autorizzato per questa App.");
+            }
+
+            if (datiDipendente[0].stato_attivo !== true) {
+                throw new Error("Account sospeso. Contatta il tuo amministratore.");
+            }
+
+            if (datiDipendente[0].ruolo === 'AUTISTA') {
+                throw new Error("Accesso non consentito. Sei registrato come Autista, scarica e utilizza l'App Autisti dedicata.");
+            }
+
+            ruoloAssegnato = 'operativo';
         }
 
         const checkRicordami = document.getElementById('ricordami');
@@ -661,6 +682,7 @@ async function inviaLogin(event) {
 
         if ('caches' in window) {
             caches.open('driverbook-partner-session').then(cache => {
+                const usaLocalStorage = localStorage.getItem('driverbook_ricordami') === 'true';
                 cache.put('/auth-status', new Response(JSON.stringify({ ricordami: usaLocalStorage })));
             });
         }
@@ -685,7 +707,7 @@ async function inviaLogin(event) {
         btnSubmit.style.color = "#ffffff";
         btnSubmit.style.borderColor = "#28a745";
         
-        storage.setItem('driverbook_ruolo', 'partner');
+        storage.setItem('driverbook_ruolo', ruoloAssegnato);
         window.location.href = 'dashboard.html';
 
     } catch (errore) {
