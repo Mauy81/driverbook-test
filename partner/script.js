@@ -808,17 +808,18 @@ async function inviaRegistrazione(event) {
     const email = document.getElementById('email').value;
 
     try {
-        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(email)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
-        const dataPartner = await checkPartner.json();
-        if (dataPartner && dataPartner.length > 0) throw new Error("EMAIL_ESISTENTE");
-
-        const checkPax = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?email=eq.${encodeURIComponent(email)}&select=id_passeggero`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
-        const dataPax = await checkPax.json();
-        if (dataPax && dataPax.length > 0) throw new Error("EMAIL_ESISTENTE");
-
-        const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(email)}&select=id_dipendente`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + chiaveAnon } });
-        const dataDip = await checkDip.json();
-        if (dataDip && dataDip.length > 0) throw new Error("EMAIL_ESISTENTE");
+        const checkEmail = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/check_email_esistente", {
+            method: "POST",
+            headers: { 
+                "apikey": chiaveAnon, 
+                "Authorization": "Bearer " + chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email_check: email })
+        });
+        
+        const emailEsiste = await checkEmail.json();
+        if (emailEsiste === true) throw new Error("EMAIL_ESISTENTE");
 
         const password = document.getElementById('password').value;
 
