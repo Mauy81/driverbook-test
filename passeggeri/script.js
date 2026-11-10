@@ -2568,23 +2568,41 @@ let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isMacSafari = /Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
+function verificaStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
 function mostraBottoneInstallazione() {
+    if (verificaStandalone()) return; // Blocco di sicurezza: se è già PWA, non mostrare nulla
+    
     const btnDynamic = document.getElementById('btn_installa_app_sidebar');
-    if (btnDynamic) btnDynamic.style.setProperty('display', 'flex', 'important');
+    if (btnDynamic) {
+        btnDynamic.classList.remove('hidden');
+        btnDynamic.style.setProperty('display', 'flex', 'important');
+    }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
+    if (verificaStandalone()) return;
     e.preventDefault();
     deferredPrompt = e;
     mostraBottoneInstallazione();
 });
 
+// Ascolta l'evento di installazione completata per nascondere il bottone in tempo reale
+window.addEventListener('appinstalled', () => {
+    const btnDynamic = document.getElementById('btn_installa_app_sidebar');
+    if (btnDynamic) {
+        btnDynamic.style.display = 'none';
+        btnDynamic.classList.add('hidden');
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
-    if (deferredPrompt) mostraBottoneInstallazione();
+    if (verificaStandalone()) return; // Doppio check al caricamento
     
-    if (isIOS || isMacSafari) {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        if (!isStandalone) mostraBottoneInstallazione();
+    if (deferredPrompt || isIOS || isMacSafari) {
+        mostraBottoneInstallazione();
     }
 });
 
@@ -2596,7 +2614,10 @@ document.addEventListener('click', async (e) => {
         } else if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') e.target.style.display = 'none';
+            if (outcome === 'accepted') {
+                btnApp.style.display = 'none';
+                btnApp.classList.add('hidden');
+            }
             deferredPrompt = null;
         }
     }
