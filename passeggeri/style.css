@@ -1512,3 +1512,9 @@ input:-webkit-autofill:active {
 .mb-15 {
     margin-bottom: 15px !important;
 }
+
+@media all and (display-mode: standalone) {
+    #btn_installa_app_sidebar {
+        display: none !important;
+    }
+}
