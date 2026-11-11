@@ -1934,7 +1934,13 @@ async function inviaRegistrazionePasseggero(event) {
 
         document.getElementById('blocco_dati_registrazione').classList.add('hidden');
         document.getElementById('blocco_verifica_otp').classList.remove('hidden');
-        window.scrollTo(0, 0);
+        
+        setTimeout(() => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }, 100);
 
     } catch (errore) {
         if (btnSubmit) {
