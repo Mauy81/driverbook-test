@@ -60,7 +60,7 @@ serve(async (req) => {
         TTL: 129600,
         headers: {
           "Urgency": "high",
-          "Topic": "driverbook-corse"
+          "Topic": "driverbutler-corse"
         }
       })
       .catch(async (err) => {

@@ -1518,3 +1518,38 @@ input:-webkit-autofill:active {
         display: none !important;
     }
 }
+
+.otp-container {
+    margin-top: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.otp-input {
+    font-size: 2.5rem;
+    font-weight: bold;
+    letter-spacing: 16px;
+    text-align: center;
+    color: #00e65c;
+    padding: 20px 10px;
+    text-indent: 16px;
+}
+
+.otp-input::placeholder {
+    color: #333333;
+    letter-spacing: 16px;
+}
+
+.link-recupero-otp {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    text-align: center;
+    display: block;
+    color: #aaaaaa;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.link-recupero-otp:hover {
+    color: #ffffff;
+}

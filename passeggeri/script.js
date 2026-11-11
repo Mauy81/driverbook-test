@@ -776,6 +776,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const formRegistrazionePasseggero = document.getElementById('formRegistrazionePasseggero');
     if (formRegistrazionePasseggero) formRegistrazionePasseggero.addEventListener('submit', inviaRegistrazionePasseggero);
 
+    const btnVerificaOtp = document.getElementById('btn_verifica_otp');
+    if (btnVerificaOtp) btnVerificaOtp.addEventListener('click', verificaOtpRegistrazione);
+
+    const linkNuovoOtp = document.getElementById('link_invia_nuovo_otp');
+    if (linkNuovoOtp) linkNuovoOtp.addEventListener('click', inviaNuovoOtpRegistrazione);
+
     const chkRichiedeFattura = document.getElementById('richiedeFattura');
     if (chkRichiedeFattura) chkRichiedeFattura.addEventListener('change', toggleFatturazione);
 
@@ -1854,7 +1860,7 @@ async function inviaRegistrazionePasseggero(event) {
         return;
     }
 
-    const btnSubmit = event.target.querySelector('button[type="submit"]') || document.querySelector('button[type="submit"]');
+    const btnSubmit = document.getElementById('btn_invia_registrazione');
     let testoOriginale = "REGISTRATI";
     if (btnSubmit) {
         testoOriginale = btnSubmit.textContent;
@@ -1863,10 +1869,7 @@ async function inviaRegistrazionePasseggero(event) {
         btnSubmit.classList.add('btn-in-caricamento');
     }
 
-    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-    let urlRedirect = pathAssoluto.replace('registrazione.html', 'login.html');
-
-    const urlAuth = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup?redirect_to=${encodeURIComponent(urlRedirect)}`;
+    const urlAuth = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const email = document.getElementById('email').value;
@@ -1915,7 +1918,6 @@ async function inviaRegistrazionePasseggero(event) {
             method: "POST",
             headers: {
                 "apikey": chiaveAnon,
-                "Authorization": "Bearer " + chiaveAnon,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
@@ -1930,8 +1932,8 @@ async function inviaRegistrazionePasseggero(event) {
             throw new Error(authError.msg || authError.message || "Errore credenziali");
         }
 
-        if (typeof svuotaBozze === 'function') svuotaBozze();
-        mostraUiRegistrazioneOk('.login-wrapper');
+        document.getElementById('blocco_dati_registrazione').classList.add('hidden');
+        document.getElementById('blocco_verifica_otp').classList.remove('hidden');
 
     } catch (errore) {
         if (btnSubmit) {
@@ -1940,11 +1942,11 @@ async function inviaRegistrazionePasseggero(event) {
             btnSubmit.classList.remove('btn-in-caricamento');
         }
 
-        let testoErrore = dict.js_reg_err_generic + errore.message;
+        let testoErrore = (dict.js_reg_err_generic || "Errore: ") + errore.message;
         
         if (errore.message === "EMAIL_ESISTENTE" || errore.message.toLowerCase().includes("user already registered") || errore.message.toLowerCase().includes("already")) {
             testoErrore = dict.js_reg_err_exists;
-        } else if (errore.message.toLowerCase().includes("sending confirmation email")) {
+        } else if (errore.message.toLowerCase().includes("sending confirmation email") || errore.message.toLowerCase().includes("rate limit")) {
             testoErrore = dict.js_reg_err_email_send;
         }
         
@@ -1959,6 +1961,135 @@ async function inviaRegistrazionePasseggero(event) {
         } else if (msgErroreServer) {
             msgErroreServer.textContent = testoErrore;
             msgErroreServer.style.display = 'block';
+        }
+    }
+}
+
+async function verificaOtpRegistrazione() {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const email = document.getElementById('email').value;
+    const token = document.getElementById('otp_code').value.trim();
+    const btnVerifica = document.getElementById('btn_verifica_otp');
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp');
+
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+
+    if (token.length !== 6) {
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
+            msgErroreOtp.style.display = 'block';
+        }
+        return;
+    }
+
+    const testoOriginale = btnVerifica.textContent;
+    btnVerifica.disabled = true;
+    btnVerifica.textContent = dict.js_login_loading || "Verifica in corso...";
+
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    const urlVerify = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify";
+
+    try {
+        const risposta = await fetch(urlVerify, {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                type: "signup",
+                email: email,
+                token: token
+            })
+        });
+
+        if (!risposta.ok) {
+            throw new Error("Codice errato o scaduto.");
+        }
+
+        const datiSessione = await risposta.json();
+        
+        localStorage.setItem('driverbutler_auth_token', datiSessione.access_token);
+        localStorage.setItem('driverbutler_refresh_token', datiSessione.refresh_token);
+        localStorage.setItem('driverbutler_ruolo', 'passeggeri');
+        
+        const userId = datiSessione.user.id;
+        localStorage.setItem('driverbutler_last_user', userId);
+
+        if (typeof svuotaBozze === 'function') svuotaBozze();
+        
+        btnVerifica.textContent = dict.js_login_success || "Accesso effettuato!";
+        btnVerifica.classList.add('btn-stato-successo');
+        
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1500);
+
+    } catch (errore) {
+        btnVerifica.disabled = false;
+        btnVerifica.textContent = testoOriginale;
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
+            msgErroreOtp.style.display = 'block';
+        }
+    }
+}
+
+async function inviaNuovoOtpRegistrazione(event) {
+    event.preventDefault();
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const email = document.getElementById('email').value;
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp');
+
+    const link = document.getElementById('link_invia_nuovo_otp');
+    const testoOriginale = link.textContent;
+    link.textContent = dict.js_rec_loading || "Invio in corso...";
+    link.style.pointerEvents = "none";
+
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    const urlResend = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/resend";
+
+    try {
+        const risposta = await fetch(urlResend, {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                type: "signup",
+                email: email
+            })
+        });
+
+        if (!risposta.ok) {
+            throw new Error("Errore invio codice");
+        }
+
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_rec_success || "Nuovo codice inviato!";
+            msgErroreOtp.style.color = "#00FF66";
+            msgErroreOtp.style.display = 'block';
+            setTimeout(() => {
+                msgErroreOtp.style.display = 'none';
+                msgErroreOtp.style.color = "";
+            }, 5000);
+        }
+
+        link.textContent = testoOriginale;
+        link.style.pointerEvents = "auto";
+
+    } catch (errore) {
+        link.textContent = testoOriginale;
+        link.style.pointerEvents = "auto";
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
+            msgErroreOtp.style.color = "#FF4444";
+            msgErroreOtp.style.display = 'block';
         }
     }
 }

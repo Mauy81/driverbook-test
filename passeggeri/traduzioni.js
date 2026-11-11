@@ -291,7 +291,12 @@ const traduzioni = {
         js_annulla_error: "Impossibile annullare la richiesta al momento. Riprova più tardi.",
         js_btn_no: "NO",
         js_btn_si: "SI",
-        lbl_codice_prenotazione: "CODICE PRENOTAZIONE:"
+        lbl_codice_prenotazione: "CODICE PRENOTAZIONE:",
+        testo_verifica_otp_reg: "Abbiamo inviato un codice a 6 cifre alla tua email. Inseriscilo qui sotto per completare la registrazione.",
+        btn_verifica_codice: "Verifica Codice",
+        link_invia_nuovo_otp: "Codice scaduto o non ricevuto? Invia di nuovo",
+        js_otp_err_length: "Il codice deve essere di 6 cifre.",
+        js_otp_err_invalid: "Codice errato o scaduto."
     },
     en: {
         titolo_pagina: "DriverButler - Chauffeur Service",
@@ -585,6 +590,11 @@ const traduzioni = {
         js_annulla_error: "Unable to cancel the request at the moment. Please try again later.",
         js_btn_no: "NO",
         js_btn_si: "YES",
-        lbl_codice_prenotazione: "BOOKING CODE:"
+        lbl_codice_prenotazione: "BOOKING CODE:",
+        testo_verifica_otp_reg: "We have sent a 6-digit code to your email. Enter it below to complete your registration.",
+        btn_verifica_codice: "Verify Code",
+        link_invia_nuovo_otp: "Code expired or not received? Send again",
+        js_otp_err_length: "The code must be 6 digits.",
+        js_otp_err_invalid: "Invalid or expired code."
     }
 };
