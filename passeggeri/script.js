@@ -782,6 +782,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const linkNuovoOtp = document.getElementById('link_invia_nuovo_otp');
     if (linkNuovoOtp) linkNuovoOtp.addEventListener('click', inviaNuovoOtpRegistrazione);
 
+    const inputOtp = document.getElementById('otp_code');
+    if (inputOtp) {
+        inputOtp.addEventListener('input', function() {
+            const msgErroreOtp = document.getElementById('messaggio_errore_otp');
+            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+        });
+    }
+
     const chkRichiedeFattura = document.getElementById('richiedeFattura');
     if (chkRichiedeFattura) chkRichiedeFattura.addEventListener('change', toggleFatturazione);
 
@@ -2036,6 +2044,7 @@ async function verificaOtpRegistrazione() {
     } catch (errore) {
         btnVerifica.disabled = false;
         btnVerifica.textContent = testoOriginale;
+        btnVerifica.blur();
         if (msgErroreOtp) {
             msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
             msgErroreOtp.style.display = 'block';
