@@ -787,6 +787,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const formResetPassword = document.getElementById('formResetPassword');
     if (formResetPassword) formResetPassword.addEventListener('submit', inviaNuovaPassword);
 
+    const linkNuovoOtpReset = document.getElementById('link_invia_nuovo_otp_reset');
+    if (linkNuovoOtpReset) linkNuovoOtpReset.addEventListener('click', tornaARichiestaReset);
+
+    const inputOtpReset = document.getElementById('otp_code_reset');
+    if (inputOtpReset) {
+        inputOtpReset.addEventListener('input', function() {
+            const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
+            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+        });
+    }
+
     const formRegistrazionePasseggero = document.getElementById('formRegistrazionePasseggero');
     if (formRegistrazionePasseggero) formRegistrazionePasseggero.addEventListener('submit', inviaRegistrazionePasseggero);
 
@@ -2731,28 +2742,6 @@ function esciAccount() {
     window.location.href = 'index.html';
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    if (document.getElementById('formResetPassword') || document.getElementById('btn_salva_password')) {
-        const hash = window.location.hash;
-        let accessToken = null;
-        
-        if (hash) {
-            const hashParams = new URLSearchParams(hash.substring(1));
-            accessToken = hashParams.get('access_token');
-        }
-
-        if (accessToken) {
-            localStorage.setItem('driverbutler_temp_recovery_token', accessToken);
-            window.history.replaceState(null, null, window.location.pathname);
-        } else if (!localStorage.getItem('driverbutler_temp_recovery_token')) {
-            const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
-            const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-            
-            mostraUiLinkScaduto('.login-wrapper');
-        }
-    }
-});
-
 async function richiediResetPassword(event) {
     event.preventDefault();
     
@@ -2764,11 +2753,9 @@ async function richiediResetPassword(event) {
 
     const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = dict.js_rec_proc;
+    btn.textContent = dict.js_rec_proc || "Elaborazione in corso...";
 
-    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-    let redirectUrl = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/pwreimposta.html';
-    const urlRecover = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=${encodeURIComponent(redirectUrl)}`;
+    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
@@ -2781,10 +2768,19 @@ async function richiediResetPassword(event) {
             body: JSON.stringify({ email: email })
         });
 
-        mostraUiResetRicevuto('.login-wrapper');
+        document.getElementById('blocco_richiesta_reset').classList.add('hidden');
+        document.getElementById('blocco_verifica_reset').classList.remove('hidden');
+        
+        const testoInvio = document.getElementById('testo_invio_reset_email');
+        if (testoInvio) {
+            testoInvio.innerHTML = (linguaAttuale === 'en' ? 'We have sent a security code to: ' : 'Abbiamo inviato un codice di sicurezza a: ') + `<strong>${email}</strong>`;
+        }
+
+        btn.disabled = false;
+        btn.textContent = testoOriginale;
 
     } catch (errore) {
-        btn.textContent = dict.js_rec_conn_err;
+        btn.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
         btn.classList.add('btn-stato-errore');
         
         setTimeout(() => {
@@ -2795,6 +2791,29 @@ async function richiediResetPassword(event) {
     }
 }
 
+function tornaARichiestaReset() {
+    document.getElementById('blocco_verifica_reset').classList.add('hidden');
+    document.getElementById('blocco_richiesta_reset').classList.remove('hidden');
+    
+    const emailInput = document.getElementById('email_recupero');
+    if (emailInput) emailInput.value = '';
+    
+    const otpInput = document.getElementById('otp_code_reset');
+    if (otpInput) otpInput.value = '';
+
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) passwordInput.value = '';
+
+    const confPasswordInput = document.getElementById('confermaPassword');
+    if (confPasswordInput) confPasswordInput.value = '';
+
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+
+    const msgErroreServer = document.getElementById('messaggio_errore_server');
+    if (msgErroreServer) msgErroreServer.style.display = 'none';
+}
+
 async function inviaNuovaPassword(event) {
     event.preventDefault();
 
@@ -2803,84 +2822,77 @@ async function inviaNuovaPassword(event) {
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) msgErroreServer.style.display = 'none';
+    
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
 
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword()) {
-        return;
-    }
-
-    const nuovaPassword = document.getElementById('password').value;
-    const accessToken = localStorage.getItem('driverbutler_temp_recovery_token');
-
-    if (!accessToken) {
-        if (msgErroreServer) {
-            msgErroreServer.textContent = linguaAttuale === 'en' ? "Session expired or missing token. Request a new link." : "Sessione scaduta o token mancante. Richiedi un nuovo link.";
-            msgErroreServer.style.display = 'block';
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 5000);
-        } else {
-            window.location.href = 'index.html';
+    const token = document.getElementById('otp_code_reset').value.trim();
+    if (token.length !== 6) {
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
+            msgErroreOtp.style.display = 'block';
         }
         return;
     }
 
+    if (typeof validaComplessitaPassword === 'function' && !validaComplessitaPassword()) return;
+    if (typeof verificaCoincidenzaPassword === 'function' && !verificaCoincidenzaPassword()) return;
+
+    const email = document.getElementById('email_recupero').value.trim();
+    const nuovaPassword = document.getElementById('password').value;
+
     const btnSubmit = document.getElementById('btn_salva_password');
     const testoOriginale = btnSubmit.textContent;
-    btnSubmit.textContent = dict.js_pass_loading;
+    btnSubmit.textContent = dict.js_pass_loading || "Salvataggio in corso...";
     btnSubmit.disabled = true;
 
+    const urlVerify = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify";
     const urlUpdate = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
-        const risposta = await fetch(urlUpdate, {
-            method: "PUT",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + accessToken,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ password: nuovaPassword })
-        });
-
-        if (!risposta.ok) {
-            const datiErrore = await risposta.json();
-            if (datiErrore.error_code === "same_password") {
-                throw new Error(dict.js_pass_err_same);
-            }
-            throw new Error(dict.js_pass_err_update);
-        }
-
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + accessToken }
-        });
-        const userData = await userRes.json();
-        const emailUtente = userData.email;
-        const userId = userData.id;
-
-        localStorage.removeItem('driverbutler_temp_recovery_token');
-
-        const urlLogin = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/token?grant_type=password";
-        const loginRes = await fetch(urlLogin, {
+        const verifyRes = await fetch(urlVerify, {
             method: "POST",
             headers: {
                 "apikey": chiaveAnon,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email: emailUtente, password: nuovaPassword })
+            body: JSON.stringify({ type: "recovery", email: email, token: token })
         });
 
-        if (loginRes.ok) {
-            const datiSessione = await loginRes.json();
-            localStorage.setItem('driverbutler_auth_token', datiSessione.access_token);
-            localStorage.setItem('driverbutler_refresh_token', datiSessione.refresh_token);
-        } else {
-            localStorage.setItem('driverbutler_auth_token', accessToken);
+        if (!verifyRes.ok) {
+            throw new Error("OTP_INVALID");
         }
 
-        localStorage.setItem('driverbutler_ruolo', 'passeggeri');
+        const sessioneRecupero = await verifyRes.json();
+        const tempToken = sessioneRecupero.access_token;
 
-        btnSubmit.textContent = dict.js_pass_success;
+        const updateRes = await fetch(urlUpdate, {
+            method: "PUT",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + tempToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ password: nuovaPassword })
+        });
+
+        if (!updateRes.ok) {
+            const datiErrore = await updateRes.json();
+            if (datiErrore.error_code === "same_password") {
+                throw new Error(dict.js_pass_err_same || "La nuova password digitata è uguale all'attuale.");
+            }
+            throw new Error("UPDATE_FAILED");
+        }
+
+        localStorage.setItem('driverbutler_auth_token', sessioneRecupero.access_token);
+        localStorage.setItem('driverbutler_refresh_token', sessioneRecupero.refresh_token);
+        localStorage.setItem('driverbutler_ruolo', 'passeggeri');
+        localStorage.setItem('driverbutler_last_user', sessioneRecupero.user.id);
+        
+        if (typeof svuotaBozze === 'function') svuotaBozze();
+
+        btnSubmit.textContent = dict.js_pass_success || "Password aggiornata! Accesso in corso...";
         btnSubmit.classList.add('btn-stato-successo');
 
         setTimeout(() => {
@@ -2888,16 +2900,19 @@ async function inviaNuovaPassword(event) {
         }, 2000);
 
     } catch (errore) {
-        console.error(errore);
         btnSubmit.textContent = testoOriginale;
         btnSubmit.disabled = false;
-        if (msgErroreServer) {
-            msgErroreServer.textContent = errore.message;
-            msgErroreServer.style.display = 'block';
-            
-            setTimeout(() => {
-                msgErroreServer.style.display = 'none';
-            }, 5000);
+        
+        if (errore.message === "OTP_INVALID") {
+            if (msgErroreOtp) {
+                msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
+                msgErroreOtp.style.display = 'block';
+            }
+        } else {
+            if (msgErroreServer) {
+                msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password. Errore server.") : errore.message;
+                msgErroreServer.style.display = 'block';
+            }
         }
     }
 }
