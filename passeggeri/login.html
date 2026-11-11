@@ -25,8 +25,11 @@
             </div>
 
             <form id="formLogin" action="#" method="POST">
-                <div class="form-group">
-                    <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
+                <div id="blocco_dati_login">
+                    <div id="messaggio_errore_server_login" class="error-message error-message-server"></div>
+                    
+                    <div class="form-group">
+                        <label class="label" for="email" data-i18n="label_email_accesso">Email Accesso</label>
                     <input type="email" id="email" name="email" class="input" required placeholder="mario@example.com" autocomplete="username">
                 </div>
                 <div class="form-group">
@@ -46,11 +49,23 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" data-i18n="btn_accedi">Accedi</button>
-                <a href="registrazione.html" class="link link-login" data-i18n="link_reg_login">Non hai un account? <strong>Registrati</strong></a>
+                <button type="submit" id="btn_invia_login" class="btn btn-primary btn-full" data-i18n="btn_accedi">Accedi</button>
+                    <a href="registrazione.html" class="link link-login" data-i18n="link_reg_login">Non hai un account? <strong>Registrati</strong></a>
+                </div>
             </form>
-            <div class="nota-informativa-login" data-i18n="nota_impostazioni">
-                Tutte le impostazioni a tua disposizione sono accessibili dal menù account in alto a destra.
+
+            <div id="blocco_verifica_otp_login" class="hidden">
+                <p class="auth-subtitle" data-i18n="testo_verifica_otp_login">Il tuo account non è ancora verificato. Inserisci il codice a 6 cifre per attivarlo.</p>
+                
+                <div class="form-group otp-container">
+                    <input type="text" id="otp_code_login" class="input otp-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+
+                <div id="messaggio_errore_otp_login" class="error-message error-message-server"></div>
+
+                <button type="button" id="btn_verifica_otp_login" class="btn btn-primary btn-full" data-i18n="btn_verifica_codice">Verifica Codice</button>
+                
+                <a id="link_invia_nuovo_otp_login" class="link-recupero-otp" data-i18n="link_invia_nuovo_otp">Codice scaduto o non ricevuto? Invia di nuovo</a>
             </div>
         </div>
     </main>
