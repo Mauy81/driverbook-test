@@ -692,9 +692,29 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnModificaPassword = document.getElementById('btn_modifica_password');
     if (btnModificaPassword) {
         btnModificaPassword.addEventListener('click', function() {
-            if (typeof modificaPassword === 'function') {
-                modificaPassword();
-            }
+            if (typeof modificaPassword === 'function') modificaPassword();
+        });
+    }
+
+    const formCambioPasswordInterno = document.getElementById('formCambioPasswordInterno');
+    if (formCambioPasswordInterno) {
+        formCambioPasswordInterno.addEventListener('submit', function(e) {
+            if (typeof verificaOtpECambiaPassword === 'function') verificaOtpECambiaPassword(e);
+        });
+    }
+
+    const linkNuovoOtpCambio = document.getElementById('link_invia_nuovo_otp_cambio');
+    if (linkNuovoOtpCambio) {
+        linkNuovoOtpCambio.addEventListener('click', function(e) {
+            if (typeof inviaNuovoOtpCambio === 'function') inviaNuovoOtpCambio(e);
+        });
+    }
+
+    const inputOtpCambio = document.getElementById('otp_code_cambio');
+    if (inputOtpCambio) {
+        inputOtpCambio.addEventListener('input', function() {
+            const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
+            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
         });
     }
 
@@ -2594,32 +2614,21 @@ async function modificaPassword() {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const testoOriginale = btn.textContent;
-    btn.textContent = dict.js_rec_loading;
+    btn.textContent = dict.js_rec_loading || "Invio richiesta...";
     btn.disabled = true;
 
     const token = localStorage.getItem('driverbutler_auth_token');
-    let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-    let redirectUrl = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/pwreimposta.html';
-    const urlRecover = `https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover?redirect_to=${encodeURIComponent(redirectUrl)}`;
+    const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
-        let emailUtente = "";
-        const emailInput = document.getElementById('profilo_email');
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Sessione non valida");
         
-        if (emailInput && emailInput.value) {
-            emailUtente = emailInput.value;
-        } else if (token) {
-            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-            });
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                emailUtente = userData.email;
-            }
-        }
-
-        if (!emailUtente) throw new Error("Email non trovata");
+        const userData = await userRes.json();
+        const emailUtente = userData.email;
 
         const risposta = await fetch(urlRecover, {
             method: "POST",
@@ -2631,25 +2640,18 @@ async function modificaPassword() {
         });
 
         if (!risposta.ok) {
-            throw new Error("Errore durante l'invio della richiesta");
+            throw new Error("Errore invio OTP");
         }
 
-        const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_rec_success_title">${dict.js_rec_success_title}</h2>`;
-        const messaggio = `<p class="feedback-testo" data-i18n="js_rec_int_success_msg">${dict.js_rec_int_success_msg}</p>`;
+        document.getElementById('blocco_richiesta_cambio').classList.add('hidden');
+        document.getElementById('blocco_verifica_cambio').classList.remove('hidden');
         
-        mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio);
-
-        setTimeout(() => {
-            if (typeof esciAccount === 'function') {
-                esciAccount();
-            } else {
-                window.location.href = 'index.html';
-            }
-        }, 5000);
+        btn.disabled = false;
+        btn.textContent = testoOriginale;
 
     } catch (errore) {
         console.error(errore);
-        btn.textContent = dict.js_rec_err;
+        btn.textContent = dict.js_rec_err || "Errore di invio";
         btn.classList.add('btn-stato-errore'); 
         
         setTimeout(() => {
@@ -2657,6 +2659,173 @@ async function modificaPassword() {
             btn.classList.remove('btn-stato-errore');
             btn.disabled = false;
         }, 5000);
+    }
+}
+
+async function verificaOtpECambiaPassword(event) {
+    event.preventDefault();
+
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    const msgErroreServer = document.getElementById('messaggio_errore_server_cambio');
+    if (msgErroreServer) msgErroreServer.style.display = 'none';
+    
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+
+    const tokenOtp = document.getElementById('otp_code_cambio').value.trim();
+    if (tokenOtp.length !== 6) {
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
+            msgErroreOtp.style.display = 'block';
+        }
+        return;
+    }
+
+    if (typeof validaComplessitaPassword === 'function' && !validaComplessitaPassword()) return;
+    if (typeof verificaCoincidenzaPassword === 'function' && !verificaCoincidenzaPassword()) return;
+
+    const nuovaPassword = document.getElementById('password').value;
+    const btnSubmit = document.getElementById('btn_salva_password_interna');
+    const testoOriginale = btnSubmit.textContent;
+    
+    btnSubmit.textContent = dict.js_pass_loading || "Salvataggio in corso...";
+    btnSubmit.disabled = true;
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Sessione non valida");
+        
+        const userData = await userRes.json();
+        const emailUtente = userData.email;
+
+        const verifyRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ type: "recovery", email: emailUtente, token: tokenOtp })
+        });
+
+        if (!verifyRes.ok) throw new Error("OTP_INVALID");
+
+        const sessioneRecupero = await verifyRes.json();
+        const tempToken = sessioneRecupero.access_token;
+
+        const updateRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            method: "PUT",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + tempToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ password: nuovaPassword })
+        });
+
+        if (!updateRes.ok) {
+            const datiErrore = await updateRes.json();
+            if (datiErrore.error_code === "same_password") {
+                throw new Error(dict.js_pass_err_same || "La nuova password digitata è uguale all'attuale.");
+            }
+            throw new Error("UPDATE_FAILED");
+        }
+
+        localStorage.setItem('driverbutler_auth_token', sessioneRecupero.access_token);
+        localStorage.setItem('driverbutler_refresh_token', sessioneRecupero.refresh_token);
+
+        if (typeof svuotaBozze === 'function') svuotaBozze();
+
+        btnSubmit.textContent = dict.js_pass_success || "Password aggiornata! Accesso in corso...";
+        btnSubmit.classList.add('btn-stato-successo');
+
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 2000);
+
+    } catch (errore) {
+        btnSubmit.textContent = testoOriginale;
+        btnSubmit.disabled = false;
+        
+        if (errore.message === "OTP_INVALID") {
+            if (msgErroreOtp) {
+                msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
+                msgErroreOtp.style.display = 'block';
+            }
+        } else {
+            if (msgErroreServer) {
+                msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password.") : errore.message;
+                msgErroreServer.style.display = 'block';
+            }
+        }
+    }
+}
+
+async function inviaNuovoOtpCambio(event) {
+    event.preventDefault();
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
+
+    const link = document.getElementById('link_invia_nuovo_otp_cambio');
+    const testoOriginale = link.textContent;
+    link.textContent = dict.js_rec_loading || "Invio in corso...";
+    link.style.pointerEvents = "none";
+
+    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Sessione non valida");
+        
+        const userData = await userRes.json();
+        const emailUtente = userData.email;
+
+        const risposta = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: emailUtente })
+        });
+
+        if (!risposta.ok) {
+            throw new Error("Errore invio codice");
+        }
+
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_rec_success || "Nuovo codice inviato!";
+            msgErroreOtp.style.color = "#00FF66";
+            msgErroreOtp.style.display = 'block';
+            setTimeout(() => {
+                msgErroreOtp.style.display = 'none';
+                msgErroreOtp.style.color = "";
+            }, 5000);
+        }
+
+        link.textContent = testoOriginale;
+        link.style.pointerEvents = "auto";
+
+    } catch (errore) {
+        link.textContent = testoOriginale;
+        link.style.pointerEvents = "auto";
+        if (msgErroreOtp) {
+            msgErroreOtp.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
+            msgErroreOtp.style.color = "#FF4444";
+            msgErroreOtp.style.display = 'block';
+        }
     }
 }
 

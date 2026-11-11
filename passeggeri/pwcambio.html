@@ -15,10 +15,56 @@
 
     <main class="login-wrapper">
         <div class="auth-card" id="card_sicurezza">
-            <div class="auth-header">
-                <h1 data-i18n="h1_cambio_password">Cambio Password</h1>
+            <div id="blocco_richiesta_cambio">
+                <div class="auth-header">
+                    <h1 data-i18n="h1_cambio_password">Cambio Password</h1>
+                    <p class="auth-subtitle" data-i18n="p_desc_cambio_pw">Clicca il pulsante qui sotto per ricevere un codice di sicurezza sulla tua email e autorizzare la modifica.</p>
+                </div>
+                <button class="btn btn-primary btn-full" id="btn_modifica_password" data-i18n="btn_invia_codice_sicurezza">Invia Codice di Sicurezza</button>
             </div>
-            <button class="btn btn-primary btn-full" id="btn_modifica_password" data-i18n="btn_reset_password_testo">RESET PASSWORD</button>
+
+            <div id="blocco_verifica_cambio" class="hidden">
+                <div class="auth-header">
+                    <h1 data-i18n="h1_reimposta_password">Reimposta Password</h1>
+                    <p class="auth-subtitle" data-i18n="testo_verifica_otp_cambio">Abbiamo inviato un codice a 6 cifre alla tua email. Inseriscilo qui sotto per confermare il cambio.</p>
+                </div>
+                
+                <form id="formCambioPasswordInterno" autocomplete="off">
+                    <div class="form-group otp-container">
+                        <input type="text" id="otp_code_cambio" class="input otp-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code">
+                    </div>
+                    
+                    <div id="messaggio_errore_otp_cambio" class="error-message error-message-server"></div>
+                    
+                    <div class="form-group">
+                        <label class="label" for="password" data-i18n="label_nuova_password">Nuova Password</label>
+                        <div class="pass-box">
+                            <input type="password" id="password" name="password" class="input" required placeholder="••••••••" autocomplete="new-password">
+                            <button type="button" id="btn_mostra_password" class="eye-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_password" class="error-message" data-i18n="errore_password">La password deve avere almeno 8 caratteri, una maiuscola, una minuscola e un numero.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="confermaPassword" data-i18n="label_conferma_nuova_password">Conferma Nuova Password</label>
+                        <div class="pass-box">
+                            <input type="password" id="confermaPassword" name="confermaPassword" class="input" required placeholder="••••••••" autocomplete="new-password">
+                            <button type="button" id="btn_mostra_conferma_password" class="eye-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_coincidenza" class="error-message" data-i18n="errore_coincidenza">Le password non coincidono.</div>
+                    </div>
+
+                    <div id="messaggio_errore_server_cambio" class="error-message error-message-server"></div>
+
+                    <button type="submit" id="btn_salva_password_interna" class="btn btn-primary btn-full" data-i18n="btn_salva_nuova_password">Salva Nuova Password</button>
+                    
+                    <a id="link_invia_nuovo_otp_cambio" class="link-recupero-otp" data-i18n="link_invia_nuovo_otp">Codice scaduto o non ricevuto? Invia di nuovo</a>
+                </form>
+            </div>
         </div>
     </main>
 
