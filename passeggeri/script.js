@@ -638,9 +638,34 @@ document.addEventListener("DOMContentLoaded", function() {
     const formProfilo = document.getElementById('formModificaProfilo');
     if (formProfilo) {
         formProfilo.addEventListener('submit', function(event) {
-            if (typeof aggiornaProfilo === 'function') {
-                aggiornaProfilo(event);
-            }
+            if (typeof aggiornaProfilo === 'function') aggiornaProfilo(event);
+        });
+    }
+
+    const formPwdEmail = document.getElementById('form_sicurezza_password_email');
+    if (formPwdEmail) formPwdEmail.addEventListener('submit', verificaPasswordPerEmail);
+
+    const btnAnnullaModEmail = document.getElementById('btn_annulla_mod_email');
+    if (btnAnnullaModEmail) {
+        btnAnnullaModEmail.addEventListener('click', function() {
+            document.getElementById('blocco_sicurezza_email_password').classList.add('hidden');
+            document.getElementById('formModificaProfilo').classList.remove('hidden');
+            document.getElementById('password_attuale_email').value = '';
+            document.getElementById('msg_errore_password_email').style.display = 'none';
+        });
+    }
+
+    const formOtpEmail = document.getElementById('form_sicurezza_otp_email');
+    if (formOtpEmail) formOtpEmail.addEventListener('submit', verificaOtpNuovaEmail);
+
+    const linkRinviaOtpEmail = document.getElementById('link_rinvia_otp_email');
+    if (linkRinviaOtpEmail) linkRinviaOtpEmail.addEventListener('click', inviaOtpNuovaEmail);
+
+    const inputOtpNuovaEmail = document.getElementById('otp_code_nuova_email');
+    if (inputOtpNuovaEmail) {
+        inputOtpNuovaEmail.addEventListener('input', function() {
+            const msg = document.getElementById('msg_errore_otp_email');
+            if (msg) msg.style.display = 'none';
         });
     }
 
@@ -2443,9 +2468,7 @@ async function aggiornaProfilo(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    if (!validaNotificheDashboard()) {
-        return;
-    }
+    if (!validaNotificheDashboard()) return;
 
     const btnSubmit = document.querySelector('#formModificaProfilo button[type="submit"]');
     const testoOriginale = btnSubmit.textContent;
@@ -2455,7 +2478,6 @@ async function aggiornaProfilo(event) {
     if (alertBox && !alertBox.classList.contains('hidden')) {
         btnSubmit.textContent = dict.js_prof_err_vat;
         btnSubmit.classList.add('btn-stato-errore');
-
         setTimeout(() => {
             btnSubmit.textContent = testoOriginale;
             btnSubmit.classList.remove('btn-stato-errore');
@@ -2464,7 +2486,7 @@ async function aggiornaProfilo(event) {
         return;
     }
 
-    btnSubmit.textContent = dict.js_prof_loading;
+    btnSubmit.textContent = dict.js_prof_loading || "Salvataggio in corso...";
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2474,9 +2496,19 @@ async function aggiornaProfilo(event) {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const userData = await userRes.json();
-        const userId = userData.id;
-        const ruolo = localStorage.getItem('driverbutler_ruolo');
+        
+        const nuovaEmail = document.getElementById('profilo_email').value.trim();
+        
+        if (nuovaEmail !== userData.email) {
+            btnSubmit.textContent = testoOriginale;
+            btnSubmit.disabled = false;
+            
+            document.getElementById('formModificaProfilo').classList.add('hidden');
+            document.getElementById('blocco_sicurezza_email_password').classList.remove('hidden');
+            return;
+        }
 
+        const userId = userData.id;
         let prefissoTel = "+" + itiProfiloPasseggero.getSelectedCountryData().dialCode;
         let numeroDigitato = document.getElementById('profilo_telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
@@ -2510,9 +2542,7 @@ async function aggiornaProfilo(event) {
             body: JSON.stringify(corpoDati)
         });
 
-        if (!dbRes.ok) {
-            throw new Error("Errore database");
-        }
+        if (!dbRes.ok) throw new Error("Errore database");
 
         await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
             method: "PUT",
@@ -2524,72 +2554,21 @@ async function aggiornaProfilo(event) {
             body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
         });
         
-        const nuovaEmail = document.getElementById('profilo_email').value;
-        if (nuovaEmail !== userData.email) {
-            let urlRedirect = "https://mauy81.github.io/driverbook-test/passeggeri/login.html";
-            if (window.location.protocol !== 'file:') {
-                let pathAssoluto = window.location.href.split('?')[0].split('#')[0];
-                urlRedirect = pathAssoluto.substring(0, pathAssoluto.lastIndexOf('/')) + '/login.html';
-            }
-            
-            const emailRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user?redirect_to=${encodeURIComponent(urlRedirect)}`, {
-                method: "PUT",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email: nuovaEmail })
-            });
-            
-            if (!emailRes.ok) {
-                const errEmail = await emailRes.json();
-                const stringaErrore = JSON.stringify(errEmail).toLowerCase();
-                
-                if (emailRes.status === 422 || stringaErrore.includes("already") || stringaErrore.includes("registered") || stringaErrore.includes("exists")) {
-                    throw new Error("EMAIL_ESISTENTE");
-                }
-                throw new Error("Errore email generico");
-            }
-            
-            if (typeof svuotaBozze === 'function') svuotaBozze();
-            const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title}</h2>`;
-            const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg}</p>`;
-            
-            mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback);
-
-            const chiaviDaCancellare = [
-                'driverbutler_auth_token', 'driverbutler_refresh_token', 'driverbutler_ruolo', 'driverbutler_last_user',
-                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
-                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
-                'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
-                'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
-                'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
-            ];
-            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
-            
-            return;
-        } else {
-            if (typeof svuotaBozze === 'function') svuotaBozze();
-            btnSubmit.textContent = dict.js_prof_success;
-            btnSubmit.classList.add('btn-stato-successo');
-
-            setTimeout(() => {
-                btnSubmit.textContent = testoOriginale;
-                btnSubmit.classList.remove('btn-stato-successo');
-                btnSubmit.disabled = false;
-            }, 5000);
-            
-            caricaDatiDashboardPasseggero();
-        }
-    } catch (errore) {
-        let msgErrore = dict.js_prof_err_save;
+        if (typeof svuotaBozze === 'function') svuotaBozze();
         
-        if (errore.message === "EMAIL_ESISTENTE") {
-            msgErrore = dict.js_prof_err_email_exists;
-        }
+        btnSubmit.textContent = dict.js_prof_success;
+        btnSubmit.classList.add('btn-stato-successo');
 
-        btnSubmit.textContent = msgErrore;
+        setTimeout(() => {
+            btnSubmit.textContent = testoOriginale;
+            btnSubmit.classList.remove('btn-stato-successo');
+            btnSubmit.disabled = false;
+        }, 5000);
+        
+        caricaDatiDashboardPasseggero();
+        
+    } catch (errore) {
+        btnSubmit.textContent = dict.js_prof_err_save;
         btnSubmit.classList.add('btn-stato-errore');
 
         setTimeout(() => {
@@ -2597,6 +2576,172 @@ async function aggiornaProfilo(event) {
             btnSubmit.classList.remove('btn-stato-errore');
             btnSubmit.disabled = false;
         }, 5000);
+    }
+}
+
+async function verificaPasswordPerEmail(event) {
+    event.preventDefault();
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const msgErrore = document.getElementById('msg_errore_password_email');
+    msgErrore.style.display = 'none';
+
+    const btn = document.getElementById('btn_conferma_password_email');
+    const pwdInserita = document.getElementById('password_attuale_email').value;
+    
+    const testoOriginale = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = dict.js_login_loading || "Verifica...";
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const userData = await userRes.json();
+        
+        const loginCheck = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/token?grant_type=password", {
+            method: "POST",
+            headers: { "apikey": chiaveAnon, "Content-Type": "application/json" },
+            body: JSON.stringify({ email: userData.email, password: pwdInserita })
+        });
+
+        if (!loginCheck.ok) {
+            throw new Error("PWD_ERRATA");
+        }
+
+        await inviaOtpNuovaEmail(null, true);
+
+    } catch (errore) {
+        btn.disabled = false;
+        btn.textContent = testoOriginale;
+        document.getElementById('password_attuale_email').value = '';
+        msgErrore.textContent = errore.message === "PWD_ERRATA" ? (dict.js_login_err_invalid || "Password errata.") : "Errore di connessione.";
+        msgErrore.style.display = 'block';
+    }
+}
+
+async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
+    if (event) event.preventDefault();
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    
+    const nuovaEmail = document.getElementById('profilo_email').value.trim();
+    const btn = document.getElementById('btn_conferma_password_email');
+    const link = document.getElementById('link_rinvia_otp_email');
+    const msgErrore = document.getElementById('msg_errore_otp_email');
+    if (msgErrore) msgErrore.style.display = 'none';
+
+    if (!daFlussoPrincipale) {
+        link.textContent = dict.js_rec_loading || "Invio in corso...";
+        link.style.pointerEvents = "none";
+    }
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const updateRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            method: "PUT",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: nuovaEmail })
+        });
+
+        if (!updateRes.ok) {
+            const errEmail = await updateRes.json();
+            const stringaErrore = JSON.stringify(errEmail).toLowerCase();
+            if (updateRes.status === 422 || stringaErrore.includes("already") || stringaErrore.includes("exists")) {
+                throw new Error("EMAIL_ESISTENTE");
+            }
+            throw new Error("ERRORE_INVIO");
+        }
+
+        if (daFlussoPrincipale) {
+            document.getElementById('blocco_sicurezza_email_password').classList.add('hidden');
+            document.getElementById('blocco_sicurezza_email_otp').classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = dict.btn_procedi || "Procedi";
+        } else {
+            msgErrore.textContent = dict.js_rec_success || "Nuovo codice inviato!";
+            msgErrore.style.color = "#00FF66";
+            msgErrore.style.display = 'block';
+            setTimeout(() => { msgErrore.style.display = 'none'; msgErrore.style.color = ""; }, 5000);
+            link.textContent = dict.link_invia_nuovo_otp || "Codice scaduto o non ricevuto? Invia di nuovo";
+            link.style.pointerEvents = "auto";
+        }
+
+    } catch (errore) {
+        if (daFlussoPrincipale) {
+            const modalePass = document.getElementById('msg_errore_password_email');
+            btn.disabled = false;
+            btn.textContent = dict.btn_procedi || "Procedi";
+            modalePass.textContent = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore invio OTP.";
+            modalePass.style.display = 'block';
+        } else {
+            link.textContent = dict.link_invia_nuovo_otp || "Codice scaduto o non ricevuto? Invia di nuovo";
+            link.style.pointerEvents = "auto";
+            msgErrore.textContent = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore di connessione.";
+            msgErrore.style.color = "#FF4444";
+            msgErrore.style.display = 'block';
+        }
+    }
+}
+
+async function verificaOtpNuovaEmail(event) {
+    event.preventDefault();
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const msgErrore = document.getElementById('msg_errore_otp_email');
+    msgErrore.style.display = 'none';
+
+    const tokenOtp = document.getElementById('otp_code_nuova_email').value.trim();
+    if (tokenOtp.length !== 6) {
+        msgErrore.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
+        msgErrore.style.display = 'block';
+        return;
+    }
+
+    const nuovaEmail = document.getElementById('profilo_email').value.trim();
+    const btn = document.getElementById('btn_verifica_otp_email');
+    const testoOriginale = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = dict.js_login_loading || "Verifica...";
+
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const verifyRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify", {
+            method: "POST",
+            headers: { "apikey": chiaveAnon, "Content-Type": "application/json" },
+            body: JSON.stringify({ type: "email_change", email: nuovaEmail, token: tokenOtp })
+        });
+
+        if (!verifyRes.ok) throw new Error("OTP_INVALID");
+
+        const sessioneAggiornata = await verifyRes.json();
+        
+        localStorage.setItem('driverbutler_auth_token', sessioneAggiornata.access_token);
+        localStorage.setItem('driverbutler_refresh_token', sessioneAggiornata.refresh_token);
+
+        if (typeof svuotaBozze === 'function') svuotaBozze();
+
+        const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Successo"}</h2>`;
+        const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg || "L'indirizzo email è stato aggiornato correttamente."}</p>`;
+        const btnDashboard = `<a href="dashboard.html" class="btn btn-primary btn-full">${dict.menu_home || "Vai al Pannello Utente"}</a>`;
+        
+        mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback, btnDashboard);
+
+    } catch (errore) {
+        btn.disabled = false;
+        btn.textContent = testoOriginale;
+        msgErrore.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
+        msgErrore.style.display = 'block';
     }
 }
 

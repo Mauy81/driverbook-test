@@ -105,6 +105,49 @@
 
                 <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo" data-i18n="btn_salva_profilo">Salva Modifiche Profilo</button>
             </form>
+
+            <div id="blocco_sicurezza_email_password" class="hidden">
+                <div class="auth-header">
+                    <h1 data-i18n="h1_conferma_identita">Conferma Identità</h1>
+                    <p class="auth-subtitle" data-i18n="p_desc_mod_email_pwd">Stai per cambiare il tuo indirizzo email. Per autorizzare l'operazione, inserisci la tua password attuale.</p>
+                </div>
+                
+                <form id="form_sicurezza_password_email" autocomplete="off">
+                    <div class="form-group">
+                        <label class="label" for="password_attuale_email" data-i18n="label_password_attuale">Password Attuale</label>
+                        <div class="pass-box">
+                            <input type="password" id="password_attuale_email" class="input" required placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" class="eye-btn" onclick="togglePassword('password_attuale_email', this)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="msg_errore_password_email" class="error-message error-message-server"></div>
+                    
+                    <button type="submit" id="btn_conferma_password_email" class="btn btn-primary btn-full" data-i18n="btn_procedi">Procedi</button>
+                    <button type="button" id="btn_annulla_mod_email" class="btn btn-ghost btn-full" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                </form>
+            </div>
+
+            <div id="blocco_sicurezza_email_otp" class="hidden">
+                <div class="auth-header">
+                    <h1 data-i18n="h1_verifica_nuova_email">Verifica Nuova Email</h1>
+                    <p class="auth-subtitle" data-i18n="p_desc_mod_email_otp">Abbiamo inviato un codice di sicurezza al tuo nuovo indirizzo email. Inseriscilo qui per confermare.</p>
+                </div>
+                
+                <form id="form_sicurezza_otp_email" autocomplete="off">
+                    <div class="form-group otp-container">
+                        <input type="text" id="otp_code_nuova_email" class="input otp-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code">
+                    </div>
+                    
+                    <div id="msg_errore_otp_email" class="error-message error-message-server"></div>
+                    
+                    <button type="submit" id="btn_verifica_otp_email" class="btn btn-primary btn-full" data-i18n="btn_verifica_codice">Verifica Codice</button>
+                    <a id="link_rinvia_otp_email" class="link-recupero-otp" data-i18n="link_invia_nuovo_otp">Codice scaduto o non ricevuto? Invia di nuovo</a>
+                </form>
+            </div>
+
         </div>
     </main>
 
