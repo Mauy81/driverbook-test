@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (inputOtpCambio) {
         inputOtpCambio.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
-            if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
         });
     }
 
@@ -828,15 +828,15 @@ function validaComplessitaPassword() {
     if (!msgErrore) return true;
 
     if (pass.length === 0) {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return false;
     }
 
     if (!regexPassword.test(pass)) {
-        msgErrore.classList.remove('hidden');
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -849,15 +849,15 @@ function verificaCoincidenzaPassword() {
     if (!msgErrore) return true;
 
     if (confermaPass.length === 0) {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return false;
     }
 
     if (pass !== confermaPass) {
-        msgErrore.classList.remove('hidden');
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -870,10 +870,10 @@ function validaNotifiche() {
     if (!msgErrore) return true;
 
     if (!notificaPush && !notificaEmail) {
-        msgErrore.classList.remove('hidden');
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -886,10 +886,10 @@ function validaNotificheDashboard() {
     if (!msgErrore) return true;
 
     if (!notificaPush && !notificaEmail) {
-        msgErrore.classList.remove('hidden');
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -4148,7 +4148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtpLogin) {
         inputOtpLogin.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
-            if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
         });
     }
 });
