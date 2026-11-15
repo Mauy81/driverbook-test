@@ -351,6 +351,10 @@ textarea.input {
     display: none;
 }
 
+.error-message.mostra {
+    display: block !important;
+}
+
 .iti {
     width: 100%;
     display: block;

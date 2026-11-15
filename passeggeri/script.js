@@ -1254,15 +1254,15 @@ function validaComplessitaPassword() {
     if (!msgErrore) return true;
 
     if (pass.length === 0) {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return false;
     }
 
     if (!regexPassword.test(pass)) {
-        msgErrore.style.display = 'block';
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -1275,15 +1275,15 @@ function verificaCoincidenzaPassword() {
     if (!msgErrore) return true;
 
     if (confermaPass.length === 0) {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return false;
     }
 
     if (pass !== confermaPass) {
-        msgErrore.style.display = 'block';
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -1296,10 +1296,10 @@ function validaNotifiche() {
     if (!msgErrore) return true;
 
     if (!notificaPush && !notificaEmail) {
-        msgErrore.style.display = 'block';
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -1312,10 +1312,10 @@ function validaNotificheDashboard() {
     if (!msgErrore) return true;
 
     if (!notificaPush && !notificaEmail) {
-        msgErrore.style.display = 'block';
+        msgErrore.classList.add('mostra');
         return false;
     } else {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -1445,11 +1445,11 @@ function validaOrario() {
     const limiteMinimo = new Date(adesso.getTime() + (3 * 60 * 60 * 1000));
 
     if (dataOraScelta < limiteMinimo) {
-        msgErrore.style.display = 'block';
+        msgErrore.classList.add('mostra');
         document.getElementById('ora_partenza').value = ''; 
         return false;
     } else {
-        msgErrore.style.display = 'none';
+        msgErrore.classList.remove('mostra');
         return true;
     }
 }
@@ -1715,7 +1715,7 @@ function selezionaVettura(codiceVettura) {
     if(codiceVettura === 'CLASSE_V') tagV.textContent = dict.js_vettura_sel;
 
     const msgErroreVettura = document.getElementById('errore_vettura');
-    if (msgErroreVettura) msgErroreVettura.style.display = 'none';
+    if (msgErroreVettura) msgErroreVettura.classList.remove('mostra');
 }
 
 function inviaRichiesta(event) {
@@ -1725,10 +1725,10 @@ function inviaRichiesta(event) {
     const msgErroreVettura = document.getElementById('errore_vettura');
 
     if (!vetturaScelta) {
-        if (msgErroreVettura) msgErroreVettura.style.display = 'block';
+        if (msgErroreVettura) msgErroreVettura.classList.add('mostra');
         return;
     } else {
-        if (msgErroreVettura) msgErroreVettura.style.display = 'none';
+        if (msgErroreVettura) msgErroreVettura.classList.remove('mostra');
     }
 
     if (validaOrario()) {
@@ -3129,10 +3129,10 @@ function tornaARichiestaReset() {
     if (confPasswordInput) confPasswordInput.value = '';
 
     const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) msgErroreServer.style.display = 'none';
+    if (msgErroreServer) msgErroreServer.classList.remove('mostra');
 }
 
 async function inviaNuovaPassword(event) {
