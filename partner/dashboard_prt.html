@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriverButler - Dashboard Partner</title>
+    <link rel="stylesheet" href="style_prt.css">
+    <link rel="manifest" href="manifest_prt.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <main class="login-wrapper">
+        <div class="auth-card" id="card_home_azioni">
+            <div class="auth-header">
+                <h1 id="welcome_message"><span>Ciao,</span><br><span id="dash_nome_partner">...</span></h1>
+            </div>
+            
+            <div id="container_codice_cliente">
+                <div class="label">Codice Partner:</div>
+                <div id="dash_codice_partner">...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg class="icona-inline-destra" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+
+    <div id="modale_richiesta_notifiche" class="modale-overlay hidden">
+        <div class="modale-box">
+            <h3 class="modale-titolo">Avvisi in Tempo Reale</h3>
+            <p class="modale-testo">
+                Vuoi attivare le notifiche per ricevere gli aggiornamenti sui servizi?<br>
+                <span class="modale-testo-secondario">Dopo aver cliccato SI, ricordati di premere "Consenti" sull'avviso del tuo dispositivo.</span>
+            </p>
+            <div class="modale-bottoni-container">
+                <button id="btn_notifiche_no" class="btn-modale-bianco btn-modale-compatto">NO</button>
+                <button id="btn_notifiche_si" class="btn-modale-bianco btn-modale-compatto">SI</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script_prt.js"></script>
+</body>
+</html>

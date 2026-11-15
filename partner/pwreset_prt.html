@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - DriverButler</title>
+    <link rel="stylesheet" href="style_prt.css">
+    <link rel="manifest" href="manifest_prt.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
+</head>
+<body>
+
+    <div id="menu-principale"></div>
+
+    <div class="login-wrapper">
+        <div class="auth-card">
+            
+            <div id="blocco_richiesta_reset">
+                <div class="auth-header">
+                    <h1>Reset Password</h1>
+                    <p class="testo-descrittivo-auth">
+                        Inserisci l'indirizzo email associato al tuo account. Ti invieremo un codice a 6 cifre per creare una nuova password.
+                    </p>
+                </div>
+
+                <form id="formRecuperoPassword" autocomplete="off">
+                    <div class="form-group">
+                        <label class="label" for="email_recupero">La tua Email</label>
+                        <input type="email" id="email_recupero" class="input" required placeholder="mario@example.com">
+                    </div>
+
+                    <div id="msg_recupero" class="error-message msg-centrato-spaziato hidden"></div>
+
+                    <button type="submit" id="btn_invia_recupero" class="btn btn-primary btn-full">Invia Codice di Recupero</button>
+                </form>
+            </div>
+
+            <div id="blocco_verifica_reset" class="hidden">
+                <div class="auth-header">
+                    <h1>Reimposta Password</h1>
+                    <p id="testo_invio_reset_email" class="testo-descrittivo-auth"></p>
+                </div>
+
+                <form id="formResetPassword" autocomplete="off">
+                    <div class="form-group">
+                        <label class="label" for="otp_code_reset">Codice di Sicurezza (6 cifre)</label>
+                        <input type="text" id="otp_code_reset" class="input input-otp" maxlength="6" inputmode="numeric" pattern="[0-9]*" required placeholder="123456" autocomplete="one-time-code">
+                        <div id="messaggio_errore_otp_reset" class="error-message msg-centrato-spaziato hidden"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="password">Nuova Password</label>
+                        <div class="pass-box">
+                            <input type="password" id="password" class="input" required placeholder="••••••••" autocomplete="new-password">
+                            <button type="button" class="eye-btn" data-target-input="password">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_password" class="error-message hidden">Minimo 8 caratteri, una maiuscola, una minuscola e un numero.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="confermaPassword">Conferma Nuova Password</label>
+                        <div class="pass-box">
+                            <input type="password" id="confermaPassword" class="input" required placeholder="••••••••" autocomplete="new-password">
+                            <button type="button" class="eye-btn" data-target-input="confermaPassword">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                        <div id="errore_coincidenza" class="error-message hidden">Le password non coincidono.</div>
+                    </div>
+
+                    <div id="messaggio_errore_server" class="error-message margine-inferiore-20 hidden"></div>
+
+                    <button type="submit" id="btn_salva_password" class="btn btn-primary btn-full">Salva Nuova Password</button>
+                    <a href="#" id="link_invia_nuovo_otp_reset" class="link link-login">Codice scaduto o non ricevuto? Invia di nuovo</a>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+
+    
+
+    
+    <script src="script_prt.js"></script>
+</body>
+</html>

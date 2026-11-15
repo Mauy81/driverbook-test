@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Flotta - DriverButler</title>
+    <link rel="stylesheet" href="style_prt.css">
+    <link rel="manifest" href="manifest_prt.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="../logo/icona-pwa-prt.png">
+</head>
+<body class="page-flotta">
+    <div id="menu-principale"></div>
+	
+    <main class="login-wrapper">
+        <div class="auth-card" id="card_flotta">
+            
+            <div class="auth-header">
+                <h1>Gestione Flotta</h1>
+            </div>
+
+            <div id="sezione_elenco_veicoli" class="sezione-vetture"></div>
+
+            <div id="form_container_veicolo" class="hidden">
+                <div class="auth-header">
+                    <h2 id="titolo_form_veicolo">Nuovo Veicolo</h2>
+                </div>
+                
+                <form id="formGestioneVeicolo">
+                    <div class="form-group">
+                        <label class="label" for="veicolo_modello">Modello Vettura</label>
+                        <select id="veicolo_modello" class="input" required>
+                            <option value="" disabled selected>Seleziona modello...</option>
+                            <option value="CLASSE V">Classe V</option>
+                            <option value="CLASSE E">Classe E</option>
+                            <option value="CLASSE S">Classe S</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group hidden" id="gruppo_posti_v">
+                        <label class="label" for="veicolo_posti">Posti Passeggeri effettivi</label>
+                        <select id="veicolo_posti" class="input" required>
+                            <option value="" disabled selected>Seleziona posti...</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="veicolo_targa">Targa Veicolo</label>
+                        <input type="text" id="veicolo_targa" class="input input-targa" required placeholder="Es. AB 123 CD" autocomplete="off">
+                    </div>
+
+                    <div class="form-group form-group-autocert">
+                        <label class="label label-autocert">Autocertificazioni Obbligatorie</label>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="autocert_destinazione" class="checkbox-input" required>
+                            <label for="autocert_destinazione" class="checkbox-label">Dichiaro che il veicolo è immatricolato per "uso di terzi da locazione con conducente" (NCC), come indicato sulla Carta di Circolazione.</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="autocert_assicurazione" class="checkbox-input" required>
+                            <label for="autocert_assicurazione" class="checkbox-label">Dichiaro che il veicolo è in regola con la revisione annuale e dispone di specifica assicurazione per il trasporto passeggeri (NCC).</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="autocert_autorizzazione" class="checkbox-input" required>
+                            <label for="autocert_autorizzazione" class="checkbox-label">Dichiaro che il veicolo è associato a una regolare autorizzazione NCC in corso di validità.</label>
+                        </div>
+                    </div>
+
+                    <div class="form-bottoni-veicolo">
+                        <button type="button" class="btn btn-ghost btn-veicolo-azione" id="btn_annulla_veicolo">ANNULLA</button>
+                        <button type="submit" class="btn btn-primary btn-veicolo-azione" id="btn_salva_veicolo">SALVA</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="barra_aggiungi_veicolo">
+        <button type="button" class="btn btn-primary">AGGIUNGI VEICOLO</button>
+    </div>
+
+    <div id="menu_overlay" class="overlay"></div>
+
+    <div id="side_panel" class="side-panel">
+        <div class="sidebar-sticky-header">
+            <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                <span>CHIUDI MENU</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg class="icona-inline-destra" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+        </div>
+        <div class="menu-items scrollable-menu"></div>
+    </div>
+    
+    <template id="template_card_veicolo">
+        <div class="vettura-card vettura-card-mini" data-targa="">
+            <div class="card-flex-container">
+                <div class="testo-card-veicolo"><span class="testo-label">CLASSE</span> <span class="testo-valore" data-bind="classe"></span></div>
+                <div class="testo-card-veicolo hidden" data-bind-container="posti_block"><span class="testo-label" data-bind="posti"></span></div>
+            </div>
+            <div class="card-flex-container">
+                <div class="testo-card-veicolo"><span class="testo-valore" data-bind="targa"></span></div>
+                <div class="btn-elimina-veicolo" data-bind-action="elimina">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="script_prt.js"></script>
+</body>
+</html>
