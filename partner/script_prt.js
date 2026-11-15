@@ -482,7 +482,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if (inputOtpCambio) {
         inputOtpCambio.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
-            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
+            if (msgErroreOtp) {
+                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('testo-successo-otp');
+            }
         });
     }
 
@@ -4148,7 +4151,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtpLogin) {
         inputOtpLogin.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
-            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
+            if (msgErroreOtp) {
+                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('testo-successo-otp');
+            }
         });
     }
 });
@@ -4181,7 +4187,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtpReset) {
         inputOtpReset.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-            if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+            if (msgErroreOtp) {
+                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('testo-successo-otp');
+            }
         });
     }
 });
@@ -4210,7 +4219,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtp) {
         inputOtp.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp');
-            if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+			if (msgErroreOtp) {
+				msgErroreOtp.classList.add('hidden');
+				msgErroreOtp.classList.remove('testo-successo-otp');
+			}
         });
     }
 
