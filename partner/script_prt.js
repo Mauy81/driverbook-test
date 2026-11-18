@@ -2518,19 +2518,16 @@ document.addEventListener("DOMContentLoaded", function() {
         btnSalva.textContent = testoOriginale;
         btnSalva.disabled = false;
     });
+
+    if (sessionStorage.getItem('prt_apri_nuovo_veicolo') === 'true') {
+        sessionStorage.removeItem('prt_apri_nuovo_veicolo');
+        btnApri.click();
+    }
 });
 
 async function caricaFlotta() {
     const contenitore = document.getElementById('sezione_elenco_veicoli');
     if (!contenitore) return;
-    
-    if (sessionStorage.getItem('prt_apri_nuovo_veicolo') === 'true') {
-        sessionStorage.removeItem('prt_apri_nuovo_veicolo');
-        const btnApri = document.getElementById('barra_aggiungi_veicolo');
-        if (btnApri) {
-            btnApri.click();
-        }
-    }
     
     contenitore.innerHTML = '<div class="msg-lista-info">Caricamento flotta in corso...</div>';
     
