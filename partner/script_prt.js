@@ -2524,12 +2524,11 @@ async function caricaFlotta() {
     const contenitore = document.getElementById('sezione_elenco_veicoli');
     if (!contenitore) return;
     
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('azione') === 'nuovo') {
+    if (sessionStorage.getItem('prt_apri_nuovo_veicolo') === 'true') {
+        sessionStorage.removeItem('prt_apri_nuovo_veicolo');
         const btnApri = document.getElementById('barra_aggiungi_veicolo');
         if (btnApri) {
             btnApri.click();
-            window.history.replaceState({}, document.title, window.location.pathname);
         }
     }
     
@@ -2835,10 +2834,19 @@ async function caricaBachecaRichieste() {
             msgLoading.classList.add('hidden');
             if (modaleFlotta) {
                 modaleFlotta.classList.remove('hidden');
+                
                 document.getElementById('btn_chiudi_modale_flotta').onclick = function() {
                     modaleFlotta.classList.add('hidden');
                     msgNoVeicoli.classList.remove('hidden');
                 };
+                
+                const btnVaiFlotta = document.getElementById('btn_vai_flotta_nuovo');
+                if (btnVaiFlotta) {
+                    btnVaiFlotta.onclick = function() {
+                        sessionStorage.setItem('prt_apri_nuovo_veicolo', 'true');
+                        window.location.href = 'flotta_prt.html';
+                    };
+                }
             } else {
                 msgNoVeicoli.classList.remove('hidden');
             }
