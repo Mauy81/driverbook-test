@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('blocco_sicurezza_email_password').classList.add('hidden');
             document.getElementById('formModificaProfilo').classList.remove('hidden');
             document.getElementById('password_attuale_email').value = '';
-            document.getElementById('msg_errore_password_email').classList.add('hidden');
+            document.getElementById('msg_errore_password_email').classList.remove('mostra');
         });
     }
 
@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", function() {
         inputOtpCambio.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
             if (msgErroreOtp) {
-                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('mostra');
                 msgErroreOtp.classList.remove('testo-successo-otp');
             }
         });
@@ -657,14 +657,14 @@ async function verificaOtpLogin() {
     const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
 
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
     if (token.length !== 6) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
         return;
     }
@@ -760,7 +760,7 @@ async function verificaOtpLogin() {
         btnVerifica.blur();
         if (msgErroreOtp) {
             msgErroreOtp.textContent = errore.message;
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
     }
 }
@@ -776,7 +776,7 @@ async function inviaNuovoOtpLogin(event) {
     link.classList.add('no-click');
 
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
@@ -803,9 +803,9 @@ async function inviaNuovoOtpLogin(event) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Nuovo codice inviato!";
             msgErroreOtp.classList.add('testo-successo-otp');
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
             setTimeout(() => {
-                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('mostra');
                 msgErroreOtp.classList.remove('testo-successo-otp');
             }, 5000);
         }
@@ -818,7 +818,7 @@ async function inviaNuovoOtpLogin(event) {
         link.classList.remove('no-click');
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Errore di connessione. Riprova.";
-            msgErroreOtp.classList.remove('hidden', 'testo-successo-otp');
+            msgErroreOtp.classList.add('mostra'); msgErroreOtp.classList.remove('testo-successo-otp');
         }
     }
 }
@@ -845,8 +845,10 @@ function validaComplessitaPassword() {
 }
 
 function verificaCoincidenzaPassword() {
+    const confPassElement = document.getElementById('confermaPassword');
+    if (!confPassElement) return true;
     const pass = document.getElementById('password').value;
-    const confermaPass = document.getElementById('confermaPassword').value;
+    const confermaPass = confPassElement.value;
     const msgErrore = document.getElementById('errore_coincidenza');
 
     if (!msgErrore) return true;
@@ -902,7 +904,7 @@ async function inviaRegistrazione(event) {
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
     if (msgErroreServer) {
-        msgErroreServer.classList.add('hidden');
+        msgErroreServer.classList.remove('mostra');
     }
 
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
@@ -1020,7 +1022,7 @@ async function inviaRegistrazione(event) {
             };
         } else if (msgErroreServer) {
             msgErroreServer.textContent = testoErrore;
-            msgErroreServer.classList.remove('hidden');
+            msgErroreServer.classList.add('mostra');
         }
     }
 }
@@ -1032,14 +1034,14 @@ async function verificaOtpRegistrazione() {
     const msgErroreOtp = document.getElementById('messaggio_errore_otp');
 
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
     if (token.length !== 6) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
         return;
     }
@@ -1093,7 +1095,7 @@ async function verificaOtpRegistrazione() {
         btnVerifica.blur();
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Codice errato o scaduto.";
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
     }
 }
@@ -1109,7 +1111,7 @@ async function inviaNuovoOtpRegistrazione(event) {
     link.classList.add('no-click');
 
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
@@ -1136,9 +1138,9 @@ async function inviaNuovoOtpRegistrazione(event) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Nuovo codice inviato!";
             msgErroreOtp.classList.add('testo-successo-otp');
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
             setTimeout(() => {
-                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('mostra');
                 msgErroreOtp.classList.remove('testo-successo-otp');
             }, 5000);
         }
@@ -1151,7 +1153,7 @@ async function inviaNuovoOtpRegistrazione(event) {
         link.classList.remove('no-click');
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Errore di connessione. Riprova.";
-            msgErroreOtp.classList.remove('hidden', 'testo-successo-otp');
+            msgErroreOtp.classList.add('mostra'); msgErroreOtp.classList.remove('testo-successo-otp');
         }
     }
 }
@@ -1346,7 +1348,7 @@ async function aggiornaProfilo(event) {
 async function verificaPasswordPerEmail(event) {
     event.preventDefault();
     const msgErrore = document.getElementById('msg_errore_password_email');
-    if (msgErrore) msgErrore.classList.add('hidden');
+    if (msgErrore) msgErrore.classList.remove('mostra');
 
     const btn = document.getElementById('btn_conferma_password_email');
     const pwdInserita = document.getElementById('password_attuale_email').value;
@@ -1382,7 +1384,7 @@ async function verificaPasswordPerEmail(event) {
         document.getElementById('password_attuale_email').value = '';
         if (msgErrore) {
             msgErrore.textContent = errore.message === "PWD_ERRATA" ? "Email o password non validi." : "Errore di connessione.";
-            msgErrore.classList.remove('hidden');
+            msgErrore.classList.add('mostra');
         }
     }
 }
@@ -1396,7 +1398,7 @@ async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
     const msgErrore = document.getElementById('msg_errore_otp_email');
     
     if (msgErrore) {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         msgErrore.classList.remove('testo-successo-otp');
     }
 
@@ -1438,9 +1440,9 @@ async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
             if (msgErrore) {
                 msgErrore.textContent = "Nuovo codice inviato!";
                 msgErrore.classList.add('testo-successo-otp');
-                msgErrore.classList.remove('hidden');
+                msgErrore.classList.add('mostra');
                 setTimeout(() => {
-                    msgErrore.classList.add('hidden');
+                    msgErrore.classList.remove('mostra');
                     msgErrore.classList.remove('testo-successo-otp');
                 }, 5000);
             }
@@ -1466,7 +1468,7 @@ async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
             }
             if (msgErrore) {
                 msgErrore.textContent = errore.message === "EMAIL_ESISTENTE" ? "La mail scelta è già registrata." : "Errore di connessione.";
-                msgErrore.classList.remove('hidden', 'testo-successo-otp');
+                msgErrore.classList.add('mostra'); msgErrore.classList.remove('testo-successo-otp');
             }
         }
     }
@@ -1476,7 +1478,7 @@ async function verificaOtpNuovaEmail(event) {
     event.preventDefault();
     const msgErrore = document.getElementById('msg_errore_otp_email');
     if (msgErrore) {
-        msgErrore.classList.add('hidden');
+        msgErrore.classList.remove('mostra');
         msgErrore.classList.remove('testo-successo-otp');
     }
 
@@ -1484,7 +1486,7 @@ async function verificaOtpNuovaEmail(event) {
     if (tokenOtp.length !== 6) {
         if (msgErrore) {
             msgErrore.textContent = "Il codice deve essere di 6 cifre.";
-            msgErrore.classList.remove('hidden');
+            msgErrore.classList.add('mostra');
         }
         return;
     }
@@ -1524,7 +1526,7 @@ async function verificaOtpNuovaEmail(event) {
         btn.textContent = testoOriginale;
         if (msgErrore) {
             msgErrore.textContent = "Codice errato o scaduto.";
-            msgErrore.classList.remove('hidden');
+            msgErrore.classList.add('mostra');
         }
     }
 }
@@ -1592,11 +1594,11 @@ async function verificaOtpECambiaPassword(event) {
     event.preventDefault();
 
     const msgErroreServer = document.getElementById('messaggio_errore_server_cambio');
-    if (msgErroreServer) msgErroreServer.classList.add('hidden');
+    if (msgErroreServer) msgErroreServer.classList.remove('mostra');
     
     const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
@@ -1604,7 +1606,7 @@ async function verificaOtpECambiaPassword(event) {
     if (tokenOtp.length !== 6) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
         return;
     }
@@ -1682,12 +1684,12 @@ async function verificaOtpECambiaPassword(event) {
         if (errore.message === "OTP_INVALID") {
             if (msgErroreOtp) {
                 msgErroreOtp.textContent = "Codice errato o scaduto.";
-                msgErroreOtp.classList.remove('hidden');
+                msgErroreOtp.classList.add('mostra');
             }
         } else {
             if (msgErroreServer) {
                 msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? "Impossibile aggiornare la password." : errore.message;
-                msgErroreServer.classList.remove('hidden');
+                msgErroreServer.classList.add('mostra');
             }
         }
     }
@@ -1703,7 +1705,7 @@ async function inviaNuovoOtpCambio(event) {
     link.classList.add('no-click');
 
     if (msgErroreOtp) {
-        msgErroreOtp.classList.add('hidden');
+        msgErroreOtp.classList.remove('mostra');
         msgErroreOtp.classList.remove('testo-successo-otp');
     }
 
@@ -1735,9 +1737,9 @@ async function inviaNuovoOtpCambio(event) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Nuovo codice inviato!";
             msgErroreOtp.classList.add('testo-successo-otp');
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
             setTimeout(() => {
-                msgErroreOtp.classList.add('hidden');
+                msgErroreOtp.classList.remove('mostra');
                 msgErroreOtp.classList.remove('testo-successo-otp');
             }, 5000);
         }
@@ -1750,7 +1752,7 @@ async function inviaNuovoOtpCambio(event) {
         link.classList.remove('no-click');
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Errore di connessione. Riprova.";
-            msgErroreOtp.classList.remove('hidden', 'testo-successo-otp');
+            msgErroreOtp.classList.add('mostra'); msgErroreOtp.classList.remove('testo-successo-otp');
         }
     }
 }
@@ -1939,26 +1941,26 @@ function tornaARichiestaReset(event) {
     if (confPasswordInput) confPasswordInput.value = '';
 
     const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-    if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+    if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) msgErroreServer.classList.add('hidden');
+    if (msgErroreServer) msgErroreServer.classList.remove('mostra');
 }
 
 async function inviaNuovaPassword(event) {
     event.preventDefault();
 
     const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) msgErroreServer.classList.add('hidden');
+    if (msgErroreServer) msgErroreServer.classList.remove('mostra');
     
     const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-    if (msgErroreOtp) msgErroreOtp.classList.add('hidden');
+    if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
 
     const token = document.getElementById('otp_code_reset').value.trim();
     if (token.length !== 6) {
         if (msgErroreOtp) {
             msgErroreOtp.textContent = "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.classList.remove('hidden');
+            msgErroreOtp.classList.add('mostra');
         }
         return;
     }
@@ -2046,12 +2048,12 @@ async function inviaNuovaPassword(event) {
         if (errore.message === "OTP_INVALID") {
             if (msgErroreOtp) {
                 msgErroreOtp.textContent = "Codice errato o scaduto.";
-                msgErroreOtp.classList.remove('hidden');
+                msgErroreOtp.classList.add('mostra');
             }
         } else {
             if (msgErroreServer) {
                 msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? "Impossibile aggiornare la password. Errore server." : errore.message;
-                msgErroreServer.classList.remove('hidden');
+                msgErroreServer.classList.add('mostra');
             }
         }
     }
@@ -3836,285 +3838,285 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     btnAnnullaDip.addEventListener('click', () => {
-            chiudiFormDipendente();
-        });
-
-        selectRuolo.addEventListener('change', aggiornaCampiGuida);
-        checkAbilitatoGuida.addEventListener('change', aggiornaCampiGuida);
-
-        caricaDipendenti();
-
-        formGestioneDip.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
-                return;
-            }
-
-            const btnSalva = document.getElementById('btn_salva_dipendente');
-            const testoOriginale = btnSalva.textContent;
-            btnSalva.disabled = true;
-            btnSalva.textContent = "SALVATAGGIO...";
-
-            const token = localStorage.getItem('driverbutler_auth_token');
-            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-
-            try {
-                const emailDip = document.getElementById('dip_email').value.trim();
-
-                const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(emailDip)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
-                const dataPartner = await checkPartner.json();
-                if (dataPartner && dataPartner.length > 0) throw new Error("EMAIL_ESISTENTE");
-
-                const checkPax = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?email=eq.${encodeURIComponent(emailDip)}&select=id_passeggero`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
-                const dataPax = await checkPax.json();
-                if (dataPax && dataPax.length > 0) throw new Error("EMAIL_ESISTENTE");
-
-                const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(emailDip)}&select=id_dipendente`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
-                const dataDip = await checkDip.json();
-                if (dataDip && dataDip.length > 0) throw new Error("EMAIL_ESISTENTE");
-
-                const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-                });
-                const userData = await userRes.json();
-                const currentUserId = userData.id;
-
-                let idPartnerEffettivo = currentUserId;
-                let codicePartnerEffettivo = "";
-
-                const checkPartnerCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${currentUserId}&select=id_partner,codice_partner`, {
-                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-                });
-                const dataPartnerCorrente = await checkPartnerCorrente.json();
-
-                if (dataPartnerCorrente && dataPartnerCorrente.length > 0) {
-                    idPartnerEffettivo = dataPartnerCorrente[0].id_partner;
-                    codicePartnerEffettivo = dataPartnerCorrente[0].codice_partner;
-                } else {
-                    const checkDipCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${currentUserId}&select=id_partner,codice_partner`, {
-                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-                    });
-                    const dataDipCorrente = await checkDipCorrente.json();
-                    if (dataDipCorrente && dataDipCorrente.length > 0) {
-                        idPartnerEffettivo = dataDipCorrente[0].id_partner;
-                        codicePartnerEffettivo = dataDipCorrente[0].codice_partner;
-                    } else {
-                        throw new Error("Permessi aziendali non validi per l'inserimento.");
-                    }
-                }
-
-                let prefissoTel = itiDipendente ? "+" + itiDipendente.getSelectedCountryData().dialCode : "+39";
-                let numeroDigitato = document.getElementById('dip_telefono').value.trim();
-                let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-                const passwordDip = inputPassDip.value;
-                const nomeDip = document.getElementById('dip_nome').value.trim();
-                const cognomeDip = document.getElementById('dip_cognome').value.trim();
-
-                const signupRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup", {
-                    method: "POST",
-                    headers: {
-                        "apikey": chiaveAnon,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: emailDip,
-                        password: passwordDip,
-                        data: {
-                            is_dipendente: true,
-                            nome_cognome: nomeDip + ' ' + cognomeDip,
-                            display_name: cognomeDip + ' ' + nomeDip
-                        }
-                    })
-                });
-
-                if (!signupRes.ok) {
-                    const err = await signupRes.json();
-                    if (JSON.stringify(err).toLowerCase().includes("already registered")) {
-                        throw new Error("EMAIL_ESISTENTE");
-                    }
-                    throw new Error("Errore account: " + (err.msg || err.message));
-                }
-
-                const signupData = await signupRes.json();
-                const newUserId = signupData.user ? signupData.user.id : signupData.id;
-
-                if (!newUserId) throw new Error("ID Utente non generato dal server.");
-
-                const corpoDipendente = {
-                    id_dipendente: newUserId,
-                    id_partner: idPartnerEffettivo,
-                    codice_partner: codicePartnerEffettivo,
-                    nome: nomeDip,
-                    cognome: cognomeDip,
-                    email: emailDip,
-                    telefono: telefonoFinale,
-                    ruolo: selectRuolo.value,
-                    abilitato_guida: selectRuolo.value === 'AUTISTA' ? true : checkAbilitatoGuida.checked,
-                    numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim() || null,
-                    autocert_patente: checkAutocertPatente.checked,
-                    notifica_push: checkNotificaPushDip.checked,
-                    notifica_email: checkNotificaEmailDip.checked,
-                    stato_attivo: true,
-                    linguaggio: 'it'
-                };
-
-                const insertRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti", {
-                    method: "POST",
-                    headers: {
-                        "apikey": chiaveAnon,
-                        "Authorization": "Bearer " + token,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(corpoDipendente)
-                });
-
-                if (!insertRes.ok) {
-                    throw new Error("Errore durante il salvataggio dell'anagrafica.");
-                }
-
-                chiudiFormDipendente();
-                caricaDipendenti();
-
-            } catch (errore) {
-                let msg = "Si è verificato un errore.";
-                if (errore.message === "EMAIL_ESISTENTE") {
-                    msg = "Questa email risulta già registrata a sistema. Usa un indirizzo diverso.";
-                } else {
-                    msg = errore.message;
-                }
-                
-                const overlay = document.getElementById('modale_errore_dipendente');
-                if (overlay) {
-                    document.getElementById('testo_errore_dipendente').innerHTML = msg;
-                    overlay.classList.remove('hidden');
-                    
-                    document.getElementById('btn_chiudi_errore_dip').onclick = function() {
-                        overlay.classList.add('hidden');
-                    };
-                } else {
-                    alert(msg);
-                }
-            }
-
-            btnSalva.textContent = testoOriginale;
-            btnSalva.disabled = false;
-        });
+        chiudiFormDipendente();
     });
 
-    async function caricaDipendenti() {
-        const contenitore = document.getElementById('lista_dipendenti');
-        if (!contenitore) return;
+    selectRuolo.addEventListener('change', aggiornaCampiGuida);
+    checkAbilitatoGuida.addEventListener('change', aggiornaCampiGuida);
 
-        contenitore.innerHTML = '<div class="msg-lista-info">Caricamento dipendenti...</div>';
+    caricaDipendenti();
+
+    formGestioneDip.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
+            return;
+        }
+
+        const btnSalva = document.getElementById('btn_salva_dipendente');
+        const testoOriginale = btnSalva.textContent;
+        btnSalva.disabled = true;
+        btnSalva.textContent = "SALVATAGGIO...";
 
         const token = localStorage.getItem('driverbutler_auth_token');
         const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
         try {
-            const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?order=cognome.asc,nome.asc", {
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token
-                }
+            const emailDip = document.getElementById('dip_email').value.trim();
+
+            const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(emailDip)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+            const dataPartner = await checkPartner.json();
+            if (dataPartner && dataPartner.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+            const checkPax = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?email=eq.${encodeURIComponent(emailDip)}&select=id_passeggero`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+            const dataPax = await checkPax.json();
+            if (dataPax && dataPax.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+            const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?email=eq.${encodeURIComponent(emailDip)}&select=id_dipendente`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
+            const dataDip = await checkDip.json();
+            if (dataDip && dataDip.length > 0) throw new Error("EMAIL_ESISTENTE");
+
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
             });
+            const userData = await userRes.json();
+            const currentUserId = userData.id;
 
-            if (!res.ok) throw new Error("Errore caricamento");
-            const dipendenti = await res.json();
+            let idPartnerEffettivo = currentUserId;
+            let codicePartnerEffettivo = "";
 
-            contenitore.innerHTML = '';
-            
-            if (dipendenti.length === 0) {
-                contenitore.innerHTML = '<div class="messaggio-vuoto">Nessun dipendente registrato nella tua azienda.</div>';
-                return;
+            const checkPartnerCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            const dataPartnerCorrente = await checkPartnerCorrente.json();
+
+            if (dataPartnerCorrente && dataPartnerCorrente.length > 0) {
+                idPartnerEffettivo = dataPartnerCorrente[0].id_partner;
+                codicePartnerEffettivo = dataPartnerCorrente[0].codice_partner;
+            } else {
+                const checkDipCorrente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${currentUserId}&select=id_partner,codice_partner`, {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                const dataDipCorrente = await checkDipCorrente.json();
+                if (dataDipCorrente && dataDipCorrente.length > 0) {
+                    idPartnerEffettivo = dataDipCorrente[0].id_partner;
+                    codicePartnerEffettivo = dataDipCorrente[0].codice_partner;
+                } else {
+                    throw new Error("Permessi aziendali non validi per l'inserimento.");
+                }
             }
 
-            const template = document.getElementById('template_dipendente_card');
+            let prefissoTel = itiDipendente ? "+" + itiDipendente.getSelectedCountryData().dialCode : "+39";
+            let numeroDigitato = document.getElementById('dip_telefono').value.trim();
+            let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
-            dipendenti.forEach(dip => {
-                const clone = template.content.cloneNode(true);
-                const card = clone.querySelector('.card-bacheca-minimal');
+            const passwordDip = inputPassDip.value;
+            const nomeDip = document.getElementById('dip_nome').value.trim();
+            const cognomeDip = document.getElementById('dip_cognome').value.trim();
 
-                clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
-                    card.classList.toggle('aperta');
+            const signupRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: emailDip,
+                    password: passwordDip,
+                    data: {
+                        is_dipendente: true,
+                        nome_cognome: nomeDip + ' ' + cognomeDip,
+                        display_name: cognomeDip + ' ' + nomeDip
+                    }
+                })
+            });
+
+            if (!signupRes.ok) {
+                const err = await signupRes.json();
+                if (JSON.stringify(err).toLowerCase().includes("already registered")) {
+                    throw new Error("EMAIL_ESISTENTE");
+                }
+                throw new Error("Errore account: " + (err.msg || err.message));
+            }
+
+            const signupData = await signupRes.json();
+            const newUserId = signupData.user ? signupData.user.id : signupData.id;
+
+            if (!newUserId) throw new Error("ID Utente non generato dal server.");
+
+            const corpoDipendente = {
+                id_dipendente: newUserId,
+                id_partner: idPartnerEffettivo,
+                codice_partner: codicePartnerEffettivo,
+                nome: nomeDip,
+                cognome: cognomeDip,
+                email: emailDip,
+                telefono: telefonoFinale,
+                ruolo: selectRuolo.value,
+                abilitato_guida: selectRuolo.value === 'AUTISTA' ? true : checkAbilitatoGuida.checked,
+                numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim() || null,
+                autocert_patente: checkAutocertPatente.checked,
+                notifica_push: checkNotificaPushDip.checked,
+                notifica_email: checkNotificaEmailDip.checked,
+                stato_attivo: true,
+                linguaggio: 'it'
+            };
+
+            const insertRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(corpoDipendente)
+            });
+
+            if (!insertRes.ok) {
+                throw new Error("Errore durante il salvataggio dell'anagrafica.");
+            }
+
+            chiudiFormDipendente();
+            caricaDipendenti();
+
+        } catch (errore) {
+            let msg = "Si è verificato un errore.";
+            if (errore.message === "EMAIL_ESISTENTE") {
+                msg = "Questa email risulta già registrata a sistema. Usa un indirizzo diverso.";
+            } else {
+                msg = errore.message;
+            }
+            
+            const overlay = document.getElementById('modale_errore_dipendente');
+            if (overlay) {
+                document.getElementById('testo_errore_dipendente').innerHTML = msg;
+                overlay.classList.remove('hidden');
+                
+                document.getElementById('btn_chiudi_errore_dip').onclick = function() {
+                    overlay.classList.add('hidden');
                 };
+            } else {
+                alert(msg);
+            }
+        }
 
-                clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
+        btnSalva.textContent = testoOriginale;
+        btnSalva.disabled = false;
+    });
+});
 
-                const badge = clone.querySelector('[data-bind="badge_stato"]');
+async function caricaDipendenti() {
+    const contenitore = document.getElementById('lista_dipendenti');
+    if (!contenitore) return;
+
+    contenitore.innerHTML = '<div class="msg-lista-info">Caricamento dipendenti...</div>';
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?order=cognome.asc,nome.asc", {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!res.ok) throw new Error("Errore caricamento");
+        const dipendenti = await res.json();
+
+        contenitore.innerHTML = '';
+        
+        if (dipendenti.length === 0) {
+            contenitore.innerHTML = '<div class="messaggio-vuoto">Nessun dipendente registrato nella tua azienda.</div>';
+            return;
+        }
+
+        const template = document.getElementById('template_dipendente_card');
+
+        dipendenti.forEach(dip => {
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.card-bacheca-minimal');
+
+            clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+                card.classList.toggle('aperta');
+            };
+
+            clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
+
+            const badge = clone.querySelector('[data-bind="badge_stato"]');
             if (dip.stato_attivo) {
                 badge.textContent = "ATTIVO";
             } else {
                 badge.textContent = "SOSPESO";
             }
 
-                clone.querySelector('[data-bind="ruolo_sintesi"]').textContent = dip.ruolo;
+            clone.querySelector('[data-bind="ruolo_sintesi"]').textContent = dip.ruolo;
 
-                const emailLink = clone.querySelector('[data-bind="email_link"]');
-                emailLink.textContent = dip.email;
-                emailLink.href = 'mailto:' + dip.email;
+            const emailLink = clone.querySelector('[data-bind="email_link"]');
+            emailLink.textContent = dip.email;
+            emailLink.href = 'mailto:' + dip.email;
 
-                const telLink = clone.querySelector('[data-bind="tel_link"]');
-                telLink.textContent = dip.telefono;
-                telLink.href = 'tel:' + dip.telefono;
+            const telLink = clone.querySelector('[data-bind="tel_link"]');
+            telLink.textContent = dip.telefono;
+            telLink.href = 'tel:' + dip.telefono;
 
-                if (dip.ruolo === 'AUTISTA' || dip.abilitato_guida) {
-                    clone.querySelector('[data-bind-container="dati_guida_block"]').classList.remove('hidden');
-                    clone.querySelector('[data-bind="ruolo_provincia"]').textContent = dip.numero_ruolo_provincia || '-';
-                }
-
-                const btnModifica = clone.querySelector('[data-bind-action="modifica"]');
-                btnModifica.onclick = function() {
-                    alert("Funzione di modifica in arrivo.");
-                };
-
-                const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
-                btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "ATTIVA";
-                btnSospendi.classList.remove('btn-primary');
-                btnSospendi.classList.add('btn-ghost');
-                btnSospendi.onclick = function() {
-                    cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
-                };
-
-                contenitore.appendChild(clone);
-            });
-            
-        } catch (e) {
-            contenitore.innerHTML = '<div class="msg-lista-errore">Errore di caricamento.</div>';
-        }
-    }
-
-    async function cambiaStatoDipendente(id_dipendente, nuovoStato, btn) {
-        btn.disabled = true;
-        btn.textContent = "...";
-        
-        const token = localStorage.getItem('driverbutler_auth_token');
-        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-
-        try {
-            const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${id_dipendente}`, {
-                method: "PATCH",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ stato_attivo: nuovoStato })
-            });
-            
-            if (res.ok) {
-                caricaDipendenti();
-            } else {
-                btn.disabled = false;
-                btn.textContent = "ERRORE";
+            if (dip.ruolo === 'AUTISTA' || dip.abilitato_guida) {
+                clone.querySelector('[data-bind-container="dati_guida_block"]').classList.remove('hidden');
+                clone.querySelector('[data-bind="ruolo_provincia"]').textContent = dip.numero_ruolo_provincia || '-';
             }
-        } catch(e) {
+
+            const btnModifica = clone.querySelector('[data-bind-action="modifica"]');
+            btnModifica.onclick = function() {
+                alert("Funzione di modifica in arrivo.");
+            };
+
+            const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
+            btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "ATTIVA";
+            btnSospendi.classList.remove('btn-primary');
+            btnSospendi.classList.add('btn-ghost');
+            btnSospendi.onclick = function() {
+                cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
+            };
+
+            contenitore.appendChild(clone);
+        });
+        
+    } catch (e) {
+        contenitore.innerHTML = '<div class="msg-lista-errore">Errore di caricamento.</div>';
+    }
+}
+
+async function cambiaStatoDipendente(id_dipendente, nuovoStato, btn) {
+    btn.disabled = true;
+    btn.textContent = "...";
+    
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${id_dipendente}`, {
+            method: "PATCH",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ stato_attivo: nuovoStato })
+        });
+        
+        if (res.ok) {
+            caricaDipendenti();
+        } else {
             btn.disabled = false;
             btn.textContent = "ERRORE";
         }
+    } catch(e) {
+        btn.disabled = false;
+        btn.textContent = "ERRORE";
     }
-	
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const eyeButtons = document.querySelectorAll('.eye-btn[data-target-input]');
     eyeButtons.forEach(btn => {
@@ -4151,10 +4153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtpLogin) {
         inputOtpLogin.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
-            if (msgErroreOtp) {
-                msgErroreOtp.classList.add('hidden');
-                msgErroreOtp.classList.remove('testo-successo-otp');
-            }
+            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
         });
     }
 });
@@ -4187,10 +4186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtpReset) {
         inputOtpReset.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-            if (msgErroreOtp) {
-                msgErroreOtp.classList.add('hidden');
-                msgErroreOtp.classList.remove('testo-successo-otp');
-            }
+            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
         });
     }
 });
@@ -4219,10 +4215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputOtp) {
         inputOtp.addEventListener('input', function() {
             const msgErroreOtp = document.getElementById('messaggio_errore_otp');
-			if (msgErroreOtp) {
-				msgErroreOtp.classList.add('hidden');
-				msgErroreOtp.classList.remove('testo-successo-otp');
-			}
+            if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
         });
     }
 
@@ -4238,7 +4231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputPass) {
         inputPass.addEventListener('input', () => {
             if (typeof validaComplessitaPassword === 'function') validaComplessitaPassword();
-            if (typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
+            if (inputConfPass && typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
     }
     if (inputConfPass) {

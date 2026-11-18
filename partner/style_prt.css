@@ -1848,21 +1848,13 @@ body.page-calendario .login-wrapper,
 }
 
 .input-otp {
+    font-size: 2.5rem;
+    font-weight: bold;
+    letter-spacing: 16px;
     text-align: center;
-    letter-spacing: 8px;
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-.testo-successo-otp {
-    color: #00FF66 !important;
-}
-
-.input-otp {
-    text-align: center;
-    letter-spacing: 8px;
-    font-size: 1.4rem;
-    font-weight: 700;
+    color: #00e65c;
+    padding: 20px 10px;
+    text-indent: 16px;
 }
 
 .testo-successo-otp {
