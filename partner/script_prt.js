@@ -2524,6 +2524,15 @@ async function caricaFlotta() {
     const contenitore = document.getElementById('sezione_elenco_veicoli');
     if (!contenitore) return;
     
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('azione') === 'nuovo') {
+        const btnApri = document.getElementById('barra_aggiungi_veicolo');
+        if (btnApri) {
+            btnApri.click();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+    
     contenitore.innerHTML = '<div class="msg-lista-info">Caricamento flotta in corso...</div>';
     
     const token = localStorage.getItem('driverbutler_auth_token');
@@ -2772,6 +2781,11 @@ async function caricaBachecaRichieste() {
     msgNoVeicoli.classList.add('hidden');
     msgVuota.classList.add('hidden');
     msgErroreRete.classList.add('hidden');
+    
+    const modaleFlotta = document.getElementById('modale_flotta_vuota');
+    if (modaleFlotta) {
+        modaleFlotta.classList.add('hidden');
+    }
     listaCard.innerHTML = '';
 
     await rinnovaSessioneSilenziosa();
@@ -2810,6 +2824,27 @@ async function caricaBachecaRichieste() {
             body: JSON.stringify({ p_id_partner: userData.id })
         });
         
+        const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&select=targa`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        
+        if (!flottaRes.ok) throw new Error("Errore recupero flotta");
+        const flottaData = await flottaRes.json();
+        
+        if (!flottaData || flottaData.length === 0) {
+            msgLoading.classList.add('hidden');
+            if (modaleFlotta) {
+                modaleFlotta.classList.remove('hidden');
+                document.getElementById('btn_chiudi_modale_flotta').onclick = function() {
+                    modaleFlotta.classList.add('hidden');
+                    msgNoVeicoli.classList.remove('hidden');
+                };
+            } else {
+                msgNoVeicoli.classList.remove('hidden');
+            }
+            return;
+        }
+
         if (!prenotazioniRes.ok) throw new Error("Errore recupero prenotazioni");
         const richiesteFiltrate = await prenotazioniRes.json();
 
