@@ -117,214 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    const contenitoreMenu = document.getElementById("menu-principale");
-    if (contenitoreMenu) {
-        const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
-        
-        let linkLogo = "index.html";
-        if (localStorage.getItem('driverbutler_auth_token') && !isIndex) {
-            linkLogo = "dashboard_prt.html";
-        }
-
-        const paginaCorrente = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-        const bloccaClickLogo = (linkLogo === paginaCorrente);
-
-        const iconaUtente = `
-            <button id="btn_apri_menu" class="user-icon-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </button>`;
-        
-        contenitoreMenu.innerHTML = `
-        <nav class="navbar">
-            <a href="${linkLogo}" class="logo-container ${bloccaClickLogo ? 'no-click' : ''}">
-                <img src="../logo/logo.svg" alt="Logo DriverButler" class="logo-icon">
-                <img src="../logo/scritta.svg" alt="DriverButler" class="logo-text-img">
-            </a>
-            <div class="menu-destra menu-destra-compatta">
-                ${iconaUtente}
-            </div>
-        </nav>`;
-    }
-
-    const btnApri = document.getElementById('btn_apri_menu');
-    const btnChiudi = document.getElementById('btn_chiudi_menu');
-    const overlay = document.getElementById('menu_overlay');
-    const sidePanel = document.getElementById('side_panel');
-
-    if (sidePanel && !sidePanel.classList.contains('open')) {
-        sidePanel.classList.add('no-click', 'invisibile');
-    }
-
-    function apriMenu(e) {
-        if (e) e.stopPropagation();
-        if (sidePanel) {
-            sidePanel.classList.remove('invisibile', 'no-click');
-            sidePanel.classList.add('open');
-        }
-        if (overlay) {
-            overlay.classList.remove('no-click');
-            overlay.classList.add('open');
-        }
-        document.body.classList.add('no-scroll'); 
-    }
-
-    function chiudiMenu(e) {
-        if (e) e.stopPropagation();
-        if (sidePanel) {
-            sidePanel.classList.remove('open');
-            sidePanel.classList.add('no-click', 'invisibile');
-        }
-        if (overlay) {
-            overlay.classList.remove('open');
-            overlay.classList.add('no-click');
-        }
-        document.body.classList.remove('no-scroll');
-    }
-
-    if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
-    if (overlay) overlay.addEventListener('click', chiudiMenu);
-    
-    document.addEventListener('click', function(e) {
-        const btnMenu = document.getElementById('btn_apri_menu');
-        
-        if (btnMenu && (e.target === btnMenu || btnMenu.contains(e.target))) {
-            apriMenu(e);
-            return;
-        }
-
-        if (sidePanel && sidePanel.classList.contains('open')) {
-            if (!sidePanel.contains(e.target)) {
-                chiudiMenu(e);
-            }
-        }
-    });
-
-    const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
-    const percorsoCorrenteMenu = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const blacklistPubblica = ['login_prt.html', 'registrazione_prt.html', 'pwreset_prt.html', 'assistenza_prt.html'];
-    const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu) || percorsoCorrenteMenu === 'index.html' || percorsoCorrenteMenu === '';
-    
-    if (contenitoreMenuLaterale) {
-        if (isPaginaPubblica) {
-            contenitoreMenuLaterale.innerHTML = `
-                <a id="link_menu_pub_login" class="menu-item">Accesso</a>
-                <a id="link_menu_pub_reset" class="menu-item">Reset Password</a>
-                <a id="link_menu_pub_reg" class="menu-item">Registrazione</a>
-                <a id="link_menu_pub_assist" class="menu-item">Assistenza</a>
-            `;
-            if (btnChiudi) {
-                btnChiudi.classList.add('bordo-inferiore-grigio');
-            }
-        } else if (localStorage.getItem('driverbutler_auth_token')) {
-            contenitoreMenuLaterale.innerHTML = `
-                <a id="link_menu_home" class="menu-item">Pannello Utente</a>
-                <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
-                <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
-                <a id="link_menu_dipendenti" class="menu-item">Gestione Dipendenti</a>
-                <a id="link_menu_miei_servizi" class="menu-item">I Miei Servizi</a>
-                <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
-                <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
-                <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
-                <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
-            `;
-        }
-        
-        if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
-            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione hidden"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
-            const btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione hidden"><span>Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
-            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
-        }
-    }
-
-    const menuLinks = document.querySelectorAll('.menu-item');
-    const percorsoAttuale = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-
-    const mappaPagine = {
-        'link_menu_home': 'dashboard_prt.html',
-        'link_menu_bacheca': 'bacheca_prt.html',
-        'link_menu_miei_servizi': 'imieiservizi_prt.html',
-        'link_menu_profilo': 'modprofilo_prt.html',
-        'link_menu_sicurezza': 'pwcambio_prt.html',
-        'link_menu_assistenza': 'assistenzalog_prt.html',
-        'link_menu_pub_login': 'login_prt.html',
-        'link_menu_pub_reset': 'pwreset_prt.html',
-        'link_menu_pub_reg': 'registrazione_prt.html',
-        'link_menu_pub_assist': 'assistenza_prt.html',
-        'link_menu_flotta': 'flotta_prt.html',
-        'link_menu_dipendenti': 'dipendenti_prt.html',
-        'link_menu_calendario': 'calendario_prt.html'
-    };
-    
-    menuLinks.forEach(link => {
-        const idLink = link.id;
-        const urlDestinazione = mappaPagine[idLink] || link.getAttribute('href');
-        
-        if (urlDestinazione) {
-            const destinazioneBase = urlDestinazione.split('?')[0].split('#')[0];
-            if (destinazioneBase === percorsoAttuale) {
-                link.classList.add('hidden');
-            }
-        }
-        
-        link.addEventListener('click', async function(e) {
-            if (urlDestinazione && urlDestinazione !== '#') {
-                e.preventDefault();
-                
-                if (sidePanel) {
-                    sidePanel.classList.add('no-transition');
-                    sidePanel.classList.remove('open');
-                }
-                if (overlay) {
-                    overlay.classList.add('no-transition');
-                    overlay.classList.remove('open');
-                }
-                document.body.classList.remove('no-scroll');
-                
-                if (typeof moduloSporco !== 'undefined' && moduloSporco) {
-                    mostraModaleSalvataggio(urlDestinazione);
-                    return;
-                }
-                
-                if (percorsoAttuale === 'bacheca_prt.html' && typeof segnaBachecaComeLetta === 'function') {
-                    const barraLette = document.getElementById('barra_segna_lette');
-                    if (barraLette && !barraLette.classList.contains('hidden')) {
-                        await segnaBachecaComeLetta(true);
-                    }
-                }
-                
-                window.location.href = urlDestinazione;
-            }
-        });
-    });
-
-    window.addEventListener('pageshow', function(event) {
-        if (sidePanel) sidePanel.classList.remove('no-transition');
-        if (overlay) overlay.classList.remove('no-transition');
-        
-        if (document.getElementById('formLogin')) {
-            localStorage.removeItem('driverbutler_auth_token');
-            if (event.persisted) {
-                window.location.reload();
-            }
-        }
-    });
-
-    const swipeRange = document.getElementById('swipe_logout_range');
-    if (swipeRange) {
-        const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
-        swipeRange.addEventListener('input', function() {
-            if(this.value >= 95) {
-                this.value = 100;
-                if (typeof esciAccount === 'function') esciAccount();
-            }
-        });
-        swipeRange.addEventListener('change', resetSlider);
-        swipeRange.addEventListener('touchend', resetSlider);
-        swipeRange.addEventListener('mouseup', resetSlider);
-    }
+    inizializzaMenuPartner();
 
     const phoneInputField = document.querySelector("#telefono");
     if (phoneInputField && window.intlTelInput) {
@@ -3407,12 +3200,10 @@ function inizializzaSupabaseRealtimeGlobale() {
         scriptSupa.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
         scriptSupa.onload = () => {
             avviaConnessioneRealtime(token);
-            gestisciModaleNotifiche();
         };
         document.head.appendChild(scriptSupa);
     } else {
         avviaConnessioneRealtime(token);
-        gestisciModaleNotifiche();
     }
 }
 
@@ -4279,4 +4070,273 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
     }
+});
+
+let menuPartnerInizializzato = false;
+
+function inizializzaMenuPartner() {
+    if (menuPartnerInizializzato) return;
+    const contenitoreMenu = document.getElementById("menu-principale");
+    if (!contenitoreMenu) return;
+    menuPartnerInizializzato = true;
+
+    const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+    let linkLogo = "index.html";
+    if (localStorage.getItem('driverbutler_auth_token') && !isIndex) {
+        linkLogo = "dashboard_prt.html";
+    }
+
+    const paginaCorrente = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const bloccaClickLogo = (linkLogo === paginaCorrente);
+
+    const iconaUtente = `
+        <button id="btn_apri_menu" class="user-icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>`;
+
+    contenitoreMenu.innerHTML = `
+    <nav class="navbar">
+        <a href="${linkLogo}" class="logo-container ${bloccaClickLogo ? 'no-click' : ''}">
+            <img src="../logo/logo.svg" alt="Logo DriverButler" class="logo-icon">
+            <img src="../logo/scritta.svg" alt="DriverButler" class="logo-text-img">
+        </a>
+        <div class="menu-destra menu-destra-compatta">
+            ${iconaUtente}
+        </div>
+    </nav>`;
+
+    const blacklistPubblica = ['login_prt.html', 'registrazione_prt.html', 'pwreset_prt.html', 'assistenza_prt.html'];
+    const isPaginaPubblica = blacklistPubblica.includes(paginaCorrente) || paginaCorrente === 'index.html' || paginaCorrente === '';
+
+    if (!document.getElementById('side_panel')) {
+        const blocchiLogoutHtml = isPaginaPubblica ? '' : `
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span>SCORRI PER USCIRE DALL'ACCOUNT</span><svg class="icona-inline-destra" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="menu_overlay" class="overlay"></div>
+            <div id="side_panel" class="side-panel">
+                <div class="sidebar-sticky-header">
+                    <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                        <span>CHIUDI MENU</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                    ${blocchiLogoutHtml}
+                </div>
+                <div class="menu-items scrollable-menu"></div>
+            </div>`);
+    }
+
+    const btnChiudi = document.getElementById('btn_chiudi_menu');
+    const overlay = document.getElementById('menu_overlay');
+    const sidePanel = document.getElementById('side_panel');
+
+    if (sidePanel && !sidePanel.classList.contains('open')) {
+        sidePanel.classList.add('no-click', 'invisibile');
+    }
+
+    function apriMenu(e) {
+        if (e) e.stopPropagation();
+        if (sidePanel) {
+            sidePanel.classList.remove('invisibile', 'no-click');
+            sidePanel.classList.add('open');
+        }
+        if (overlay) {
+            overlay.classList.remove('no-click');
+            overlay.classList.add('open');
+        }
+        document.body.classList.add('no-scroll');
+    }
+
+    function chiudiMenu(e) {
+        if (e) e.stopPropagation();
+        if (sidePanel) {
+            sidePanel.classList.remove('open');
+            sidePanel.classList.add('no-click', 'invisibile');
+        }
+        if (overlay) {
+            overlay.classList.remove('open');
+            overlay.classList.add('no-click');
+        }
+        document.body.classList.remove('no-scroll');
+    }
+
+    if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
+    if (overlay) overlay.addEventListener('click', chiudiMenu);
+
+    document.addEventListener('click', function(e) {
+        const btnMenu = document.getElementById('btn_apri_menu');
+        if (btnMenu && (e.target === btnMenu || btnMenu.contains(e.target))) {
+            apriMenu(e);
+            return;
+        }
+        if (sidePanel && sidePanel.classList.contains('open')) {
+            if (!sidePanel.contains(e.target)) {
+                chiudiMenu(e);
+            }
+        }
+    });
+
+    const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
+    if (contenitoreMenuLaterale) {
+        if (isPaginaPubblica) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_pub_login" class="menu-item">Accesso</a>
+                <a id="link_menu_pub_reset" class="menu-item">Reset Password</a>
+                <a id="link_menu_pub_reg" class="menu-item">Registrazione</a>
+                <a id="link_menu_pub_assist" class="menu-item">Assistenza</a>
+            `;
+            if (btnChiudi) {
+                btnChiudi.classList.add('bordo-inferiore-grigio');
+            }
+        } else if (localStorage.getItem('driverbutler_auth_token')) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_home" class="menu-item">Pannello Utente</a>
+                <a id="link_menu_bacheca" class="menu-item">Bacheca Richieste</a>
+                <a id="link_menu_calendario" class="menu-item">Calendario Servizi</a>
+                <a id="link_menu_dipendenti" class="menu-item">Gestione Dipendenti</a>
+                <a id="link_menu_miei_servizi" class="menu-item">I Miei Servizi</a>
+                <a id="link_menu_flotta" class="menu-item">Gestione Flotta</a>
+                <a id="link_menu_profilo" class="menu-item">Modifica Profilo</a>
+                <a id="link_menu_sicurezza" class="menu-item">Cambio Password</a>
+                <a id="link_menu_assistenza" class="menu-item">Assistenza</a>
+            `;
+        }
+
+        if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione hidden"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+            const btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione hidden"><span>Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
+        }
+    }
+
+    const mappaPagine = {
+        'link_menu_home': 'dashboard_prt.html',
+        'link_menu_bacheca': 'bacheca_prt.html',
+        'link_menu_miei_servizi': 'imieiservizi_prt.html',
+        'link_menu_profilo': 'modprofilo_prt.html',
+        'link_menu_sicurezza': 'pwcambio_prt.html',
+        'link_menu_assistenza': 'assistenzalog_prt.html',
+        'link_menu_pub_login': 'login_prt.html',
+        'link_menu_pub_reset': 'pwreset_prt.html',
+        'link_menu_pub_reg': 'registrazione_prt.html',
+        'link_menu_pub_assist': 'assistenza_prt.html',
+        'link_menu_flotta': 'flotta_prt.html',
+        'link_menu_dipendenti': 'dipendenti_prt.html',
+        'link_menu_calendario': 'calendario_prt.html'
+    };
+
+    document.querySelectorAll('.menu-item').forEach(link => {
+        const urlDestinazione = mappaPagine[link.id] || link.getAttribute('href');
+
+        if (urlDestinazione) {
+            const destinazioneBase = urlDestinazione.split('?')[0].split('#')[0];
+            if (destinazioneBase === paginaCorrente) {
+                link.classList.add('menu-item-attiva', 'no-click');
+            }
+        }
+
+        link.addEventListener('click', async function(e) {
+            if (urlDestinazione && urlDestinazione !== '#') {
+                e.preventDefault();
+
+                if (sidePanel) {
+                    sidePanel.classList.add('no-transition');
+                    sidePanel.classList.remove('open');
+                }
+                if (overlay) {
+                    overlay.classList.add('no-transition');
+                    overlay.classList.remove('open');
+                }
+                document.body.classList.remove('no-scroll');
+
+                if (typeof moduloSporco !== 'undefined' && moduloSporco) {
+                    mostraModaleSalvataggio(urlDestinazione);
+                    return;
+                }
+
+                if (paginaCorrente === 'bacheca_prt.html' && typeof segnaBachecaComeLetta === 'function') {
+                    const barraLette = document.getElementById('barra_segna_lette');
+                    if (barraLette && !barraLette.classList.contains('hidden')) {
+                        await segnaBachecaComeLetta(true);
+                    }
+                }
+
+                window.location.href = urlDestinazione;
+            }
+        });
+    });
+
+    window.addEventListener('pageshow', function(event) {
+        if (sidePanel) sidePanel.classList.remove('no-transition');
+        if (overlay) overlay.classList.remove('no-transition');
+
+        if (document.getElementById('formLogin')) {
+            localStorage.removeItem('driverbutler_auth_token');
+            if (event.persisted) {
+                window.location.reload();
+            }
+        }
+    });
+
+    const swipeRange = document.getElementById('swipe_logout_range');
+    if (swipeRange) {
+        const resetSlider = () => { if (swipeRange.value < 95) swipeRange.value = 0; };
+        swipeRange.addEventListener('input', function() {
+            if (this.value >= 95) {
+                this.value = 100;
+                if (typeof esciAccount === 'function') esciAccount();
+            }
+        });
+        swipeRange.addEventListener('change', resetSlider);
+        swipeRange.addEventListener('touchend', resetSlider);
+        swipeRange.addEventListener('mouseup', resetSlider);
+    }
+
+    if (deferredPrompt) mostraBottoneInstallazione();
+    if (isIOS || isMacSafari) {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (!isStandalone) mostraBottoneInstallazione();
+    }
+    if (localStorage.getItem('driverbutler_auth_token')) {
+        gestisciModaleNotifiche();
+    }
+}
+
+inizializzaMenuPartner();
+
+function allineaTendinaGoogleMaps() {
+    const campoAttivo = document.activeElement;
+    if (!campoAttivo || !campoAttivo.classList.contains('pac-target-input')) return;
+    const rettangolo = campoAttivo.getBoundingClientRect();
+    document.querySelectorAll('.pac-container').forEach(tendina => {
+        if (tendina.style.display !== 'none') {
+            tendina.style.setProperty('width', rettangolo.width + 'px', 'important');
+            tendina.style.setProperty('left', (rettangolo.left + window.scrollX) + 'px', 'important');
+        }
+    });
+}
+
+const osservatoreGoogleMaps = new MutationObserver(() => {
+    allineaTendinaGoogleMaps();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    osservatoreGoogleMaps.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+    });
+    window.addEventListener('resize', allineaTendinaGoogleMaps);
+    document.addEventListener('input', allineaTendinaGoogleMaps);
 });

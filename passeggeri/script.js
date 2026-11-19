@@ -234,253 +234,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    const contenitoreMenu = document.getElementById("menu-principale");
-    if (contenitoreMenu) {
-        const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
-        const isResetPassword = window.location.pathname.endsWith('pwreimposta.html');
-        const isIndexOrReset = isIndex || isResetPassword;
-        
-        let linkLogo = "index.html";
-        if (isResetPassword) {
-            linkLogo = "javascript:void(0)";
-        } else if (localStorage.getItem('driverbutler_auth_token') && !isIndex) {
-            linkLogo = "dashboard.html";
-        }
-
-        const paginaCorrente = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-        const bloccaClickLogo = (linkLogo === paginaCorrente) || isResetPassword;
-
-        const iconaUtente = !isResetPassword ? `
-            <button id="btn_apri_menu" class="user-icon-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </button>` : '';
-        
-        const utenteLoggato = localStorage.getItem('driverbutler_auth_token') !== null;
-        
-        const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
-        const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
-        
-        const linguaAttualeMenu = localStorage.getItem('driverbutler_lang') || 'it';
-        const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
-        
-        const testoItaliano = linguaAttualeMenu === 'it' ? '<span class="lang-active">Italiano</span>' : '<span class="lang-inactive">Italiano</span>';
-        const testoEnglish = linguaAttualeMenu === 'en' ? '<span class="lang-active">English</span>' : '<span class="lang-inactive">English</span>';
-
-        const selettoreLingua = mostraLingua ? `
-            <button class="nav-btn lang-selector-container" onclick="impostaLingua('${linguaOpposta}')">
-                ${testoItaliano}
-                <span class="lang-divider">/</span>
-                ${testoEnglish}
-            </button>` : '';
-
-        const footerHTML = !utenteLoggato ? `
-            <footer class="footer" data-i18n="footer_rights">
-                &copy; 2026-2027 DriverButler. Tutti i diritti riservati.
-            </footer>` : '';
-
-        contenitoreMenu.innerHTML = `
-        <nav class="navbar">
-            <a href="${linkLogo}" class="logo-container ${bloccaClickLogo ? 'link-bloccato' : ''}">
-                <img src="../logo/logo.svg" alt="Logo DriverButler" class="logo-icon">
-                <img src="../logo/scritta.svg" alt="DriverButler" class="logo-text-img">
-            </a>
-            <div class="menu-destra menu-gap">
-                ${selettoreLingua}
-                ${iconaUtente}
-            </div>
-        </nav>`;
-
-        if (footerHTML) {
-            document.body.insertAdjacentHTML('beforeend', footerHTML);
-        }
-    }
-
-    const btnApri = document.getElementById('btn_apri_menu');
-    const btnChiudi = document.getElementById('btn_chiudi_menu');
-    const overlay = document.getElementById('menu_overlay');
-    const sidePanel = document.getElementById('side_panel');
-
-    if (sidePanel && !sidePanel.classList.contains('open')) {
-        sidePanel.style.pointerEvents = 'none';
-        sidePanel.style.visibility = 'hidden';
-    }
-
-    function apriMenu(e) {
-        if (e) e.stopPropagation();
-        if (sidePanel) {
-            sidePanel.style.visibility = 'visible';
-            sidePanel.style.pointerEvents = 'auto';
-            sidePanel.classList.add('open');
-        }
-        if (overlay) {
-            overlay.style.pointerEvents = 'auto';
-            overlay.classList.add('open');
-        }
-        document.body.style.overflow = 'hidden'; 
-    }
-
-    function chiudiMenu(e) {
-        if (e) e.stopPropagation();
-        if (sidePanel) {
-            sidePanel.classList.remove('open');
-            sidePanel.style.pointerEvents = 'none';
-            sidePanel.style.visibility = 'hidden';
-        }
-        if (overlay) {
-            overlay.classList.remove('open');
-            overlay.style.pointerEvents = 'none';
-        }
-        document.body.style.overflow = '';
-    }
-
-    if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
-    if (overlay) overlay.addEventListener('click', chiudiMenu);
-    
-    document.addEventListener('click', function(e) {
-        const btnMenu = document.getElementById('btn_apri_menu');
-        
-        if (btnMenu && (e.target === btnMenu || btnMenu.contains(e.target))) {
-            apriMenu(e);
-            return;
-        }
-
-        if (sidePanel && sidePanel.classList.contains('open')) {
-            if (!sidePanel.contains(e.target)) {
-                chiudiMenu(e);
-            }
-        }
-    });
-
-    const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
-    const percorsoCorrenteMenu = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-    const blacklistPubblica = ['login.html', 'registrazione.html', 'pwreset.html', 'pwreimposta.html', 'assistenza.html'];
-    const isPaginaPubblica = blacklistPubblica.includes(percorsoCorrenteMenu) || percorsoCorrenteMenu === 'index.html' || percorsoCorrenteMenu === '';
-    
-    if (contenitoreMenuLaterale) {
-        if (isPaginaPubblica) {
-            contenitoreMenuLaterale.innerHTML = `
-                <a id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
-                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Reset Password</a>
-                <a id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
-                <a id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
-            `;
-            if (btnChiudi) {
-                btnChiudi.classList.add('bordo-inferiore-grigio');
-            }
-        } else if (localStorage.getItem('driverbutler_auth_token')) {
-            const linkRiepilogo = localStorage.getItem('db_partenza') ? `<a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>` : '';
-            contenitoreMenuLaterale.innerHTML = `
-                <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
-                <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
-                ${linkRiepilogo}
-                <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
-                <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
-                <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
-                <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
-                <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
-            `;
-        }
-        
-        if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
-            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item btn-menu-installazione hidden"><span data-i18n="btn_installa_app">Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
-            
-            let btnNotificheSidebar = '';
-            if (localStorage.getItem('driverbutler_auth_token')) {
-                btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item btn-menu-installazione hidden"><span data-i18n="menu_attiva_notifiche">Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
-            }
-
-            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
-        }
-    }
-
-    const menuLinks = document.querySelectorAll('.menu-item');
-    const percorsoAttuale = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
-
-    const mappaPagine = {
-        'link_menu_home': 'dashboard.html',
-        'link_menu_prenota': 'prenotazione.html',
-        'link_menu_riepilogo': 'checkout.html',
-        'link_menu_viaggi': 'viaggiprogrammati.html',
-        'link_menu_storico': 'viaggistorico.html',
-        'link_menu_profilo': 'modprofilo.html',
-        'link_menu_sicurezza': 'pwcambio.html',
-        'link_menu_assistenza': 'assistenzalog.html',
-        'link_menu_pub_login': 'login.html',
-        'link_menu_pub_reset': 'pwreset.html',
-        'link_menu_pub_reg': 'registrazione.html',
-        'link_menu_pub_assist': 'assistenza.html'
-    };
-    
-    menuLinks.forEach(link => {
-        const idLink = link.id;
-        const urlDestinazione = mappaPagine[idLink] || link.getAttribute('href');
-        
-        if (urlDestinazione) {
-            const destinazioneBase = urlDestinazione.split('?')[0].split('#')[0];
-            if (destinazioneBase === percorsoAttuale) {
-                link.classList.add('hidden');
-            }
-        }
-        
-        link.addEventListener('click', function(e) {
-            if (urlDestinazione && urlDestinazione !== '#') {
-                e.preventDefault();
-                
-                if (sidePanel) {
-                    sidePanel.style.transition = 'none';
-                    sidePanel.classList.remove('open');
-                }
-                if (overlay) {
-                    overlay.style.transition = 'none';
-                    overlay.classList.remove('open');
-                }
-                document.body.style.overflow = '';
-                
-                if (typeof moduloSporco !== 'undefined' && moduloSporco) {
-                    mostraModaleSalvataggio(urlDestinazione);
-                    return;
-                }
-                
-                setTimeout(() => {
-                    window.location.href = urlDestinazione;
-                }, 20);
-            }
-        });
-    });
-
-    window.addEventListener('pageshow', function(event) {
-        if (sidePanel) sidePanel.style.transition = '';
-        if (overlay) overlay.style.transition = '';
-        
-        if (document.getElementById('formLogin')) {
-            if (!window.location.hash.includes('access_token')) {
-                localStorage.removeItem('driverbutler_auth_token');
-            }
-            if (event.persisted) {
-                window.location.reload();
-            }
-        }
-    });
-
+    inizializzaMenuPasseggeri();
     applicaTraduzioni();
-    gestisciModaleNotifichePax();
-
-    const swipeRange = document.getElementById('swipe_logout_range');
-    if (swipeRange) {
-        const resetSlider = () => { if(swipeRange.value < 95) swipeRange.value = 0; };
-        swipeRange.addEventListener('input', function() {
-            if(this.value >= 95) {
-                this.value = 100;
-                if (typeof esciAccount === 'function') esciAccount();
-            }
-        });
-        swipeRange.addEventListener('change', resetSlider);
-        swipeRange.addEventListener('touchend', resetSlider);
-        swipeRange.addEventListener('mouseup', resetSlider);
-    }
 
     const phoneInputField = document.querySelector("#telefono");
     if (phoneInputField && window.intlTelInput) {
@@ -1816,13 +1571,17 @@ function caricaRiepilogo() {
     const noteServizio = localStorage.getItem('db_note_servizio');
     const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
 
+    const bloccoVuoto = document.getElementById('riepilogo_vuoto');
+    const contenitoreDati = document.getElementById('contenitore_dati_riepilogo');
+
     if (!tipoServizio || !partenza) {
-        mostraUiRedirectCheckout('body');
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 5000);
+        if (bloccoVuoto) bloccoVuoto.classList.remove('hidden');
+        if (contenitoreDati) contenitoreDati.classList.add('hidden');
         return;
     }
+
+    if (bloccoVuoto) bloccoVuoto.classList.add('hidden');
+    if (contenitoreDati) contenitoreDati.classList.remove('hidden');
 
     document.getElementById('view_nome_pax').textContent = nomePax || '-';
     document.getElementById('view_tel_pax').textContent = telPax || '-';
@@ -3662,14 +3421,6 @@ function mostraUiPrenotazioneErrore(containerId) {
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
 
-function mostraUiRedirectCheckout(containerId) {
-    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_redirect_title">${dict.js_redirect_title}</h2>`;
-    const messaggio = `<p class="feedback-testo" data-i18n="js_check_redirect">${dict.js_check_redirect}</p>`;
-    mostraSchermataFeedback('errore', containerId, titolo, messaggio);
-}
-
 function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, htmlBottone = '') {
     const menuPrincipale = document.getElementById('menu-principale');
     if (menuPrincipale) {
@@ -4031,7 +3782,7 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
         } else {
             titoloModale = dict.js_penale_avviso || "Annullamento con Penale 100%";
             testoModale = dict.js_penale_testo || "Mancano meno di 24 ore alla partenza. Come da termini accettati, l'annullamento comporterà l'addebito dell'intero importo della corsa.";
-            classeBottone = "btn-danger-outline";
+            classeBottone = "btn-ghost";
             penale = true;
         }
     }
@@ -4242,3 +3993,304 @@ function mostraModaleTecnica(dict) {
     
     overlay.style.display = 'flex';
 }
+
+let menuPasseggeriInizializzato = false;
+
+function inizializzaMenuPasseggeri() {
+    if (menuPasseggeriInizializzato) return;
+    const contenitoreMenu = document.getElementById("menu-principale");
+    if (!contenitoreMenu) return;
+    menuPasseggeriInizializzato = true;
+
+    const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+    const isResetPassword = window.location.pathname.endsWith('pwreimposta.html');
+
+    let linkLogo = "index.html";
+    if (isResetPassword) {
+        linkLogo = "javascript:void(0)";
+    } else if (localStorage.getItem('driverbutler_auth_token') && !isIndex) {
+        linkLogo = "dashboard.html";
+    }
+
+    const paginaCorrente = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
+    const bloccaClickLogo = (linkLogo === paginaCorrente) || isResetPassword;
+
+    const iconaUtente = !isResetPassword ? `
+        <button id="btn_apri_menu" class="user-icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>` : '';
+
+    const utenteLoggato = localStorage.getItem('driverbutler_auth_token') !== null;
+
+    const pagineLinguaConsentite = ['index.html', 'login.html', 'assistenza.html', 'pwreset.html', ''];
+    const mostraLingua = pagineLinguaConsentite.includes(paginaCorrente) && !utenteLoggato;
+
+    const linguaAttualeMenu = localStorage.getItem('driverbutler_lang') || 'it';
+    const linguaOpposta = linguaAttualeMenu === 'it' ? 'en' : 'it';
+
+    const testoItaliano = linguaAttualeMenu === 'it' ? '<span class="lang-active">Italiano</span>' : '<span class="lang-inactive">Italiano</span>';
+    const testoEnglish = linguaAttualeMenu === 'en' ? '<span class="lang-active">English</span>' : '<span class="lang-inactive">English</span>';
+
+    const selettoreLingua = mostraLingua ? `
+        <button class="nav-btn lang-selector-container" onclick="impostaLingua('${linguaOpposta}')">
+            ${testoItaliano}
+            <span class="lang-divider">/</span>
+            ${testoEnglish}
+        </button>` : '';
+
+    const footerHTML = !utenteLoggato ? `
+        <footer class="footer" data-i18n="footer_rights">
+            &copy; 2026-2027 DriverButler. Tutti i diritti riservati.
+        </footer>` : '';
+
+    contenitoreMenu.innerHTML = `
+    <nav class="navbar">
+        <a href="${linkLogo}" class="logo-container ${bloccaClickLogo ? 'link-bloccato' : ''}">
+            <img src="../logo/logo.svg" alt="Logo DriverButler" class="logo-icon">
+            <img src="../logo/scritta.svg" alt="DriverButler" class="logo-text-img">
+        </a>
+        <div class="menu-destra menu-gap">
+            ${selettoreLingua}
+            ${iconaUtente}
+        </div>
+    </nav>`;
+
+    if (footerHTML) {
+        document.body.insertAdjacentHTML('beforeend', footerHTML);
+    }
+
+    const blacklistPubblica = ['login.html', 'registrazione.html', 'pwreset.html', 'pwreimposta.html', 'assistenza.html'];
+    const isPaginaPubblica = blacklistPubblica.includes(paginaCorrente) || paginaCorrente === 'index.html' || paginaCorrente === '';
+
+    if (!document.getElementById('side_panel')) {
+        const blocchiLogoutHtml = isPaginaPubblica ? '' : `
+            <div class="swipe-logout-container">
+                <div class="swipe-logout-track">
+                    <span class="swipe-logout-text"><span data-i18n="swipe_logout_testo">SCORRI PER USCIRE DALL'ACCOUNT</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icona-swipe-logout"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+                    <input type="range" id="swipe_logout_range" class="swipe-logout-slider" min="0" max="100" value="0">
+                </div>
+            </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="menu_overlay" class="overlay"></div>
+            <div id="side_panel" class="side-panel">
+                <div class="sidebar-sticky-header">
+                    <button id="btn_chiudi_menu" class="btn-chiudi-testuale">
+                        <span data-i18n="btn_chiudi_menu_testo">CHIUDI MENU</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                    ${blocchiLogoutHtml}
+                </div>
+                <div class="menu-items scrollable-menu"></div>
+            </div>`);
+    }
+
+    const btnChiudi = document.getElementById('btn_chiudi_menu');
+    const overlay = document.getElementById('menu_overlay');
+    const sidePanel = document.getElementById('side_panel');
+
+    if (sidePanel && !sidePanel.classList.contains('open')) {
+        sidePanel.style.pointerEvents = 'none';
+        sidePanel.style.visibility = 'hidden';
+    }
+
+    function apriMenu(e) {
+        if (e) e.stopPropagation();
+        if (sidePanel) {
+            sidePanel.style.visibility = 'visible';
+            sidePanel.style.pointerEvents = 'auto';
+            sidePanel.classList.add('open');
+        }
+        if (overlay) {
+            overlay.style.pointerEvents = 'auto';
+            overlay.classList.add('open');
+        }
+        document.body.style.overflow = 'hidden';
+    }
+
+    function chiudiMenu(e) {
+        if (e) e.stopPropagation();
+        if (sidePanel) {
+            sidePanel.classList.remove('open');
+            sidePanel.style.pointerEvents = 'none';
+            sidePanel.style.visibility = 'hidden';
+        }
+        if (overlay) {
+            overlay.classList.remove('open');
+            overlay.style.pointerEvents = 'none';
+        }
+        document.body.style.overflow = '';
+    }
+
+    if (btnChiudi) btnChiudi.addEventListener('click', chiudiMenu);
+    if (overlay) overlay.addEventListener('click', chiudiMenu);
+
+    document.addEventListener('click', function(e) {
+        const btnMenu = document.getElementById('btn_apri_menu');
+        if (btnMenu && (e.target === btnMenu || btnMenu.contains(e.target))) {
+            apriMenu(e);
+            return;
+        }
+        if (sidePanel && sidePanel.classList.contains('open')) {
+            if (!sidePanel.contains(e.target)) {
+                chiudiMenu(e);
+            }
+        }
+    });
+
+    const contenitoreMenuLaterale = document.querySelector('.scrollable-menu');
+    if (contenitoreMenuLaterale) {
+        if (isPaginaPubblica) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_pub_login" class="menu-item" data-i18n="menu_pub_login">Accesso</a>
+                <a id="link_menu_pub_reset" class="menu-item" data-i18n="menu_pub_reset">Reset Password</a>
+                <a id="link_menu_pub_reg" class="menu-item" data-i18n="menu_pub_reg">Registrazione</a>
+                <a id="link_menu_pub_assist" class="menu-item" data-i18n="menu_pub_assist">Assistenza</a>
+            `;
+            if (btnChiudi) {
+                btnChiudi.classList.add('bordo-inferiore-grigio');
+            }
+        } else if (localStorage.getItem('driverbutler_auth_token')) {
+            contenitoreMenuLaterale.innerHTML = `
+                <a id="link_menu_home" class="menu-item" data-i18n="menu_home">Pannello Utente</a>
+                <a id="link_menu_prenota" class="menu-item" data-i18n="menu_prenota">Prenota Servizio</a>
+                <a id="link_menu_riepilogo" class="menu-item" data-i18n="menu_riepilogo">Riepilogo Richiesta</a>
+                <a id="link_menu_viaggi" class="menu-item" data-i18n="menu_viaggi">Viaggi in Programma</a>
+                <a id="link_menu_storico" class="menu-item" data-i18n="menu_storico">Storico Viaggi</a>
+                <a id="link_menu_profilo" class="menu-item" data-i18n="menu_profilo">Modifica Profilo</a>
+                <a id="link_menu_sicurezza" class="menu-item" data-i18n="menu_sicurezza">Cambio Password</a>
+                <a id="link_menu_assistenza" class="menu-item" data-i18n="menu_assistenza">Assistenza</a>
+            `;
+        }
+
+        if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
+            const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione hidden"><span data-i18n="btn_installa_app">Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
+
+            let btnNotificheSidebar = '';
+            if (localStorage.getItem('driverbutler_auth_token')) {
+                btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione hidden"><span data-i18n="menu_attiva_notifiche">Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
+            }
+
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
+        }
+    }
+
+    const mappaPagine = {
+        'link_menu_home': 'dashboard.html',
+        'link_menu_prenota': 'prenotazione.html',
+        'link_menu_riepilogo': 'checkout.html',
+        'link_menu_viaggi': 'viaggiprogrammati.html',
+        'link_menu_storico': 'viaggistorico.html',
+        'link_menu_profilo': 'modprofilo.html',
+        'link_menu_sicurezza': 'pwcambio.html',
+        'link_menu_assistenza': 'assistenzalog.html',
+        'link_menu_pub_login': 'login.html',
+        'link_menu_pub_reset': 'pwreset.html',
+        'link_menu_pub_reg': 'registrazione.html',
+        'link_menu_pub_assist': 'assistenza.html'
+    };
+
+    document.querySelectorAll('.menu-item').forEach(link => {
+        const urlDestinazione = mappaPagine[link.id] || link.getAttribute('href');
+
+        if (urlDestinazione) {
+            const destinazioneBase = urlDestinazione.split('?')[0].split('#')[0];
+            if (destinazioneBase === paginaCorrente) {
+                link.classList.add('menu-item-attiva', 'link-bloccato');
+            }
+        }
+
+        link.addEventListener('click', function(e) {
+            if (urlDestinazione && urlDestinazione !== '#') {
+                e.preventDefault();
+
+                if (sidePanel) {
+                    sidePanel.style.transition = 'none';
+                    sidePanel.classList.remove('open');
+                }
+                if (overlay) {
+                    overlay.style.transition = 'none';
+                    overlay.classList.remove('open');
+                }
+                document.body.style.overflow = '';
+
+                if (typeof moduloSporco !== 'undefined' && moduloSporco) {
+                    mostraModaleSalvataggio(urlDestinazione);
+                    return;
+                }
+
+                setTimeout(() => {
+                    window.location.href = urlDestinazione;
+                }, 20);
+            }
+        });
+    });
+
+    window.addEventListener('pageshow', function(event) {
+        if (sidePanel) sidePanel.style.transition = '';
+        if (overlay) overlay.style.transition = '';
+
+        if (document.getElementById('formLogin')) {
+            if (!window.location.hash.includes('access_token')) {
+                localStorage.removeItem('driverbutler_auth_token');
+            }
+            if (event.persisted) {
+                window.location.reload();
+            }
+        }
+    });
+
+    const swipeRange = document.getElementById('swipe_logout_range');
+    if (swipeRange) {
+        const resetSlider = () => { if (swipeRange.value < 95) swipeRange.value = 0; };
+        swipeRange.addEventListener('input', function() {
+            if (this.value >= 95) {
+                this.value = 100;
+                if (typeof esciAccount === 'function') esciAccount();
+            }
+        });
+        swipeRange.addEventListener('change', resetSlider);
+        swipeRange.addEventListener('touchend', resetSlider);
+        swipeRange.addEventListener('mouseup', resetSlider);
+    }
+
+    if (!verificaStandalone() && (deferredPrompt || isIOS || isMacSafari)) {
+        mostraBottoneInstallazione();
+    }
+    applicaTraduzioni();
+    gestisciModaleNotifichePax();
+}
+
+inizializzaMenuPasseggeri();
+
+function allineaTendinaGoogleMaps() {
+    const campoAttivo = document.activeElement;
+    if (!campoAttivo || !campoAttivo.classList.contains('pac-target-input')) return;
+    const rettangolo = campoAttivo.getBoundingClientRect();
+    document.querySelectorAll('.pac-container').forEach(tendina => {
+        if (tendina.style.display !== 'none') {
+            tendina.style.setProperty('width', rettangolo.width + 'px', 'important');
+            tendina.style.setProperty('left', (rettangolo.left + window.scrollX) + 'px', 'important');
+        }
+    });
+}
+
+const osservatoreGoogleMaps = new MutationObserver(() => {
+    allineaTendinaGoogleMaps();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    osservatoreGoogleMaps.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+    });
+    window.addEventListener('resize', allineaTendinaGoogleMaps);
+    document.addEventListener('input', allineaTendinaGoogleMaps);
+});
