@@ -2911,13 +2911,15 @@ function inviaNotificaDiProva() {
                     registration.showNotification("Notifiche attive", {
                         body: "Perfetto! Riceverai qui gli aggiornamenti in tempo reale da DriverButler.",
                         icon: "../logo/icona-pwa-prt.png",
+                        badge: "../logo/badge-bianco.png",
                         vibrate: [200, 100, 200]
                     });
                 });
             } else {
                 new Notification("Notifiche attive", {
                     body: "Perfetto! Riceverai qui gli aggiornamenti in tempo reale da DriverButler.",
-                    icon: "../logo/icona-pwa-prt.png"
+                    icon: "../logo/icona-pwa-prt.png",
+                    badge: "../logo/badge-bianco.png"
                 });
             }
         } catch(e) {

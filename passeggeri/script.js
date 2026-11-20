@@ -3977,13 +3977,15 @@ function inviaNotificaDiProvaPax(dict) {
                     registration.showNotification(dict.notifica_test_titolo, {
                         body: dict.notifica_test_testo,
                         icon: "../logo/icona-pwa.png",
+                        badge: "../logo/badge-bianco.png",
                         vibrate: [200, 100, 200]
                     });
                 });
             } else {
                 new Notification(dict.notifica_test_titolo, {
                     body: dict.notifica_test_testo,
-                    icon: "../logo/icona-pwa.png"
+                    icon: "../logo/icona-pwa.png",
+                    badge: "../logo/badge-bianco.png"
                 });
             }
         } catch(e) {
