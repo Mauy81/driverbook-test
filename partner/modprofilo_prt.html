@@ -131,7 +131,9 @@
                     <div id="errore_notifiche_dashboard" class="error-message">Seleziona almeno un metodo per ricevere le notifiche.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo">Salva Modifiche Profilo</button>
+                <div id="msg_stato_profilo" class="error-message msg-centrato-spaziato"></div>
+
+                <button type="submit" class="btn" id="btn_salva_profilo">Salva Modifiche Profilo</button>
             </form>
 
             <div id="blocco_sicurezza_email_password" class="hidden">
@@ -149,10 +151,10 @@
                             </button>
                         </div>
                     </div>
-                    <div id="msg_errore_password_email" class="error-message msg-centrato-spaziato hidden"></div>
-                    <div class="form-bottoni-veicolo">
-                        <button type="button" id="btn_annulla_mod_email" class="btn btn-ghost btn-veicolo-azione">ANNULLA</button>
-                        <button type="submit" id="btn_conferma_password_email" class="btn btn-primary btn-veicolo-azione">Procedi</button>
+                    <div id="msg_errore_password_email" class="error-message msg-centrato-spaziato"></div>
+                    <div class="btn-coppia form-bottoni-veicolo">
+                        <button type="button" id="btn_annulla_mod_email" class="btn">ANNULLA</button>
+                        <button type="submit" id="btn_conferma_password_email" class="btn">Procedi</button>
                     </div>
                 </form>
             </div>
@@ -167,8 +169,8 @@
                         <label class="label" for="otp_code_nuova_email">Codice di Sicurezza (6 cifre)</label>
                         <input type="text" id="otp_code_nuova_email" class="input input-otp" maxlength="6" inputmode="numeric" pattern="[0-9]*" required autocomplete="one-time-code">
                     </div>
-                    <div id="msg_errore_otp_email" class="error-message hidden"></div>
-                    <button type="submit" id="btn_verifica_otp_email" class="btn btn-primary btn-full">Verifica Codice</button>
+                    <div id="msg_errore_otp_email" class="error-message msg-centrato-spaziato"></div>
+                    <button type="submit" id="btn_verifica_otp_email" class="btn">Verifica Codice</button>
                     <a href="#" id="link_rinvia_otp_email" class="link link-login">Codice scaduto o non ricevuto? Invia di nuovo</a>
                 </form>
             </div>

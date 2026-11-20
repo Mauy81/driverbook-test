@@ -203,8 +203,6 @@ document.addEventListener("DOMContentLoaded", function() {
             const btnSubmit = document.querySelector('#formLogin button[type="submit"]');
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = localStorage.getItem('driverbutler_lang') === 'en' ? "Access confirmed! Redirecting..." : "Accesso confermato! Reindirizzamento...";
-                btnSubmit.classList.add('btn-stato-successo');
             }
 
             const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -221,10 +219,8 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(res => res.json())
             .then(datiPasseggero => {
-                setTimeout(() => {
-                    localStorage.setItem('driverbutler_ruolo', 'passeggeri');
-                    window.location.href = 'dashboard.html';
-                }, 2000);
+                localStorage.setItem('driverbutler_ruolo', 'passeggeri');
+                window.location.href = 'dashboard.html';
             })
             .catch(errore => {
                 console.error(errore);
@@ -426,8 +422,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputOtpNuovaEmail = document.getElementById('otp_code_nuova_email');
     if (inputOtpNuovaEmail) {
         inputOtpNuovaEmail.addEventListener('input', function() {
-            const msg = document.getElementById('msg_errore_otp_email');
-            if (msg) msg.style.display = 'none';
+            nascondiMessaggioBottone('msg_errore_otp_email');
         });
     }
 
@@ -500,8 +495,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputOtpCambio = document.getElementById('otp_code_cambio');
     if (inputOtpCambio) {
         inputOtpCambio.addEventListener('input', function() {
-            const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
-            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+            nascondiMessaggioBottone('messaggio_errore_otp_cambio');
         });
     }
 
@@ -569,8 +563,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputOtpLogin = document.getElementById('otp_code_login');
     if (inputOtpLogin) {
         inputOtpLogin.addEventListener('input', function() {
-            const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
-            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+            nascondiMessaggioBottone('messaggio_errore_otp_login');
         });
     }
 
@@ -600,8 +593,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputOtpReset = document.getElementById('otp_code_reset');
     if (inputOtpReset) {
         inputOtpReset.addEventListener('input', function() {
-            const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+            nascondiMessaggioBottone('messaggio_errore_otp_reset');
         });
     }
 
@@ -617,8 +609,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputOtp = document.getElementById('otp_code');
     if (inputOtp) {
         inputOtp.addEventListener('input', function() {
-            const msgErroreOtp = document.getElementById('messaggio_errore_otp');
-            if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+            nascondiMessaggioBottone('messaggio_errore_otp');
         });
     }
 
@@ -700,6 +691,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+function mostraMessaggioBottone(elementoId, testo, tipo = 'errore') {
+    const el = document.getElementById(elementoId);
+    if (!el) return;
+    el.textContent = testo;
+    if (tipo === 'neutro') {
+        el.classList.add('messaggio-neutro');
+    } else {
+        el.classList.remove('messaggio-neutro');
+    }
+    el.classList.add('mostra');
+}
+
+function nascondiMessaggioBottone(elementoId) {
+    const el = document.getElementById(elementoId);
+    if (!el) return;
+    el.classList.remove('mostra', 'messaggio-neutro');
+    el.textContent = '';
+}
+
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
     const isPassword = input.type === 'password';
@@ -719,9 +729,8 @@ async function inviaLogin(event) {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     const btnSubmit = document.querySelector('#formLogin button[type="submit"]');
-    const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_login_loading;
+    mostraMessaggioBottone('messaggio_errore_server_login', dict.js_login_loading, 'neutro');
     
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -752,8 +761,6 @@ async function inviaLogin(event) {
 
         const datiSessione = await risposta.json();
         const userId = datiSessione.user.id;
-
-        const pathAttuale = window.location.pathname.toLowerCase();
         
         const checkResponse = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=id_passeggero,linguaggio`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
@@ -800,14 +807,13 @@ async function inviaLogin(event) {
         }
         localStorage.setItem('driverbutler_last_user', userId);
         
-        btnSubmit.textContent = dict.js_login_success;
-        btnSubmit.classList.add('btn-stato-successo');
-        
+        nascondiMessaggioBottone('messaggio_errore_server_login');
         storage.setItem('driverbutler_ruolo', 'passeggeri');
         window.location.href = 'dashboard.html';
 
     } catch (errore) {
         if (errore.message === dict.js_login_err_active) {
+            nascondiMessaggioBottone('messaggio_errore_server_login');
             document.getElementById('blocco_dati_login').classList.add('hidden');
             document.getElementById('blocco_verifica_otp_login').classList.remove('hidden');
             
@@ -815,19 +821,12 @@ async function inviaLogin(event) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 100);
             
-            btnSubmit.textContent = testoOriginale;
             btnSubmit.disabled = false;
             return;
         }
 
-        btnSubmit.textContent = errore.message;
-        btnSubmit.classList.add('btn-errore-feedback');
-
-        setTimeout(() => {
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.classList.remove('btn-errore-feedback');
-            btnSubmit.disabled = false;
-        }, 5000);
+        btnSubmit.disabled = false;
+        mostraMessaggioBottone('messaggio_errore_server_login', errore.message, 'errore');
     }
 }
 
@@ -837,21 +836,16 @@ async function verificaOtpLogin() {
     const email = document.getElementById('email').value.trim();
     const token = document.getElementById('otp_code_login').value.trim();
     const btnVerifica = document.getElementById('btn_verifica_otp_login');
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
 
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_otp_login');
 
     if (token.length !== 6) {
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_login', dict.js_otp_err_length || "Il codice deve essere di 6 cifre.", 'errore');
         return;
     }
 
-    const testoOriginale = btnVerifica.textContent;
     btnVerifica.disabled = true;
-    btnVerifica.textContent = dict.js_login_loading || "Verifica in corso...";
+    mostraMessaggioBottone('messaggio_errore_otp_login', dict.js_login_loading || "Verifica in corso...", 'neutro');
 
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     const urlVerify = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify";
@@ -924,22 +918,15 @@ async function verificaOtpLogin() {
         
         if (typeof svuotaBozze === 'function') svuotaBozze();
 
-        btnVerifica.textContent = dict.js_login_success || "Accesso effettuato!";
-        btnVerifica.classList.add('btn-stato-successo');
-        
+        nascondiMessaggioBottone('messaggio_errore_otp_login');
         storage.setItem('driverbutler_ruolo', 'passeggeri');
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 1500);
+        window.location.href = 'dashboard.html';
 
     } catch (errore) {
         btnVerifica.disabled = false;
-        btnVerifica.textContent = testoOriginale;
         btnVerifica.blur();
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = errore.message === (dict.js_login_err_pax || "Account non autorizzato come Passeggero.") ? errore.message : (dict.js_otp_err_invalid || "Codice errato o scaduto.");
-            msgErroreOtp.style.display = 'block';
-        }
+        const testoErrore = errore.message === (dict.js_login_err_pax || "Account non autorizzato come Passeggero.") ? errore.message : (dict.js_otp_err_invalid || "Codice errato o scaduto.");
+        mostraMessaggioBottone('messaggio_errore_otp_login', testoErrore, 'errore');
     }
 }
 
@@ -948,14 +935,13 @@ async function inviaNuovoOtpLogin(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const email = document.getElementById('email').value.trim();
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_login');
 
     const link = document.getElementById('link_invia_nuovo_otp_login');
     const testoOriginale = link.textContent;
     link.textContent = dict.js_rec_loading || "Invio in corso...";
     link.style.pointerEvents = "none";
 
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_otp_login');
 
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     const urlResend = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/resend";
@@ -977,15 +963,10 @@ async function inviaNuovoOtpLogin(event) {
             throw new Error("Errore invio codice");
         }
 
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_success || "Nuovo codice inviato!";
-            msgErroreOtp.style.color = "#00FF66";
-            msgErroreOtp.style.display = 'block';
-            setTimeout(() => {
-                msgErroreOtp.style.display = 'none';
-                msgErroreOtp.style.color = "";
-            }, 5000);
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_login', dict.js_rec_success || "Nuovo codice inviato!", 'neutro');
+        setTimeout(() => {
+            nascondiMessaggioBottone('messaggio_errore_otp_login');
+        }, 5000);
 
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
@@ -993,11 +974,7 @@ async function inviaNuovoOtpLogin(event) {
     } catch (errore) {
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
-            msgErroreOtp.style.color = "#FF4444";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_login', dict.js_rec_conn_err || "Errore di connessione. Riprova.", 'errore');
     }
 }
 
@@ -1220,8 +1197,8 @@ function calcolaPrezzi(tentativo = 1) {
     if (tipoServizio === 'DISPOSIZIONE') {
         if (btnSubmit) {
             btnSubmit.disabled = false;
-            btnSubmit.textContent = dict.btn_procedi;
         }
+        nascondiMessaggioBottone('errore_vettura');
         const ore = parseInt(document.getElementById('ore').value) || 3;
         
         aggiornaGraficaPrezzo('CLASSE_E', ore * CONFIG_TARIFFE.CLASSE_E.oraDisposizione);
@@ -1234,6 +1211,7 @@ function calcolaPrezzi(tentativo = 1) {
 
         if (!partenza || !arrivo) {
             nascondiPrezzi();
+            nascondiMessaggioBottone('errore_vettura');
             return;
         }
 
@@ -1241,15 +1219,15 @@ function calcolaPrezzi(tentativo = 1) {
             nascondiPrezzi();
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = dict.err_no_coord || "INDIRIZZO NON VALIDO: USA LA TENDINA";
             }
+            mostraMessaggioBottone('errore_vettura', dict.err_no_coord || "INDIRIZZO NON VALIDO: USA LA TENDINA", 'errore');
             return;
         }
 
         if (btnSubmit) {
             btnSubmit.disabled = true;
-            btnSubmit.textContent = dict.btn_procedi_calc || "CALCOLO IN CORSO...";
         }
+        mostraMessaggioBottone('errore_vettura', dict.btn_procedi_calc || "CALCOLO IN CORSO...", 'neutro');
 
         if (typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService) {
             const service = new google.maps.DistanceMatrixService();
@@ -1279,8 +1257,8 @@ function calcolaPrezzi(tentativo = 1) {
                             nascondiPrezzi();
                             if (btnSubmit) {
                                 btnSubmit.disabled = true;
-                                btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
                             }
+                            mostraMessaggioBottone('errore_vettura', dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO", 'errore');
                             return;
                         }
                     }
@@ -1303,8 +1281,8 @@ function calcolaPrezzi(tentativo = 1) {
 
                     if (btnSubmit) {
                         btnSubmit.disabled = false;
-                        btnSubmit.textContent = dict.btn_procedi;
                     }
+                    nascondiMessaggioBottone('errore_vettura');
                 } else {
                     if (tentativo < 5) {
                         setTimeout(() => calcolaPrezzi(tentativo + 1), 3000);
@@ -1313,8 +1291,8 @@ function calcolaPrezzi(tentativo = 1) {
                         nascondiPrezzi();
                         if (btnSubmit) {
                             btnSubmit.disabled = true;
-                            btnSubmit.textContent = dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO";
                         }
+                        mostraMessaggioBottone('errore_vettura', dict.btn_procedi_err || "ERRORE DI CALCOLO: RIPROVA TRA POCO", 'errore');
                     }
                 }
             });
@@ -1469,21 +1447,19 @@ function selezionaVettura(codiceVettura) {
     if(codiceVettura === 'CLASSE_S') tagS.textContent = dict.js_vettura_sel;
     if(codiceVettura === 'CLASSE_V') tagV.textContent = dict.js_vettura_sel;
 
-    const msgErroreVettura = document.getElementById('errore_vettura');
-    if (msgErroreVettura) msgErroreVettura.classList.remove('mostra');
+    nascondiMessaggioBottone('errore_vettura');
 }
 
 function inviaRichiesta(event) {
     event.preventDefault();
     
     const vetturaScelta = document.getElementById('vettura_selezionata').value;
-    const msgErroreVettura = document.getElementById('errore_vettura');
 
     if (!vetturaScelta) {
-        if (msgErroreVettura) msgErroreVettura.classList.add('mostra');
+        mostraMessaggioBottone('errore_vettura', traduzioni[localStorage.getItem('driverbutler_lang') || 'it'].err_selezione_vettura, 'errore');
         return;
     } else {
-        if (msgErroreVettura) msgErroreVettura.classList.remove('mostra');
+        nascondiMessaggioBottone('errore_vettura');
     }
 
     if (validaOrario()) {
@@ -1656,6 +1632,10 @@ async function confermaPrenotazione() {
     const prezzoStimato = localStorage.getItem('db_prezzo_stimato');
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const btnConferma = document.getElementById('btn_conferma_prenotazione');
+    const btnModifica = document.getElementById('btn_modifica_prenotazione');
+    if (btnConferma) btnConferma.disabled = true;
+    if (btnModifica) btnModifica.disabled = true;
     
     let prezzoNumero = 0;
     if (prezzoStimato) {
@@ -1878,23 +1858,17 @@ async function inviaRegistrazionePasseggero(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) {
-        msgErroreServer.style.display = 'none';
-    }
+    nascondiMessaggioBottone('messaggio_errore_server');
 
     if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
         return;
     }
 
     const btnSubmit = document.getElementById('btn_invia_registrazione');
-    let testoOriginale = "REGISTRATI";
     if (btnSubmit) {
-        testoOriginale = btnSubmit.textContent;
         btnSubmit.disabled = true;
-        btnSubmit.textContent = dict.js_reg_loading || "Elaborazione...";
-        btnSubmit.classList.add('btn-in-caricamento');
     }
+    mostraMessaggioBottone('messaggio_errore_server', dict.js_reg_loading || "Elaborazione...", 'neutro');
 
     const urlAuth = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -1959,6 +1933,8 @@ async function inviaRegistrazionePasseggero(event) {
             throw new Error(authError.msg || authError.message || "Errore credenziali");
         }
 
+        nascondiMessaggioBottone('messaggio_errore_server');
+        if (btnSubmit) btnSubmit.disabled = false;
         document.getElementById('blocco_dati_registrazione').classList.add('hidden');
         document.getElementById('blocco_verifica_otp').classList.remove('hidden');
         
@@ -1970,10 +1946,9 @@ async function inviaRegistrazionePasseggero(event) {
         }, 100);
 
     } catch (errore) {
+        nascondiMessaggioBottone('messaggio_errore_server');
         if (btnSubmit) {
             btnSubmit.disabled = false;
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.classList.remove('btn-in-caricamento');
         }
 
         let testoErrore = (dict.js_reg_err_generic || "Errore: ") + errore.message;
@@ -1992,9 +1967,8 @@ async function inviaRegistrazionePasseggero(event) {
             document.getElementById('btn_chiudi_errore_reg').onclick = function() {
                 overlay.classList.add('hidden');
             };
-        } else if (msgErroreServer) {
-            msgErroreServer.textContent = testoErrore;
-            msgErroreServer.style.display = 'block';
+        } else {
+            mostraMessaggioBottone('messaggio_errore_server', testoErrore, 'errore');
         }
     }
 }
@@ -2005,21 +1979,16 @@ async function verificaOtpRegistrazione() {
     const email = document.getElementById('email').value;
     const token = document.getElementById('otp_code').value.trim();
     const btnVerifica = document.getElementById('btn_verifica_otp');
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp');
 
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_otp');
 
     if (token.length !== 6) {
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp', dict.js_otp_err_length || "Il codice deve essere di 6 cifre.", 'errore');
         return;
     }
 
-    const testoOriginale = btnVerifica.textContent;
     btnVerifica.disabled = true;
-    btnVerifica.textContent = dict.js_login_loading || "Verifica in corso...";
+    mostraMessaggioBottone('messaggio_errore_otp', dict.js_login_loading || "Verifica in corso...", 'neutro');
 
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     const urlVerify = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify";
@@ -2053,21 +2022,13 @@ async function verificaOtpRegistrazione() {
 
         if (typeof svuotaBozze === 'function') svuotaBozze();
         
-        btnVerifica.textContent = dict.js_login_success || "Accesso effettuato!";
-        btnVerifica.classList.add('btn-stato-successo');
-        
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 1500);
+        nascondiMessaggioBottone('messaggio_errore_otp');
+        window.location.href = 'dashboard.html';
 
     } catch (errore) {
         btnVerifica.disabled = false;
-        btnVerifica.textContent = testoOriginale;
         btnVerifica.blur();
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp', dict.js_otp_err_invalid || "Codice errato o scaduto.", 'errore');
     }
 }
 
@@ -2076,14 +2037,13 @@ async function inviaNuovoOtpRegistrazione(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const email = document.getElementById('email').value;
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp');
 
     const link = document.getElementById('link_invia_nuovo_otp');
     const testoOriginale = link.textContent;
     link.textContent = dict.js_rec_loading || "Invio in corso...";
     link.style.pointerEvents = "none";
 
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_otp');
 
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     const urlResend = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/resend";
@@ -2105,15 +2065,10 @@ async function inviaNuovoOtpRegistrazione(event) {
             throw new Error("Errore invio codice");
         }
 
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_success || "Nuovo codice inviato!";
-            msgErroreOtp.style.color = "#00FF66";
-            msgErroreOtp.style.display = 'block';
-            setTimeout(() => {
-                msgErroreOtp.style.display = 'none';
-                msgErroreOtp.style.color = "";
-            }, 5000);
-        }
+        mostraMessaggioBottone('messaggio_errore_otp', dict.js_rec_success || "Nuovo codice inviato!", 'neutro');
+        setTimeout(() => {
+            nascondiMessaggioBottone('messaggio_errore_otp');
+        }, 5000);
 
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
@@ -2121,11 +2076,7 @@ async function inviaNuovoOtpRegistrazione(event) {
     } catch (errore) {
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
-            msgErroreOtp.style.color = "#FF4444";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp', dict.js_rec_conn_err || "Errore di connessione. Riprova.", 'errore');
     }
 }
 
@@ -2234,25 +2185,20 @@ async function aggiornaProfilo(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
+    nascondiMessaggioBottone('msg_stato_profilo');
+
     if (!validaNotificheDashboard()) return;
 
     const btnSubmit = document.querySelector('#formModificaProfilo button[type="submit"]');
-    const testoOriginale = btnSubmit.textContent;
-    btnSubmit.disabled = true;
 
     const alertBox = document.getElementById('alert_chiusura_fatturazione');
     if (alertBox && !alertBox.classList.contains('hidden')) {
-        btnSubmit.textContent = dict.js_prof_err_vat;
-        btnSubmit.classList.add('btn-stato-errore');
-        setTimeout(() => {
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.classList.remove('btn-stato-errore');
-            btnSubmit.disabled = false;
-        }, 5000);
+        mostraMessaggioBottone('msg_stato_profilo', dict.js_prof_err_vat, 'errore');
         return;
     }
 
-    btnSubmit.textContent = dict.js_prof_loading || "Salvataggio in corso...";
+    btnSubmit.disabled = true;
+    mostraMessaggioBottone('msg_stato_profilo', dict.js_prof_loading || "Salvataggio in corso...", 'neutro');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2266,8 +2212,8 @@ async function aggiornaProfilo(event) {
         const nuovaEmail = document.getElementById('profilo_email').value.trim();
         
         if (nuovaEmail !== userData.email) {
-            btnSubmit.textContent = testoOriginale;
             btnSubmit.disabled = false;
+            nascondiMessaggioBottone('msg_stato_profilo');
             
             document.getElementById('formModificaProfilo').classList.add('hidden');
             document.getElementById('blocco_sicurezza_email_password').classList.remove('hidden');
@@ -2322,26 +2268,18 @@ async function aggiornaProfilo(event) {
         
         if (typeof svuotaBozze === 'function') svuotaBozze();
         
-        btnSubmit.textContent = dict.js_prof_success;
-        btnSubmit.classList.add('btn-stato-successo');
+        btnSubmit.disabled = false;
+        mostraMessaggioBottone('msg_stato_profilo', dict.js_prof_success, 'neutro');
 
         setTimeout(() => {
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.classList.remove('btn-stato-successo');
-            btnSubmit.disabled = false;
+            nascondiMessaggioBottone('msg_stato_profilo');
         }, 5000);
         
         caricaDatiDashboardPasseggero();
         
     } catch (errore) {
-        btnSubmit.textContent = dict.js_prof_err_save;
-        btnSubmit.classList.add('btn-stato-errore');
-
-        setTimeout(() => {
-            btnSubmit.textContent = testoOriginale;
-            btnSubmit.classList.remove('btn-stato-errore');
-            btnSubmit.disabled = false;
-        }, 5000);
+        btnSubmit.disabled = false;
+        mostraMessaggioBottone('msg_stato_profilo', dict.js_prof_err_save, 'errore');
     }
 }
 
@@ -2349,15 +2287,13 @@ async function verificaPasswordPerEmail(event) {
     event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const msgErrore = document.getElementById('msg_errore_password_email');
-    msgErrore.style.display = 'none';
+    nascondiMessaggioBottone('msg_errore_password_email');
 
     const btn = document.getElementById('btn_conferma_password_email');
     const pwdInserita = document.getElementById('password_attuale_email').value;
     
-    const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = dict.js_login_loading || "Verifica...";
+    mostraMessaggioBottone('msg_errore_password_email', dict.js_login_loading || "Verifica...", 'neutro');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2382,10 +2318,9 @@ async function verificaPasswordPerEmail(event) {
 
     } catch (errore) {
         btn.disabled = false;
-        btn.textContent = testoOriginale;
         document.getElementById('password_attuale_email').value = '';
-        msgErrore.textContent = errore.message === "PWD_ERRATA" ? (dict.js_login_err_invalid || "Password errata.") : "Errore di connessione.";
-        msgErrore.style.display = 'block';
+        const testoErrore = errore.message === "PWD_ERRATA" ? (dict.js_login_err_invalid || "Password errata.") : "Errore di connessione.";
+        mostraMessaggioBottone('msg_errore_password_email', testoErrore, 'errore');
     }
 }
 
@@ -2397,8 +2332,7 @@ async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
     const nuovaEmail = document.getElementById('profilo_email').value.trim();
     const btn = document.getElementById('btn_conferma_password_email');
     const link = document.getElementById('link_rinvia_otp_email');
-    const msgErrore = document.getElementById('msg_errore_otp_email');
-    if (msgErrore) msgErrore.style.display = 'none';
+    nascondiMessaggioBottone('msg_errore_otp_email');
 
     if (!daFlussoPrincipale) {
         link.textContent = dict.js_rec_loading || "Invio in corso...";
@@ -2429,32 +2363,27 @@ async function inviaOtpNuovaEmail(event, daFlussoPrincipale = false) {
         }
 
         if (daFlussoPrincipale) {
+            nascondiMessaggioBottone('msg_errore_password_email');
             document.getElementById('blocco_sicurezza_email_password').classList.add('hidden');
             document.getElementById('blocco_sicurezza_email_otp').classList.remove('hidden');
             btn.disabled = false;
-            btn.textContent = dict.btn_procedi || "Procedi";
         } else {
-            msgErrore.textContent = dict.js_rec_success || "Nuovo codice inviato!";
-            msgErrore.style.color = "#00FF66";
-            msgErrore.style.display = 'block';
-            setTimeout(() => { msgErrore.style.display = 'none'; msgErrore.style.color = ""; }, 5000);
+            mostraMessaggioBottone('msg_errore_otp_email', dict.js_rec_success || "Nuovo codice inviato!", 'neutro');
+            setTimeout(() => { nascondiMessaggioBottone('msg_errore_otp_email'); }, 5000);
             link.textContent = dict.link_invia_nuovo_otp || "Codice scaduto o non ricevuto? Invia di nuovo";
             link.style.pointerEvents = "auto";
         }
 
     } catch (errore) {
         if (daFlussoPrincipale) {
-            const modalePass = document.getElementById('msg_errore_password_email');
             btn.disabled = false;
-            btn.textContent = dict.btn_procedi || "Procedi";
-            modalePass.textContent = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore invio OTP.";
-            modalePass.style.display = 'block';
+            const testoErrore = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore invio OTP.";
+            mostraMessaggioBottone('msg_errore_password_email', testoErrore, 'errore');
         } else {
             link.textContent = dict.link_invia_nuovo_otp || "Codice scaduto o non ricevuto? Invia di nuovo";
             link.style.pointerEvents = "auto";
-            msgErrore.textContent = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore di connessione.";
-            msgErrore.style.color = "#FF4444";
-            msgErrore.style.display = 'block';
+            const testoErrore = errore.message === "EMAIL_ESISTENTE" ? (dict.js_prof_err_email_exists || "La mail scelta è già registrata.") : "Errore di connessione.";
+            mostraMessaggioBottone('msg_errore_otp_email', testoErrore, 'errore');
         }
     }
 }
@@ -2463,21 +2392,18 @@ async function verificaOtpNuovaEmail(event) {
     event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const msgErrore = document.getElementById('msg_errore_otp_email');
-    msgErrore.style.display = 'none';
+    nascondiMessaggioBottone('msg_errore_otp_email');
 
     const tokenOtp = document.getElementById('otp_code_nuova_email').value.trim();
     if (tokenOtp.length !== 6) {
-        msgErrore.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
-        msgErrore.style.display = 'block';
+        mostraMessaggioBottone('msg_errore_otp_email', dict.js_otp_err_length || "Il codice deve essere di 6 cifre.", 'errore');
         return;
     }
 
     const nuovaEmail = document.getElementById('profilo_email').value.trim();
     const btn = document.getElementById('btn_verifica_otp_email');
-    const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = dict.js_login_loading || "Verifica...";
+    mostraMessaggioBottone('msg_errore_otp_email', dict.js_login_loading || "Verifica...", 'neutro');
 
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
@@ -2499,15 +2425,13 @@ async function verificaOtpNuovaEmail(event) {
 
         const titoloFeedback = `<h2 class="feedback-titolo feedback-titolo-successo">${dict.js_check_success_title || "Successo"}</h2>`;
         const msgFeedback = `<p class="feedback-testo">${dict.js_prof_email_success_msg || "L'indirizzo email è stato aggiornato correttamente."}</p>`;
-        const btnDashboard = `<a href="dashboard.html" class="btn btn-primary btn-full">${dict.menu_home || "Vai al Pannello Utente"}</a>`;
+        const btnDashboard = `<a href="dashboard.html" class="btn">${dict.menu_home || "Vai al Pannello Utente"}</a>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titoloFeedback, msgFeedback, btnDashboard);
 
     } catch (errore) {
         btn.disabled = false;
-        btn.textContent = testoOriginale;
-        msgErrore.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
-        msgErrore.style.display = 'block';
+        mostraMessaggioBottone('msg_errore_otp_email', dict.js_otp_err_invalid || "Codice errato o scaduto.", 'errore');
     }
 }
 
@@ -2524,9 +2448,8 @@ async function modificaPassword() {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    const testoOriginale = btn.textContent;
-    btn.textContent = dict.js_rec_loading || "Invio richiesta...";
     btn.disabled = true;
+    mostraMessaggioBottone('msg_richiesta_cambio', dict.js_rec_loading || "Invio richiesta...", 'neutro');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover";
@@ -2554,22 +2477,16 @@ async function modificaPassword() {
             throw new Error("Errore invio OTP");
         }
 
+        nascondiMessaggioBottone('msg_richiesta_cambio');
         document.getElementById('blocco_richiesta_cambio').classList.add('hidden');
         document.getElementById('blocco_verifica_cambio').classList.remove('hidden');
         
         btn.disabled = false;
-        btn.textContent = testoOriginale;
 
     } catch (errore) {
         console.error(errore);
-        btn.textContent = dict.js_rec_err || "Errore di invio";
-        btn.classList.add('btn-stato-errore'); 
-        
-        setTimeout(() => {
-            btn.textContent = testoOriginale;
-            btn.classList.remove('btn-stato-errore');
-            btn.disabled = false;
-        }, 5000);
+        btn.disabled = false;
+        mostraMessaggioBottone('msg_richiesta_cambio', dict.js_rec_err || "Errore di invio", 'errore');
     }
 }
 
@@ -2579,18 +2496,12 @@ async function verificaOtpECambiaPassword(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    const msgErroreServer = document.getElementById('messaggio_errore_server_cambio');
-    if (msgErroreServer) msgErroreServer.style.display = 'none';
-    
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_server_cambio');
+    nascondiMessaggioBottone('messaggio_errore_otp_cambio');
 
     const tokenOtp = document.getElementById('otp_code_cambio').value.trim();
     if (tokenOtp.length !== 6) {
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_cambio', dict.js_otp_err_length || "Il codice deve essere di 6 cifre.", 'errore');
         return;
     }
 
@@ -2599,10 +2510,9 @@ async function verificaOtpECambiaPassword(event) {
 
     const nuovaPassword = document.getElementById('password').value;
     const btnSubmit = document.getElementById('btn_salva_password_interna');
-    const testoOriginale = btnSubmit.textContent;
     
-    btnSubmit.textContent = dict.js_pass_loading || "Salvataggio in corso...";
     btnSubmit.disabled = true;
+    mostraMessaggioBottone('messaggio_errore_server_cambio', dict.js_pass_loading || "Salvataggio in corso...", 'neutro');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2653,27 +2563,18 @@ async function verificaOtpECambiaPassword(event) {
 
         if (typeof svuotaBozze === 'function') svuotaBozze();
 
-        btnSubmit.textContent = dict.js_pass_success || "Password aggiornata! Accesso in corso...";
-        btnSubmit.classList.add('btn-stato-successo');
-
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 2000);
+        nascondiMessaggioBottone('messaggio_errore_server_cambio');
+        window.location.href = 'dashboard.html';
 
     } catch (errore) {
-        btnSubmit.textContent = testoOriginale;
+        nascondiMessaggioBottone('messaggio_errore_server_cambio');
         btnSubmit.disabled = false;
         
         if (errore.message === "OTP_INVALID") {
-            if (msgErroreOtp) {
-                msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
-                msgErroreOtp.style.display = 'block';
-            }
+            mostraMessaggioBottone('messaggio_errore_otp_cambio', dict.js_otp_err_invalid || "Codice errato o scaduto.", 'errore');
         } else {
-            if (msgErroreServer) {
-                msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password.") : errore.message;
-                msgErroreServer.style.display = 'block';
-            }
+            const testoErrore = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password.") : errore.message;
+            mostraMessaggioBottone('messaggio_errore_server_cambio', testoErrore, 'errore');
         }
     }
 }
@@ -2682,14 +2583,13 @@ async function inviaNuovoOtpCambio(event) {
     event.preventDefault();
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_cambio');
 
     const link = document.getElementById('link_invia_nuovo_otp_cambio');
     const testoOriginale = link.textContent;
     link.textContent = dict.js_rec_loading || "Invio in corso...";
     link.style.pointerEvents = "none";
 
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_otp_cambio');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2716,15 +2616,10 @@ async function inviaNuovoOtpCambio(event) {
             throw new Error("Errore invio codice");
         }
 
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_success || "Nuovo codice inviato!";
-            msgErroreOtp.style.color = "#00FF66";
-            msgErroreOtp.style.display = 'block';
-            setTimeout(() => {
-                msgErroreOtp.style.display = 'none';
-                msgErroreOtp.style.color = "";
-            }, 5000);
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_cambio', dict.js_rec_success || "Nuovo codice inviato!", 'neutro');
+        setTimeout(() => {
+            nascondiMessaggioBottone('messaggio_errore_otp_cambio');
+        }, 5000);
 
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
@@ -2732,11 +2627,7 @@ async function inviaNuovoOtpCambio(event) {
     } catch (errore) {
         link.textContent = testoOriginale;
         link.style.pointerEvents = "auto";
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
-            msgErroreOtp.style.color = "#FF4444";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_cambio', dict.js_rec_conn_err || "Errore di connessione. Riprova.", 'errore');
     }
 }
 
@@ -2762,9 +2653,8 @@ async function inviaAssistenza(event) {
     const messaggioUtente = document.getElementById('testo_assistenza').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza button[type="submit"]');
 
-    const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_assist_loading;
+    mostraMessaggioBottone('msg_stato_assistenza', dict.js_assist_loading, 'neutro');
 
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
     const urlGoogleApp = "https://script.google.com/macros/s/AKfycbxS7_NOyZXPwhO9m3VDH1aD98a1emWtuDRDNi6VnnqStZtieZUE_ILt_lcvu_HU88In/exec";
@@ -2794,9 +2684,8 @@ async function inviaAssistenza(event) {
         mostraUiAssistenzaOk('.login-wrapper');
 
     } catch (errore) {
-        alert(dict.js_assist_err);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = testoOriginale;
+        mostraMessaggioBottone('msg_stato_assistenza', dict.js_assist_err, 'errore');
     }
 }
 
@@ -2831,9 +2720,8 @@ async function richiediResetPassword(event) {
     const email = document.getElementById('email_recupero').value.trim();
     const btn = document.getElementById('btn_invia_recupero');
 
-    const testoOriginale = btn.textContent;
     btn.disabled = true;
-    btn.textContent = dict.js_rec_proc || "Elaborazione in corso...";
+    mostraMessaggioBottone('msg_recupero', dict.js_rec_proc || "Elaborazione in corso...", 'neutro');
 
     const urlRecover = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/recover";
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -2848,6 +2736,7 @@ async function richiediResetPassword(event) {
             body: JSON.stringify({ email: email })
         });
 
+        nascondiMessaggioBottone('msg_recupero');
         document.getElementById('blocco_richiesta_reset').classList.add('hidden');
         document.getElementById('blocco_verifica_reset').classList.remove('hidden');
         
@@ -2857,17 +2746,10 @@ async function richiediResetPassword(event) {
         }
 
         btn.disabled = false;
-        btn.textContent = testoOriginale;
 
     } catch (errore) {
-        btn.textContent = dict.js_rec_conn_err || "Errore di connessione. Riprova.";
-        btn.classList.add('btn-stato-errore');
-        
-        setTimeout(() => {
-            btn.textContent = testoOriginale;
-            btn.classList.remove('btn-stato-errore');
-            btn.disabled = false;
-        }, 5000);
+        btn.disabled = false;
+        mostraMessaggioBottone('msg_recupero', dict.js_rec_conn_err || "Errore di connessione. Riprova.", 'errore');
     }
 }
 
@@ -2887,11 +2769,8 @@ function tornaARichiestaReset() {
     const confPasswordInput = document.getElementById('confermaPassword');
     if (confPasswordInput) confPasswordInput.value = '';
 
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-    if (msgErroreOtp) msgErroreOtp.classList.remove('mostra');
-
-    const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) msgErroreServer.classList.remove('mostra');
+    nascondiMessaggioBottone('messaggio_errore_otp_reset');
+    nascondiMessaggioBottone('messaggio_errore_server');
 }
 
 async function inviaNuovaPassword(event) {
@@ -2900,18 +2779,12 @@ async function inviaNuovaPassword(event) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    const msgErroreServer = document.getElementById('messaggio_errore_server');
-    if (msgErroreServer) msgErroreServer.style.display = 'none';
-    
-    const msgErroreOtp = document.getElementById('messaggio_errore_otp_reset');
-    if (msgErroreOtp) msgErroreOtp.style.display = 'none';
+    nascondiMessaggioBottone('messaggio_errore_server');
+    nascondiMessaggioBottone('messaggio_errore_otp_reset');
 
     const token = document.getElementById('otp_code_reset').value.trim();
     if (token.length !== 6) {
-        if (msgErroreOtp) {
-            msgErroreOtp.textContent = dict.js_otp_err_length || "Il codice deve essere di 6 cifre.";
-            msgErroreOtp.style.display = 'block';
-        }
+        mostraMessaggioBottone('messaggio_errore_otp_reset', dict.js_otp_err_length || "Il codice deve essere di 6 cifre.", 'errore');
         return;
     }
 
@@ -2922,9 +2795,8 @@ async function inviaNuovaPassword(event) {
     const nuovaPassword = document.getElementById('password').value;
 
     const btnSubmit = document.getElementById('btn_salva_password');
-    const testoOriginale = btnSubmit.textContent;
-    btnSubmit.textContent = dict.js_pass_loading || "Salvataggio in corso...";
     btnSubmit.disabled = true;
+    mostraMessaggioBottone('messaggio_errore_server', dict.js_pass_loading || "Salvataggio in corso...", 'neutro');
 
     const urlVerify = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify";
     const urlUpdate = "https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user";
@@ -2972,27 +2844,18 @@ async function inviaNuovaPassword(event) {
         
         if (typeof svuotaBozze === 'function') svuotaBozze();
 
-        btnSubmit.textContent = dict.js_pass_success || "Password aggiornata! Accesso in corso...";
-        btnSubmit.classList.add('btn-stato-successo');
-
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 2000);
+        nascondiMessaggioBottone('messaggio_errore_server');
+        window.location.href = 'dashboard.html';
 
     } catch (errore) {
-        btnSubmit.textContent = testoOriginale;
+        nascondiMessaggioBottone('messaggio_errore_server');
         btnSubmit.disabled = false;
         
         if (errore.message === "OTP_INVALID") {
-            if (msgErroreOtp) {
-                msgErroreOtp.textContent = dict.js_otp_err_invalid || "Codice errato o scaduto.";
-                msgErroreOtp.style.display = 'block';
-            }
+            mostraMessaggioBottone('messaggio_errore_otp_reset', dict.js_otp_err_invalid || "Codice errato o scaduto.", 'errore');
         } else {
-            if (msgErroreServer) {
-                msgErroreServer.textContent = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password. Errore server.") : errore.message;
-                msgErroreServer.style.display = 'block';
-            }
+            const testoErrore = errore.message === "UPDATE_FAILED" ? (dict.js_pass_err_update || "Impossibile aggiornare la password. Errore server.") : errore.message;
+            mostraMessaggioBottone('messaggio_errore_server', testoErrore, 'errore');
         }
     }
 }
@@ -3100,9 +2963,8 @@ async function inviaAssistenzaInterna(event) {
     const messaggioUtente = document.getElementById('testo_assistenza_interna').value.trim();
     const btnSubmit = document.querySelector('#form_assistenza_interna button[type="submit"]');
 
-    const testoOriginale = btnSubmit.textContent;
     btnSubmit.disabled = true;
-    btnSubmit.textContent = dict.js_assist_loading;
+    mostraMessaggioBottone('msg_stato_assistenza_interna', dict.js_assist_loading, 'neutro');
 
     const token = localStorage.getItem('driverbutler_auth_token');
     const urlSupabase = "https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/richieste_assistenza";
@@ -3155,14 +3017,13 @@ async function inviaAssistenzaInterna(event) {
         if (typeof svuotaBozze === 'function') svuotaBozze();
         const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
         const messaggio = `<p class="feedback-testo" data-i18n="js_assist_int_success_msg">${dict.js_assist_int_success_msg}</p>`;
-        const bottone = `<a data-href="dashboard.html" class="btn btn-primary btn-full" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
+        const bottone = `<a data-href="dashboard.html" class="btn" data-i18n="js_btn_pannello_utente">${dict.js_btn_pannello_utente}</a>`;
         
         mostraSchermataFeedback('successo', '.login-wrapper', titolo, messaggio, bottone);
 
     } catch (errore) {
-        alert(dict.js_assist_err);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = testoOriginale;
+        mostraMessaggioBottone('msg_stato_assistenza_interna', dict.js_assist_err, 'errore');
     }
 }
 
@@ -3231,8 +3092,8 @@ function mostraModaleSalvataggio(destinazione) {
             <h3 class="modale-titolo" data-i18n="modale_uscita_titolo">${dict.modale_uscita_titolo}</h3>
             <p class="modale-testo" data-i18n="modale_uscita_testo">${dict.modale_uscita_testo}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_annulla_uscita" class="btn-modale-bianco btn-modale-meta" data-i18n="modale_uscita_btn_resta">${dict.modale_uscita_btn_resta}</button>
-                <button id="btn_conferma_uscita" class="btn-modale-bianco btn-modale-meta" data-i18n="modale_uscita_btn_esci">${dict.modale_uscita_btn_esci}</button>
+                <button id="btn_annulla_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_resta">${dict.modale_uscita_btn_resta}</button>
+                <button id="btn_conferma_uscita" class="btn-modale-bianco" data-i18n="modale_uscita_btn_esci">${dict.modale_uscita_btn_esci}</button>
             </div>
         `;
         
@@ -3388,7 +3249,7 @@ function mostraUiAssistenzaOk(containerId) {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_assist_success_title">${dict.js_assist_success_title}</h2>`;
     const messaggio = `<p class="feedback-testo" data-i18n="js_assist_success_msg">${dict.js_assist_success_msg}</p>`;
-    const bottone = `<a data-href="index.html" class="btn btn-primary btn-full" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>`;
+    const bottone = `<a data-href="index.html" class="btn" data-i18n="js_btn_torna_home">${dict.js_btn_torna_home}</a>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
 
@@ -3397,7 +3258,7 @@ function mostraUiLinkScaduto(containerId) {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_link_exp_title">${dict.js_link_exp_title}</h2>`;
     const messaggio = `<p class="feedback-testo" data-i18n="js_link_exp_text">${dict.js_link_exp_text}</p>`;
-    const bottone = `<a data-href="pwreset.html" class="btn btn-primary btn-full" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
+    const bottone = `<a data-href="pwreset.html" class="btn" data-i18n="js_link_exp_btn">${dict.js_link_exp_btn}</a>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
 
@@ -3407,7 +3268,7 @@ function mostraUiPrenotazioneOk(containerId, codiceGenerato = "DB-A1B2C") {
     const btnPannelloStr = dict.js_btn_pannello_utente || (linguaAttuale === 'en' ? 'Go to Dashboard' : 'Vai al Pannello Utente');
     const titolo = `<h2 class="feedback-titolo feedback-titolo-successo" data-i18n="js_check_success_title">${dict.js_check_success_title}</h2>`;
     const messaggio = `<p class="feedback-testo"><span data-i18n="js_check_success_text">${dict.js_check_success_text}</span><strong class="feedback-evidenza">${codiceGenerato}</strong></p>`;
-    const bottone = `<button id="btn_chiudi_conferma" class="btn btn-primary btn-full">${btnPannelloStr}</button>`;
+    const bottone = `<button id="btn_chiudi_conferma" class="btn">${btnPannelloStr}</button>`;
     mostraSchermataFeedback('successo', containerId, titolo, messaggio, bottone);
 }
 
@@ -3417,7 +3278,7 @@ function mostraUiPrenotazioneErrore(containerId) {
     const btnRiprovaStr = dict.js_btn_riprova || (linguaAttuale === 'en' ? 'Try Again' : 'Riprova');
     const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
     const messaggio = `<p class="feedback-testo" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
-    const bottone = `<button id="btn_riprova_errore" class="btn btn-primary btn-full">${btnRiprovaStr}</button>`;
+    const bottone = `<button id="btn_riprova_errore" class="btn">${btnRiprovaStr}</button>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
 
@@ -3602,7 +3463,7 @@ async function caricaViaggiProgrammati() {
             ` : '';
             
             const btnAnnulla = `
-                <button onclick="chiediConfermaAnnullamento('${viaggio.codice_prenotazione}', '${viaggio.data_partenza}', '${viaggio.ora_partenza}', '${viaggio.stato}')" class="btn btn-ghost btn-full btn-annulla-viaggio">
+                <button onclick="chiediConfermaAnnullamento('${viaggio.codice_prenotazione}', '${viaggio.data_partenza}', '${viaggio.ora_partenza}', '${viaggio.stato}')" class="btn btn-compatto">
                     ${dict.js_btn_annulla_viaggio || 'ANNULLA RICHIESTA'}
                 </button>
             `;
@@ -3771,7 +3632,6 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
     
     let titoloModale = dict.js_btn_annulla_viaggio || "Annulla Richiesta";
     let testoModale = "";
-    let classeBottone = "btn-modale-bianco";
     let penale = false;
     
     if (statoAttuale === 'IN_ATTESA') {
@@ -3782,7 +3642,6 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
         } else {
             titoloModale = dict.js_penale_avviso || "Annullamento con Penale 100%";
             testoModale = dict.js_penale_testo || "Mancano meno di 24 ore alla partenza. Come da termini accettati, l'annullamento comporterà l'addebito dell'intero importo della corsa.";
-            classeBottone = "btn-ghost";
             penale = true;
         }
     }
@@ -3802,8 +3661,8 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
             <h3 class="modale-titolo ${classeTitolo}">${titoloModale}</h3>
             <p class="modale-testo">${testoModale}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_chiudi_modale_annulla" class="btn-modale-bianco btn-modale-meta">${dict.js_btn_no || 'NO'}</button>
-                <button id="btn_procedi_annullamento" class="btn ${classeBottone} btn-modale-meta">${dict.js_btn_si || 'SI'}</button>
+                <button id="btn_chiudi_modale_annulla" class="btn-modale-bianco">${dict.js_btn_no || 'NO'}</button>
+                <button id="btn_procedi_annullamento" class="btn-modale-bianco">${dict.js_btn_si || 'SI'}</button>
             </div>
         </div>
     `;
@@ -3939,8 +3798,8 @@ function mostraModaleSoftPrompt(dict, btnMenu) {
             <h3 class="modale-titolo" data-i18n="modale_notifiche_titolo">${dict.modale_notifiche_titolo}</h3>
             <p class="modale-testo" data-i18n="modale_notifiche_testo">${dict.modale_notifiche_testo}</p>
             <div class="modale-bottoni-container">
-                <button id="btn_notifiche_no" class="btn-modale-bianco btn-modale-meta" data-i18n="modale_notifiche_btn_no">${dict.modale_notifiche_btn_no}</button>
-                <button id="btn_notifiche_si" class="btn-modale-bianco btn-modale-meta" data-i18n="modale_notifiche_btn_si">${dict.modale_notifiche_btn_si}</button>
+                <button id="btn_notifiche_no" class="btn-modale-bianco" data-i18n="modale_notifiche_btn_no">${dict.modale_notifiche_btn_no}</button>
+                <button id="btn_notifiche_si" class="btn-modale-bianco" data-i18n="modale_notifiche_btn_si">${dict.modale_notifiche_btn_si}</button>
             </div>
         `;
         

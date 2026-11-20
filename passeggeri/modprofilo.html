@@ -40,10 +40,10 @@
                 </div>
 
                 <div id="alert_chiusura_fatturazione" class="alert-eccedenza hidden">
-                    <span data-i18n="alert_chiusura_fatturazione">Attenzione: disattivando questa opzione, cancellerai irreversibilmente tutti i tuoi dati di fatturazione. Vuoi procedere?</span>
+                    <span data-i18n="alert_chiusura_fatturazione">Attenzione: disattivando questa opzione rimuoverai tutti i dati di fatturazione dal tuo profilo per le prossime prenotazioni. Vuoi procedere?</span>
                     <div id="container_bottoni_alert">
-                        <button type="button" class="btn btn-ghost btn-full" id="btn_annulla_chiusura" data-i18n="btn_annulla_chiusura">ANNULLA</button>
-                        <button type="button" class="btn btn-ghost btn-full" id="btn_conferma_chiusura" data-i18n="btn_conferma_chiusura">CONFERMA E CANCELLA</button>
+                        <button type="button" class="btn" id="btn_annulla_chiusura" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                        <button type="button" class="btn" id="btn_conferma_chiusura" data-i18n="btn_conferma_chiusura">CONFERMA E CANCELLA</button>
                     </div>
                 </div>
 
@@ -103,7 +103,9 @@
                     <div id="errore_notifiche_dashboard" class="error-message" data-i18n="err_seleziona_notifica">Seleziona almeno un metodo per ricevere le notifiche.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" id="btn_salva_profilo" data-i18n="btn_salva_profilo">Salva Modifiche Profilo</button>
+                <div id="msg_stato_profilo" class="error-message error-message-centered"></div>
+
+                <button type="submit" class="btn" id="btn_salva_profilo" data-i18n="btn_salva_profilo">Salva Modifiche Profilo</button>
             </form>
 
             <div id="blocco_sicurezza_email_password" class="hidden">
@@ -123,10 +125,12 @@
                         </div>
                     </div>
                     
-                    <div id="msg_errore_password_email" class="error-message error-message-server"></div>
+                    <div id="msg_errore_password_email" class="error-message error-message-centered"></div>
                     
-                    <button type="submit" id="btn_conferma_password_email" class="btn btn-primary btn-full" data-i18n="btn_procedi">Procedi</button>
-                    <button type="button" id="btn_annulla_mod_email" class="btn btn-ghost btn-full" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                    <div class="btn-coppia">
+                        <button type="submit" id="btn_conferma_password_email" class="btn" data-i18n="btn_procedi">Procedi</button>
+                        <button type="button" id="btn_annulla_mod_email" class="btn" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                    </div>
                 </form>
             </div>
 
@@ -141,9 +145,9 @@
                         <input type="text" id="otp_code_nuova_email" class="input otp-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code">
                     </div>
                     
-                    <div id="msg_errore_otp_email" class="error-message error-message-server"></div>
+                    <div id="msg_errore_otp_email" class="error-message error-message-centered"></div>
                     
-                    <button type="submit" id="btn_verifica_otp_email" class="btn btn-primary btn-full" data-i18n="btn_verifica_codice">Verifica Codice</button>
+                    <button type="submit" id="btn_verifica_otp_email" class="btn" data-i18n="btn_verifica_codice">Verifica Codice</button>
                     <a id="link_rinvia_otp_email" class="link-recupero-otp" data-i18n="link_invia_nuovo_otp">Codice scaduto o non ricevuto? Invia di nuovo</a>
                 </form>
             </div>

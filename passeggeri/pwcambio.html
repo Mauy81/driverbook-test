@@ -20,7 +20,9 @@
                     <h1 data-i18n="h1_cambio_password">Cambio Password</h1>
                     <p class="auth-subtitle" data-i18n="p_desc_cambio_pw">Clicca il pulsante qui sotto per ricevere un codice di sicurezza sulla tua email e autorizzare la modifica.</p>
                 </div>
-                <button class="btn btn-primary btn-full" id="btn_modifica_password" data-i18n="btn_invia_codice_sicurezza">Invia Codice di Sicurezza</button>
+                <div id="msg_richiesta_cambio" class="error-message error-message-centered"></div>
+
+                <button class="btn" id="btn_modifica_password" data-i18n="btn_invia_codice_sicurezza">Invia Codice di Sicurezza</button>
             </div>
 
             <div id="blocco_verifica_cambio" class="hidden">
@@ -58,9 +60,9 @@
                         <div id="errore_coincidenza" class="error-message" data-i18n="errore_coincidenza">Le password non coincidono.</div>
                     </div>
 
-                    <div id="messaggio_errore_server_cambio" class="error-message error-message-server"></div>
+                    <div id="messaggio_errore_server_cambio" class="error-message error-message-centered"></div>
 
-                    <button type="submit" id="btn_salva_password_interna" class="btn btn-primary btn-full" data-i18n="btn_salva_nuova_password">Salva Nuova Password</button>
+                    <button type="submit" id="btn_salva_password_interna" class="btn" data-i18n="btn_salva_nuova_password">Salva Nuova Password</button>
                     
                     <a id="link_invia_nuovo_otp_cambio" class="link-recupero-otp" data-i18n="link_invia_nuovo_otp">Codice scaduto o non ricevuto? Invia di nuovo</a>
                 </form>

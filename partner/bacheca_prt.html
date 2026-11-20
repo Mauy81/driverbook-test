@@ -147,7 +147,8 @@
                             </div>
                             
                             <div class="bacheca-container-bottone">
-                                <button data-bind-action="accetta" class="btn btn-ghost btn-accetta-servizio">ACCETTA SERVIZIO</button>
+                                <div data-bind="msg_stato_corsa" class="error-message msg-centrato-spaziato"></div>
+                                <button data-bind-action="accetta" class="btn btn-compatto">ACCETTA SERVIZIO</button>
                             </div>
                         </div>
                     </div>
@@ -158,7 +159,7 @@
     </main>
 
     <div id="barra_segna_lette" class="hidden">
-        <button id="btn_segna_lette" class="btn btn-primary">SEGNA TUTTE COME VISTE</button>
+        <button id="btn_segna_lette" class="btn">SEGNA TUTTE COME VISTE</button>
     </div>
 
     <div id="modale_flotta_vuota" class="modale-overlay hidden">
@@ -166,8 +167,8 @@
             <h3 class="modale-titolo">Aggiungi un veicolo</h3>
             <p class="modale-testo">Per offrirti i servizi corretti abbiamo bisogno di sapere quali mezzi hai nella tua flotta. Inserisci almeno un veicolo per sbloccare la bacheca.</p>
             <div class="modale-bottoni-container">
-                <button id="btn_chiudi_modale_flotta" class="btn-modale-bianco btn-modale-compatto">NON ORA</button>
-                <button id="btn_vai_flotta_nuovo" class="btn-modale-bianco btn-modale-compatto">AGGIUNGI VEICOLO</button>
+                <button id="btn_chiudi_modale_flotta" class="btn-modale-bianco">NON ORA</button>
+                <button id="btn_vai_flotta_nuovo" class="btn-modale-bianco">AGGIUNGI VEICOLO</button>
             </div>
         </div>
     </div>

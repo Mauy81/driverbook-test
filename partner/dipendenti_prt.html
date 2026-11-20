@@ -111,9 +111,11 @@
                         </div>
                     </div>
 
-                    <div class="form-bottoni-veicolo">
-                        <button type="button" id="btn_annulla_dipendente" class="btn btn-ghost btn-veicolo-azione">ANNULLA</button>
-                        <button type="submit" id="btn_salva_dipendente" class="btn btn-primary btn-veicolo-azione">SALVA</button>
+                    <div id="msg_stato_dipendente" class="error-message msg-centrato-spaziato"></div>
+
+                    <div class="btn-coppia form-bottoni-veicolo">
+                        <button type="button" id="btn_annulla_dipendente" class="btn">ANNULLA</button>
+                        <button type="submit" id="btn_salva_dipendente" class="btn">SALVA</button>
                     </div>
                 </form>
             </div>
@@ -163,9 +165,9 @@
                         </div>
 
                         <div class="checkout-style-block">
-                            <div class="form-bottoni-veicolo margine-bottoni-dettaglio">
-                                <button type="button" data-bind-action="modifica" class="btn btn-primary btn-veicolo-azione testo-piccolo">MODIFICA</button>
-                                <button type="button" data-bind-action="sospendi" class="btn btn-ghost btn-veicolo-azione testo-piccolo"></button>
+                            <div class="btn-coppia form-bottoni-veicolo margine-bottoni-dettaglio">
+                                <button type="button" data-bind-action="modifica" class="btn testo-piccolo">MODIFICA</button>
+                                <button type="button" data-bind-action="sospendi" class="btn testo-piccolo"></button>
                             </div>
                         </div>
                     </div>
@@ -176,7 +178,7 @@
     </main>
 
     <div id="barra_aggiungi_dipendente">
-        <button id="btn_apri_form_dipendente" class="btn btn-primary">AGGIUNGI DIPENDENTE</button>
+        <button id="btn_apri_form_dipendente" class="btn">AGGIUNGI DIPENDENTE</button>
     </div>
 
     

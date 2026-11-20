@@ -31,9 +31,9 @@
                         <input type="email" id="email_recupero" class="input" required placeholder="mario@example.com">
                     </div>
 
-                    <div id="msg_recupero" class="error-message msg-centrato-spaziato hidden"></div>
+                    <div id="msg_recupero" class="error-message msg-centrato-spaziato"></div>
 
-                    <button type="submit" id="btn_invia_recupero" class="btn btn-primary btn-full">Invia Codice di Recupero</button>
+                    <button type="submit" id="btn_invia_recupero" class="btn">Invia Codice di Recupero</button>
                 </form>
             </div>
 
@@ -47,7 +47,7 @@
                     <div class="form-group">
                         <label class="label" for="otp_code_reset">Codice di Sicurezza (6 cifre)</label>
                         <input type="text" id="otp_code_reset" class="input input-otp" maxlength="6" inputmode="numeric" pattern="[0-9]*" required autocomplete="one-time-code">
-                        <div id="messaggio_errore_otp_reset" class="error-message hidden"></div>
+                        <div id="messaggio_errore_otp_reset" class="error-message msg-centrato-spaziato"></div>
                     </div>
 
                     <div class="form-group">
@@ -72,9 +72,9 @@
                         <div id="errore_coincidenza" class="error-message hidden">Le password non coincidono.</div>
                     </div>
 
-                    <div id="messaggio_errore_server" class="error-message margine-inferiore-20 hidden"></div>
+                    <div id="messaggio_errore_server" class="error-message msg-centrato-spaziato"></div>
 
-                    <button type="submit" id="btn_salva_password" class="btn btn-primary btn-full">Salva Nuova Password</button>
+                    <button type="submit" id="btn_salva_password" class="btn">Salva Nuova Password</button>
                     <a href="#" id="link_invia_nuovo_otp_reset" class="link link-login">Codice scaduto o non ricevuto? Invia di nuovo</a>
                 </form>
             </div>

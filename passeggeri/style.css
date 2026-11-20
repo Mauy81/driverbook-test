@@ -123,37 +123,53 @@ body {
     transition: all 0.3s ease;
     text-align: center;
     cursor: pointer;
-    border: none;
-    display: inline-block;
-    width: 260px;
-    max-width: 100%;
-}
-
-.btn-primary {
-    background-color: #00e65c; 
-    color: #000000;
-    border: 2px solid #00e65c;
-}
-
-.btn-primary:hover {
-    background-color: #000000;
-    color: #00e65c;
-    box-shadow: 0 0 15px rgba(0, 230, 92, 0.3);
-}
-
-.btn-ghost {
     background-color: transparent;
     color: #ffffff;
     border: 2px solid #ffffff;
+    display: block;
+    width: 260px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.btn-ghost:hover {
+.btn:hover {
     background-color: #ffffff;
     color: #000000;
 }
 
-.btn-full {
+.btn:disabled,
+.btn:disabled:hover {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-color: transparent;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+.btn-coppia {
+    display: flex;
+    gap: 10px;
     width: 100%;
+}
+
+.btn-coppia .btn {
+    flex: 1;
+    width: auto;
+    margin: 0 !important;
+    padding: 16px 20px;
+}
+
+@media (max-width: 480px) {
+    .btn-coppia .btn {
+        padding: 16px 10px;
+    }
+}
+
+.btn-compatto {
+    width: 180px;
+    padding: 10px 5px;
+    white-space: nowrap;
 }
 
 .login-wrapper {
@@ -342,6 +358,10 @@ textarea.input {
 
 .error-message.mostra {
     display: block !important;
+}
+
+.messaggio-neutro {
+    color: #ffffff !important;
 }
 
 .iti {
@@ -925,8 +945,10 @@ textarea.input {
 }
 
 .btn-modale-bianco {
-    flex: 1;
-    padding: 12px;
+    flex: none;
+    width: 45%;
+    padding: 10px;
+    font-size: 0.9rem;
     background: transparent;
     border: 1px solid #ffffff;
     color: #ffffff;
@@ -943,13 +965,6 @@ textarea.input {
 
 .btn-singolo-container {
     justify-content: center;
-}
-
-.btn-singolo-container .btn-modale-bianco {
-    flex: none;
-    width: 40%;
-    padding: 10px;
-    font-size: 0.9rem;
 }
 
 .sezione-vetture {
@@ -1142,17 +1157,13 @@ input[type="time"]:focus::-webkit-datetime-edit-minute-field {
 
 .checkout-submit-btn {
     margin-top: 30px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 @media (min-width: 769px) {
     .checkout-submit-btn {
-        flex-wrap: nowrap;
-        max-width: 100%;
-    }
-    .checkout-submit-btn .btn {
-        width: calc(50% - 10px);
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
@@ -1412,41 +1423,6 @@ input:-webkit-autofill:active {
     margin: 15px 0;
 }
 
-.btn-annulla-viaggio {
-    border-color: #ffffff;
-    color: #ffffff;
-    margin-top: 10px;
-    width: auto;
-    padding: 10px 20px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.btn-annulla-viaggio:hover {
-    background-color: #ffffff;
-    color: #000000;
-    box-shadow: none;
-}
-
-.btn-errore-feedback {
-    background-color: #000000 !important;
-    color: #00FF66 !important;
-    border-color: #00FF66 !important;
-}
-
-.btn-stato-successo {
-    background-color: #00FF66 !important;
-    color: #000000 !important;
-    border-color: #00FF66 !important;
-}
-
-.btn-stato-errore {
-    background-color: #dc3545 !important;
-    color: #ffffff !important;
-    border-color: #dc3545 !important;
-}
-
 .box-messaggio-errore {
     background-color: #ffebee;
     color: #c62828;
@@ -1464,10 +1440,6 @@ input:-webkit-autofill:active {
     padding: 10px;
     border: 1px solid #00FF66;
     border-radius: 5px;
-}
-
-.btn-in-caricamento {
-    opacity: 0.7 !important;
 }
 
 .link-bloccato {
@@ -1504,12 +1476,6 @@ input:-webkit-autofill:active {
     stroke: #000000 !important;
 }
 
-.btn-modale-meta {
-    padding: 10px !important;
-    font-size: 0.9rem !important;
-    flex: 1;
-}
-
 .testo-pericolo {
     color: #dc3545 !important;
 }
@@ -1531,9 +1497,6 @@ input:-webkit-autofill:active {
         flex-direction: column;
         width: 100%;
         max-width: 300px;
-    }
-    .btn:not(.btn-full) {
-        width: 100%;
     }
     .login-wrapper {
         padding: 20px 15px;

@@ -43,7 +43,9 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    <div id="messaggio_errore_server_login" class="error-message msg-centrato-spaziato"></div>
+
+                    <button type="submit" class="btn">Login</button>
                     <a href="registrazione_prt.html" class="link link-login">Non hai un account? <strong>Registrati</strong></a>
                 </form>
             </div>
@@ -54,8 +56,8 @@
                     <label class="label" for="otp_code_login">Codice di Verifica (6 cifre)</label>
                     <input type="text" id="otp_code_login" class="input input-otp" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
                 </div>
-                <div id="messaggio_errore_otp_login" class="error-message hidden"></div>
-                <button type="button" id="btn_verifica_otp_login" class="btn btn-primary btn-full">Verifica Codice</button>
+                <div id="messaggio_errore_otp_login" class="error-message msg-centrato-spaziato"></div>
+                <button type="button" id="btn_verifica_otp_login" class="btn">Verifica Codice</button>
                 <a href="#" id="link_invia_nuovo_otp_login" class="link link-login">Codice scaduto o non ricevuto? Invia di nuovo</a>
             </div>
         </div>
