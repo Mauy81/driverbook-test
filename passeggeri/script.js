@@ -3804,13 +3804,50 @@ window.addEventListener('focus', azzeraNotifichePWAPax);
 window.addEventListener('load', azzeraNotifichePWAPax);
 
 function gestisciModaleNotifichePax() {
-    if (!("Notification" in window)) return;
-
     const btnMenu = document.getElementById('btn_attiva_notifiche_sidebar');
-    if (!btnMenu) return;
-
+    const btnTest = document.getElementById('btn_test_notifiche_sidebar');
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    const chiudiMenuLaterale = () => {
+        const sidePanel = document.getElementById('side_panel');
+        const overlay = document.getElementById('menu_overlay');
+        if (sidePanel) {
+            sidePanel.classList.remove('open');
+            sidePanel.style.pointerEvents = 'none';
+            sidePanel.style.visibility = 'hidden';
+        }
+        if (overlay) {
+            overlay.classList.remove('open');
+            overlay.style.pointerEvents = 'none';
+        }
+        document.body.style.overflow = '';
+    };
+
+    if (btnTest && localStorage.getItem('driverbutler_auth_token')) {
+        btnTest.addEventListener('click', (e) => {
+            e.preventDefault();
+            chiudiMenuLaterale();
+
+            if (!("Notification" in window) || ((isIOS || isMacSafari) && !verificaStandalone())) {
+                mostraPopupInstallazioneApple(isMacSafari);
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                if (typeof attivaAbbonamentoPushPax === 'function') attivaAbbonamentoPushPax();
+                inviaNotificaDiProvaPax(dict);
+                mostraModaleConfermaNotifichePax(dict);
+            } else if (Notification.permission === "default") {
+                mostraModaleSoftPrompt(dict, btnMenu);
+            } else if (Notification.permission === "denied") {
+                mostraModaleTecnica(dict);
+            }
+        });
+    }
+
+    if (!("Notification" in window)) return;
+    if (!btnMenu) return;
     
     if (Notification.permission === "granted") {
         btnMenu.style.setProperty('display', 'none', 'important');
@@ -3824,19 +3861,7 @@ function gestisciModaleNotifichePax() {
         
         btnMenu.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            const sidePanel = document.getElementById('side_panel');
-            const overlay = document.getElementById('menu_overlay');
-            if (sidePanel) {
-                sidePanel.classList.remove('open');
-                sidePanel.style.pointerEvents = 'none';
-                sidePanel.style.visibility = 'hidden';
-            }
-            if (overlay) {
-                overlay.classList.remove('open');
-                overlay.style.pointerEvents = 'none';
-            }
-            document.body.style.overflow = '';
+            chiudiMenuLaterale();
 
             if (Notification.permission === "default") {
                 mostraModaleSoftPrompt(dict, btnMenu);
@@ -4232,11 +4257,13 @@ function inizializzaMenuPasseggeri() {
             const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione hidden"><span data-i18n="btn_installa_app">Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
 
             let btnNotificheSidebar = '';
+            let btnTestNotificheSidebar = '';
             if (localStorage.getItem('driverbutler_auth_token')) {
                 btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione hidden"><span data-i18n="menu_attiva_notifiche">Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
+                btnTestNotificheSidebar = `<a id="btn_test_notifiche_sidebar" class="menu-item" data-i18n="menu_test_notifiche">Invia notifica di controllo</a>`;
             }
 
-            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML + btnTestNotificheSidebar;
         }
     }
 

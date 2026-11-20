@@ -2822,9 +2822,47 @@ async function accettaCorsa(codice, bottone) {
 }
 
 function gestisciModaleNotifiche() {
-    if (!("Notification" in window)) return;
-
     const btnMenu = document.getElementById('btn_attiva_notifiche_sidebar');
+    const btnTest = document.getElementById('btn_test_notifiche_sidebar');
+
+    const chiudiMenuLaterale = () => {
+        const sidePanel = document.getElementById('side_panel');
+        const overlay = document.getElementById('menu_overlay');
+        if (sidePanel) {
+            sidePanel.classList.remove('open');
+            sidePanel.classList.add('no-click', 'invisibile');
+        }
+        if (overlay) {
+            overlay.classList.remove('open');
+            overlay.classList.add('no-click');
+        }
+        document.body.classList.remove('no-scroll');
+    };
+
+    if (btnTest && localStorage.getItem('driverbutler_auth_token')) {
+        btnTest.addEventListener('click', (e) => {
+            e.preventDefault();
+            chiudiMenuLaterale();
+
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (!("Notification" in window) || ((isIOS || isMacSafari) && !isStandalone)) {
+                mostraPopupInstallazioneApple(isMacSafari);
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                if (typeof attivaAbbonamentoPush === 'function') attivaAbbonamentoPush();
+                inviaNotificaDiProva();
+                mostraModaleConfermaNotifiche();
+            } else if (Notification.permission === "default") {
+                mostraModaleSoftPrompt(btnMenu);
+            } else if (Notification.permission === "denied") {
+                mostraModaleTecnica();
+            }
+        });
+    }
+
+    if (!("Notification" in window)) return;
     if (!btnMenu) return;
 
     if (Notification.permission === "granted") {
@@ -2838,18 +2876,7 @@ function gestisciModaleNotifiche() {
         
         btnMenu.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            const sidePanel = document.getElementById('side_panel');
-            const overlay = document.getElementById('menu_overlay');
-            if (sidePanel) {
-                sidePanel.classList.remove('open');
-                sidePanel.classList.add('no-click', 'invisibile');
-            }
-            if (overlay) {
-                overlay.classList.remove('open');
-                overlay.classList.add('no-click');
-            }
-            document.body.classList.remove('no-scroll');
+            chiudiMenuLaterale();
 
             if (Notification.permission === "default") {
                 mostraModaleSoftPrompt(btnMenu);
@@ -4109,7 +4136,8 @@ function inizializzaMenuPartner() {
         if (contenitoreMenuLaterale.innerHTML.trim() !== '') {
             const btnInstallSidebar = `<a id="btn_installa_app_sidebar" class="menu-item menu-item-azione hidden"><span>Installa App</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>`;
             const btnNotificheSidebar = `<a id="btn_attiva_notifiche_sidebar" class="menu-item menu-item-azione hidden"><span>Attiva Notifiche</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></a>`;
-            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML;
+            const btnTestNotificheSidebar = localStorage.getItem('driverbutler_auth_token') ? `<a id="btn_test_notifiche_sidebar" class="menu-item">Invia notifica di controllo</a>` : '';
+            contenitoreMenuLaterale.innerHTML = btnInstallSidebar + btnNotificheSidebar + contenitoreMenuLaterale.innerHTML + btnTestNotificheSidebar;
         }
     }
 
