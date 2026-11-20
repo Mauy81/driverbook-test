@@ -14,10 +14,11 @@ body {
     background-color: #000000;
     color: #ffffff;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y: scroll;
+    scrollbar-gutter: stable;
     color-scheme: dark;
 }
 
@@ -110,7 +111,7 @@ body {
 
 .btn {
     text-decoration: none;
-    padding: 16px 32px;
+    padding: 16px 5px;
     font-size: 14px;
     font-weight: bold;
     text-transform: uppercase;
@@ -118,6 +119,7 @@ body {
     border-radius: 4px;
     transition: all 0.3s ease;
     text-align: center;
+    white-space: nowrap;
     cursor: pointer;
     background-color: transparent;
     color: #ffffff;
