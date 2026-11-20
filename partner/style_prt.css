@@ -1050,21 +1050,13 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     }
 }
 
-#barra_aggiungi_veicolo,
-#barra_aggiungi_dipendente {
+.bottom-bar {
     position: sticky;
     bottom: 0;
     background-color: #000000;
-    padding: 16px 0 26px 0;
+    padding: 10px 15px 20px 15px;
     text-align: center;
     z-index: 10;
-}
-
-#barra_aggiungi_veicolo .btn,
-#barra_aggiungi_dipendente .btn {
-    width: auto;
-    padding: 12px 40px;
-    margin: 0;
 }
 
 #form_container_veicolo,
@@ -1459,21 +1451,6 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     stroke: #000000 !important;
 }
 
-#barra_segna_lette {
-    position: sticky;
-    bottom: 0;
-    background-color: #000000;
-    padding: 16px 0 26px 0;
-    text-align: center;
-    z-index: 10;
-}
-
-#barra_segna_lette .btn {
-    width: auto;
-    padding: 12px 40px;
-    margin: 0;
-}
-
 .separatore-bacheca {
     text-align: center;
     font-size: 0.8rem;
@@ -1508,14 +1485,6 @@ body.page-calendario .login-wrapper,
 #card_calendario {
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
-}
-
-#barra_data_calendario {
-    position: sticky;
-    bottom: 0;
-    background-color: #000000;
-    padding: 15px 20px 25px 20px;
-    z-index: 10;
 }
 
 .calendario-nav-container {
@@ -1614,15 +1583,6 @@ body.page-calendario .login-wrapper,
     .calendario-riga-indirizzo {
         grid-template-columns: 28px 1fr;
     }
-}
-
-#barra_aggiungi_veicolo {
-    position: sticky;
-    bottom: 0;
-    background-color: #000000;
-    padding-top: 10px;
-    padding-bottom: 20px;
-    z-index: 10;
 }
 
 .messaggio-vuoto {

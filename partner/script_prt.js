@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function() {
         caricaBachecaRichieste();
     }
 
-    if (document.getElementById('barra_data_calendario')) {
+    if (document.getElementById('bottom_bar_calendario')) {
         inizializzaCalendario();
     }
 
@@ -1881,7 +1881,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         if (pathAttuale === 'bacheca_prt.html' && typeof segnaBachecaComeLetta === 'function') {
-            const barraLette = document.getElementById('barra_segna_lette');
+            const barraLette = document.getElementById('bottom_bar_bacheca');
             if (barraLette && !barraLette.classList.contains('hidden')) {
                 await segnaBachecaComeLetta(true);
             }
@@ -2000,7 +2000,7 @@ function mostraSchermataFeedback(tipo, containerId, htmlTitolo, htmlMessaggio, h
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const btnApri = document.getElementById('barra_aggiungi_veicolo');
+    const btnApri = document.getElementById('bottom_bar_flotta');
     if (!btnApri) return;
 
     const btnAnnulla = document.getElementById('btn_annulla_veicolo');
@@ -2511,7 +2511,7 @@ async function caricaBachecaRichieste() {
 
         aggiornaBadgeMenu(richiesteNuove.length);
 
-        const barraLette = document.getElementById('barra_segna_lette');
+        const barraLette = document.getElementById('bottom_bar_bacheca');
         const btnLette = document.getElementById('btn_segna_lette');
         if (barraLette && btnLette) {
             if (richiesteNuove.length > 0) {
@@ -2680,7 +2680,7 @@ async function segnaBachecaComeLetta(skipReload = false) {
     if (!token) return;
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
     
-    const barraLette = document.getElementById('barra_segna_lette');
+    const barraLette = document.getElementById('bottom_bar_bacheca');
     if (barraLette) {
         barraLette.classList.add('hidden');
         document.body.classList.remove('bacheca-barra-attiva');
@@ -3381,7 +3381,7 @@ async function caricaServiziCalendario() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const btnApriDip = document.getElementById('barra_aggiungi_dipendente');
+    const btnApriDip = document.getElementById('bottom_bar_dipendenti');
     if (!btnApriDip) return;
 
     const btnAnnullaDip = document.getElementById('btn_annulla_dipendente');
@@ -4102,7 +4102,7 @@ function inizializzaMenuPartner() {
                 }
 
                 if (paginaCorrente === 'bacheca_prt.html' && typeof segnaBachecaComeLetta === 'function') {
-                    const barraLette = document.getElementById('barra_segna_lette');
+                    const barraLette = document.getElementById('bottom_bar_bacheca');
                     if (barraLette && !barraLette.classList.contains('hidden')) {
                         await segnaBachecaComeLetta(true);
                     }
