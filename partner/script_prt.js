@@ -3489,14 +3489,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const pass = inputPassDip.value;
         const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (pass.length === 0) {
-            errPassDip.classList.add('hidden');
+            errPassDip.classList.remove('mostra');
             return false;
         }
         if (!regexPassword.test(pass)) {
-            errPassDip.classList.remove('hidden');
+            errPassDip.classList.add('mostra');
             return false;
         }
-        errPassDip.classList.add('hidden');
+        errPassDip.classList.remove('mostra');
         return true;
     }
 
@@ -3504,14 +3504,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const pass = inputPassDip.value;
         const confPass = inputConfPassDip.value;
         if (confPass.length === 0) {
-            errConfPassDip.classList.add('hidden');
+            errConfPassDip.classList.remove('mostra');
             return false;
         }
         if (pass !== confPass) {
-            errConfPassDip.classList.remove('hidden');
+            errConfPassDip.classList.add('mostra');
             return false;
         }
-        errConfPassDip.classList.add('hidden');
+        errConfPassDip.classList.remove('mostra');
         return true;
     }
 
@@ -3529,10 +3529,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function validaNotificheDipendente() {
         if (!checkNotificaPushDip.checked && !checkNotificaEmailDip.checked) {
-            errNotificheDip.classList.remove('hidden');
+            errNotificheDip.classList.add('mostra');
             return false;
         }
-        errNotificheDip.classList.add('hidden');
+        errNotificheDip.classList.remove('mostra');
         return true;
     }
 
@@ -3580,9 +3580,9 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector('.login-wrapper').classList.remove('padding-bottom-extra');
         window.scrollTo(0, 0);
         formGestioneDip.reset();
-        if (errPassDip) errPassDip.classList.add('hidden');
-        if (errConfPassDip) errConfPassDip.classList.add('hidden');
-        if (errNotificheDip) errNotificheDip.classList.add('hidden');
+        if (errPassDip) errPassDip.classList.remove('mostra');
+        if (errConfPassDip) errConfPassDip.classList.remove('mostra');
+        if (errNotificheDip) errNotificheDip.classList.remove('mostra');
         aggiornaCampiGuida();
         if (typeof moduloSporco !== 'undefined') moduloSporco = false;
     }
