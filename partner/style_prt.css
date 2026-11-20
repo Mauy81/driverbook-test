@@ -1059,6 +1059,32 @@ body.bacheca-barra-attiva #card_bacheca_richieste {
     z-index: 10;
 }
 
+.bottom-bar .btn {
+    background-color: #000000;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    height: 44px;
+    padding: 0 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.bottom-bar .btn:hover {
+    background-color: #000000;
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.bottom-bar .btn:disabled,
+.bottom-bar .btn:disabled:hover {
+    background-color: #000000;
+    border-color: #333333;
+    color: #ffffff;
+    opacity: 0.35;
+}
+
 #form_container_veicolo,
 #form_container_dipendente {
     margin-top: 60px;
