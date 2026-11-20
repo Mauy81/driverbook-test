@@ -2689,7 +2689,52 @@ async function inviaAssistenza(event) {
     }
 }
 
-function esciAccount() {
+async function esciAccount() {
+    let endpointCorrente = null;
+    let subCorrente = null;
+    
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (reg) {
+                subCorrente = await reg.pushManager.getSubscription();
+                if (subCorrente) {
+                    endpointCorrente = subCorrente.endpoint;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    const token = localStorage.getItem('driverbutler_auth_token') || sessionStorage.getItem('driverbutler_auth_token');
+    if (token && endpointCorrente) {
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        try {
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                const deviceId = localStorage.getItem('driverbutler_device_id');
+                if (deviceId) {
+                    await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?user_id=eq.${userData.id}&device_id=eq.${deviceId}`, {
+                        method: "DELETE",
+                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    if (subCorrente) {
+        try {
+            await subCorrente.unsubscribe();
+        } catch (e) {}
+    }
+
     const chiaviDaCancellare = [
         'driverbutler_auth_token', 'driverbutler_refresh_token', 'driverbutler_ruolo', 'driverbutler_last_user', 'driverbutler_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
@@ -3101,11 +3146,11 @@ function mostraModaleSalvataggio(destinazione) {
         document.body.appendChild(overlay);
 
         document.getElementById('btn_annulla_uscita').addEventListener('click', function() {
-            overlay.style.display = 'none';
+            overlay.classList.add('hidden');
         });
     }
     
-    overlay.style.display = 'flex';
+    overlay.classList.remove('hidden');
     
     document.getElementById('btn_conferma_uscita').onclick = function() {
         if (typeof svuotaBozze === 'function') svuotaBozze();
@@ -3667,15 +3712,15 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
         </div>
     `;
     
-    overlay.style.display = 'flex';
+    overlay.classList.remove('hidden');
     
     document.getElementById('btn_chiudi_modale_annulla').onclick = function() {
-        overlay.style.display = 'none';
+        overlay.classList.add('hidden');
     };
     
     document.getElementById('btn_procedi_annullamento').onclick = function() {
         eseguiAnnullamento(codice);
-        overlay.style.display = 'none';
+        overlay.classList.add('hidden');
     };
 }
 
@@ -3725,8 +3770,23 @@ async function eseguiAnnullamento(codice) {
     }
 }
 
+function azzeraNotifichePWAPax() {
+    if ('clearAppBadge' in navigator) {
+        navigator.clearAppBadge().catch(() => {});
+    }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.getNotifications({ tag: 'driverbutler-pax-notifiche' }).then(notifiche => {
+                notifiche.forEach(notifica => notifica.close());
+            });
+        });
+    }
+}
+
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
+        azzeraNotifichePWAPax();
+        
         if (localStorage.getItem('driverbutler_auth_token')) {
             await rinnovaSessioneSilenziosa();
             
@@ -3740,6 +3800,9 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
+window.addEventListener('focus', azzeraNotifichePWAPax);
+window.addEventListener('load', azzeraNotifichePWAPax);
+
 function gestisciModaleNotifichePax() {
     if (!("Notification" in window)) return;
 
@@ -3751,6 +3814,7 @@ function gestisciModaleNotifichePax() {
     
     if (Notification.permission === "granted") {
         btnMenu.style.setProperty('display', 'none', 'important');
+        attivaAbbonamentoPushPax();
         return;
     }
 
@@ -3807,20 +3871,155 @@ function mostraModaleSoftPrompt(dict, btnMenu) {
         document.body.appendChild(overlay);
 
         document.getElementById('btn_notifiche_no').addEventListener('click', function() {
-            overlay.style.display = 'none';
+            overlay.classList.add('hidden');
         });
         
         document.getElementById('btn_notifiche_si').addEventListener('click', function() {
-            overlay.style.display = 'none';
+            overlay.classList.add('hidden');
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     if (btnMenu) btnMenu.style.setProperty('display', 'none', 'important');
+                    if (typeof attivaAbbonamentoPushPax === 'function') attivaAbbonamentoPushPax();
+                    inviaNotificaDiProvaPax(dict);
+                    mostraModaleConfermaNotifichePax(dict);
                 }
             });
         });
     }
     
-    overlay.style.display = 'flex';
+    overlay.classList.remove('hidden');
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+async function attivaAbbonamentoPushPax() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    try {
+        const registrazione = await navigator.serviceWorker.ready;
+        const chiavePubblicaVapid = "BGoIs_sj3qfrDqtmo5qnMb2AOWtUTWTLyjnOKUEDigwGdF5IkwuHV9I76v4tFIbGkLrr01ePEbGdO8R0lehSPts";
+        const chiaveConvertita = urlBase64ToUint8Array(chiavePubblicaVapid);
+        
+        const abbonamento = await registrazione.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: chiaveConvertita
+        });
+
+        const token = localStorage.getItem('driverbutler_auth_token');
+        if (!token) return;
+
+        let deviceId = localStorage.getItem('driverbutler_device_id');
+        if (!deviceId) {
+            deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem('driverbutler_device_id', deviceId);
+        }
+
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        
+        if (!userRes.ok) return;
+        const userData = await userRes.json();
+        const userId = userData.id;
+
+        const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=codice_passeggero`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        
+        let codiceUtente = null;
+        if (passRes.ok) {
+            const passData = await passRes.json();
+            if (passData && passData.length > 0) {
+                codiceUtente = passData[0].codice_passeggero;
+            }
+        }
+
+        const payloadAbbonamento = {
+            codice_utente: codiceUtente,
+            ruolo: "passeggeri",
+            user_id: userId,
+            device_id: deviceId,
+            ultimo_accesso: new Date().toISOString(),
+            dati_abbonamento: JSON.parse(JSON.stringify(abbonamento))
+        };
+
+        await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/abbonamenti_push?on_conflict=user_id,device_id", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify(payloadAbbonamento)
+        });
+
+    } catch (errore) {
+        console.error(errore);
+    }
+}
+
+function inviaNotificaDiProvaPax(dict) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        try {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    registration.showNotification(dict.notifica_test_titolo, {
+                        body: dict.notifica_test_testo,
+                        icon: "../logo/icona-pwa.png",
+                        vibrate: [200, 100, 200]
+                    });
+                });
+            } else {
+                new Notification(dict.notifica_test_titolo, {
+                    body: dict.notifica_test_testo,
+                    icon: "../logo/icona-pwa.png"
+                });
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+}
+
+function mostraModaleConfermaNotifichePax(dict) {
+    let overlay = document.getElementById('modale_conferma_notifiche');
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_conferma_notifiche';
+        overlay.className = 'modale-overlay';
+        
+        let modal = document.createElement('div');
+        modal.className = 'modale-box';
+        
+        modal.innerHTML = `
+            <h3 class="modale-titolo" data-i18n="modale_notifiche_attivate_titolo">${dict.modale_notifiche_attivate_titolo}</h3>
+            <p class="modale-testo" data-i18n="modale_notifiche_attivate_testo">${dict.modale_notifiche_attivate_testo}</p>
+            <div class="modale-bottoni-container btn-singolo-container">
+                <button id="btn_conferma_notifiche_ok" class="btn-modale-bianco" data-i18n="modale_notifiche_bloccate_btn_ok">${dict.modale_notifiche_bloccate_btn_ok}</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_conferma_notifiche_ok').addEventListener('click', function() {
+            overlay.classList.add('hidden');
+        });
+    }
+    
+    overlay.classList.remove('hidden');
 }
 
 function mostraModaleTecnica(dict) {
@@ -3846,11 +4045,11 @@ function mostraModaleTecnica(dict) {
         document.body.appendChild(overlay);
 
         document.getElementById('btn_notifiche_ok').addEventListener('click', function() {
-            overlay.style.display = 'none';
+            overlay.classList.add('hidden');
         });
     }
     
-    overlay.style.display = 'flex';
+    overlay.classList.remove('hidden');
 }
 
 let menuPasseggeriInizializzato = false;

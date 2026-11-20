@@ -2893,8 +2893,63 @@ function mostraModaleSoftPrompt(btnMenu) {
                 if (permission === "granted") {
                     if (btnMenu) btnMenu.classList.add('hidden');
                     if (typeof attivaAbbonamentoPush === 'function') attivaAbbonamentoPush();
+                    inviaNotificaDiProva();
+                    mostraModaleConfermaNotifiche();
                 }
             });
+        });
+    }
+    
+    overlay.classList.remove('hidden');
+}
+
+function inviaNotificaDiProva() {
+    if ("Notification" in window && Notification.permission === "granted") {
+        try {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    registration.showNotification("Notifiche attive", {
+                        body: "Perfetto! Riceverai qui gli aggiornamenti in tempo reale da DriverButler.",
+                        icon: "../logo/icona-pwa-prt.png",
+                        vibrate: [200, 100, 200]
+                    });
+                });
+            } else {
+                new Notification("Notifiche attive", {
+                    body: "Perfetto! Riceverai qui gli aggiornamenti in tempo reale da DriverButler.",
+                    icon: "../logo/icona-pwa-prt.png"
+                });
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+}
+
+function mostraModaleConfermaNotifiche() {
+    let overlay = document.getElementById('modale_conferma_notifiche');
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_conferma_notifiche';
+        overlay.className = 'modale-overlay';
+        
+        let modal = document.createElement('div');
+        modal.className = 'modale-box';
+        
+        modal.innerHTML = `
+            <h3 class="modale-titolo">Notifiche Attivate</h3>
+            <p class="modale-testo">Ti abbiamo appena inviato una notifica di prova. Se non l'hai vista comparire, controlla nelle impostazioni del dispositivo che le notifiche siano abilitate sia per DriverButler sia per i browser, e che non sia attiva la modalità Non disturbare.</p>
+            <div class="modale-bottoni-container btn-singolo-container">
+                <button id="btn_conferma_notifiche_ok" class="btn-modale-bianco">HO CAPITO</button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_conferma_notifiche_ok').addEventListener('click', function() {
+            overlay.classList.add('hidden');
         });
     }
     
