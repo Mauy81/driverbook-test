@@ -3982,12 +3982,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputConfPass = document.getElementById('confermaPassword');
     if (inputPass) {
         inputPass.addEventListener('input', () => {
+            nascondiMessaggioBottone('messaggio_errore_server');
+            nascondiMessaggioBottone('messaggio_errore_server_cambio');
             if (typeof validaComplessitaPassword === 'function') validaComplessitaPassword();
             if (inputConfPass && typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
     }
     if (inputConfPass) {
         inputConfPass.addEventListener('input', () => {
+            nascondiMessaggioBottone('messaggio_errore_server');
+            nascondiMessaggioBottone('messaggio_errore_server_cambio');
             if (typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
     }

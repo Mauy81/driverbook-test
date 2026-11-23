@@ -540,6 +540,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (inputPass) {
         inputPass.addEventListener('input', function() {
+            nascondiMessaggioBottone('messaggio_errore_server');
+            nascondiMessaggioBottone('messaggio_errore_server_cambio');
             if (typeof validaComplessitaPassword === 'function') validaComplessitaPassword();
             if (inputConfPass && typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
@@ -547,6 +549,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (inputConfPass) {
         inputConfPass.addEventListener('input', function() {
+            nascondiMessaggioBottone('messaggio_errore_server');
+            nascondiMessaggioBottone('messaggio_errore_server_cambio');
             if (typeof verificaCoincidenzaPassword === 'function') verificaCoincidenzaPassword();
         });
     }
