@@ -3103,6 +3103,7 @@ async function accettaCorsa(codice, bottone) {
         const contesto = await recuperaContestoUtentePartner(token, userData.id);
         if (!contesto) throw new Error("Errore recupero codice partner");
         const codicePartner = contesto.codicePartnerAzienda;
+        const idPartnerTarget = contesto.idPartnerAzienda;
 
         const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN_ATTESA`, {
             method: "PATCH",
@@ -3115,7 +3116,7 @@ async function accettaCorsa(codice, bottone) {
             body: JSON.stringify({
                 stato: "ASSEGNATO",
                 codice_partner_assegnato: codicePartner,
-                id_partner: userData.id
+                id_partner: idPartnerTarget
             })
         });
 
