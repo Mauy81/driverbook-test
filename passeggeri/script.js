@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('blocco_sicurezza_email_password').classList.add('hidden');
             document.getElementById('formModificaProfilo').classList.remove('hidden');
             document.getElementById('password_attuale_email').value = '';
-            document.getElementById('msg_errore_password_email').style.display = 'none';
+            nascondiMessaggioBottone('msg_errore_password_email');
         });
     }
 
@@ -692,6 +692,34 @@ document.addEventListener("DOMContentLoaded", function() {
     const cardClasseV = document.getElementById('card_classe_v');
     if (cardClasseV) cardClasseV.addEventListener('click', function() {
         if (typeof selezionaVettura === 'function') selezionaVettura('CLASSE_V');
+    });
+
+    const puliziaErroriModuli = [
+        { selector: '#formLogin', msgId: 'messaggio_errore_server_login' },
+        { selector: '#form_sicurezza_password_email', msgId: 'msg_errore_password_email' },
+        { selector: '#formModificaProfilo', msgId: 'msg_stato_profilo' },
+        { selector: '#formRecuperoPassword', msgId: 'msg_recupero' },
+        { selector: '#formRegistrazionePasseggero', msgId: 'messaggio_errore_server' },
+        { selector: '#form_assistenza', msgId: 'msg_stato_assistenza' },
+        { selector: '#form_assistenza_interna', msgId: 'msg_stato_assistenza_interna' }
+    ];
+
+    puliziaErroriModuli.forEach(({ selector, msgId }) => {
+        const formEl = document.querySelector(selector);
+        if (formEl) {
+            formEl.addEventListener('input', () => nascondiMessaggioBottone(msgId));
+            formEl.addEventListener('change', () => nascondiMessaggioBottone(msgId));
+        }
+    });
+
+    ['btn_annulla_chiusura', 'btn_conferma_chiusura'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', () => nascondiMessaggioBottone('msg_stato_profilo'));
+    });
+
+    ['partenza', 'arrivo'].forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) campo.addEventListener('input', () => nascondiMessaggioBottone('errore_vettura'));
     });
 });
 

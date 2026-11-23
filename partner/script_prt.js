@@ -303,6 +303,24 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+
+    const puliziaErroriModuli = [
+        { selector: '#formLogin', msgId: 'messaggio_errore_server_login' },
+        { selector: '#form_sicurezza_password_email', msgId: 'msg_errore_password_email' },
+        { selector: '#formModificaProfilo', msgId: 'msg_stato_profilo' },
+        { selector: '#formRecuperoPassword', msgId: 'msg_recupero' },
+        { selector: '#formRegistrazione', msgId: 'messaggio_errore_server' },
+        { selector: '#form_assistenza', msgId: 'msg_stato_assistenza' },
+        { selector: '#form_assistenza_interna', msgId: 'msg_stato_assistenza_interna' }
+    ];
+
+    puliziaErroriModuli.forEach(({ selector, msgId }) => {
+        const formEl = document.querySelector(selector);
+        if (formEl) {
+            formEl.addEventListener('input', () => nascondiMessaggioBottone(msgId));
+            formEl.addEventListener('change', () => nascondiMessaggioBottone(msgId));
+        }
+    });
 });
 
 function mostraMessaggioBottone(elementoId, testo, tipo = 'errore') {
