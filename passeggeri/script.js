@@ -2530,18 +2530,24 @@ async function verificaOtpECambiaPassword(event) {
         const userData = await userRes.json();
         const emailUtente = userData.email;
 
-        const verifyRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify", {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ type: "recovery", email: emailUtente, token: tokenOtp })
-        });
+        let sessioneRecupero = (window._sessioneOtpCambio && window._sessioneOtpCambio.otp === tokenOtp) ? window._sessioneOtpCambio.sessione : null;
 
-        if (!verifyRes.ok) throw new Error("OTP_INVALID");
+        if (!sessioneRecupero) {
+            const verifyRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/verify", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ type: "recovery", email: emailUtente, token: tokenOtp })
+            });
 
-        const sessioneRecupero = await verifyRes.json();
+            if (!verifyRes.ok) throw new Error("OTP_INVALID");
+
+            sessioneRecupero = await verifyRes.json();
+            window._sessioneOtpCambio = { otp: tokenOtp, sessione: sessioneRecupero };
+        }
+
         const tempToken = sessioneRecupero.access_token;
 
         const updateRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2852,20 +2858,27 @@ async function inviaNuovaPassword(event) {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
-        const verifyRes = await fetch(urlVerify, {
-            method: "POST",
-            headers: {
-                "apikey": chiaveAnon,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ type: "recovery", email: email, token: token })
-        });
+        const chiaveOtpReset = `${email}_${token}`;
+        let sessioneRecupero = (window._sessioneOtpReset && window._sessioneOtpReset.chiave === chiaveOtpReset) ? window._sessioneOtpReset.sessione : null;
 
-        if (!verifyRes.ok) {
-            throw new Error("OTP_INVALID");
+        if (!sessioneRecupero) {
+            const verifyRes = await fetch(urlVerify, {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ type: "recovery", email: email, token: token })
+            });
+
+            if (!verifyRes.ok) {
+                throw new Error("OTP_INVALID");
+            }
+
+            sessioneRecupero = await verifyRes.json();
+            window._sessioneOtpReset = { chiave: chiaveOtpReset, sessione: sessioneRecupero };
         }
 
-        const sessioneRecupero = await verifyRes.json();
         const tempToken = sessioneRecupero.access_token;
 
         const updateRes = await fetch(urlUpdate, {
