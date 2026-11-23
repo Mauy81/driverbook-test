@@ -4272,7 +4272,9 @@ async function caricaDipendenti() {
 
             const btnModifica = clone.querySelector('[data-bind-action="modifica"]');
             btnModifica.onclick = function() {
-                alert("Funzione di modifica in arrivo.");
+                if (typeof funzioneApriModificaDipendente === 'function') {
+                    funzioneApriModificaDipendente(dip);
+                }
             };
 
             const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
