@@ -4426,3 +4426,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', allineaTendinaGoogleMaps);
     document.addEventListener('input', allineaTendinaGoogleMaps);
 });
+
+let validazioneNativaRitardata = false;
+let attesaTastieraValidazione = false;
+
+document.addEventListener('invalid', function(e) {
+    if (validazioneNativaRitardata) return;
+    e.preventDefault();
+
+    if (!attesaTastieraValidazione) {
+        attesaTastieraValidazione = true;
+        const primoCampo = e.target;
+        primoCampo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        primoCampo.focus({ preventScroll: true });
+
+        setTimeout(() => {
+            validazioneNativaRitardata = true;
+            primoCampo.reportValidity();
+            validazioneNativaRitardata = false;
+            attesaTastieraValidazione = false;
+        }, 350);
+    }
+}, true);
