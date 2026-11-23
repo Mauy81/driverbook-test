@@ -15,12 +15,26 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-    event.waitUntil(self.clients.claim());
+    const cacheConsentite = [CACHE_NAME, 'driverbutler-pax-session'];
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (!cacheConsentite.includes(cacheName)) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
 });
 
 self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
     event.respondWith(
-        fetch(event.request)
+        fetch(new Request(event.request, { cache: 'no-store' }))
         .then(response => {
             if (response && response.status === 200 && response.type === 'basic') {
                 const responseToCache = response.clone();
