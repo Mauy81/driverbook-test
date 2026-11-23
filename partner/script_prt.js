@@ -1027,6 +1027,9 @@ async function caricaDatiDashboardPartner() {
         if (contesto.tipoUtente === 'partner') {
             const partner = contesto.partner;
 
+            const lblCodPrinc = document.getElementById('lbl_codice_principale');
+            if (lblCodPrinc) lblCodPrinc.textContent = 'Codice Partner:';
+
             if (document.getElementById('dash_nome_partner')) {
                 document.getElementById('dash_nome_partner').textContent = partner.nome_cognome;
             }
@@ -1088,11 +1091,14 @@ async function caricaDatiDashboardPartner() {
             const partnerAzienda = contesto.partner;
             const nomeCompletoOp = `${dip.nome || ''} ${dip.cognome || ''}`.trim();
 
+            const lblCodPrinc = document.getElementById('lbl_codice_principale');
+            if (lblCodPrinc) lblCodPrinc.textContent = 'Codice Dipendente:';
+
             if (document.getElementById('dash_nome_partner')) {
                 document.getElementById('dash_nome_partner').textContent = nomeCompletoOp || dip.email;
             }
             if (document.getElementById('dash_codice_partner')) {
-                document.getElementById('dash_codice_partner').textContent = contesto.codicePartnerAzienda || '-';
+                document.getElementById('dash_codice_partner').textContent = dip.codice_dipendente || '-';
             }
             const bloccoOpDash = document.getElementById('blocco_dati_operativo_dash');
             if (bloccoOpDash) {
@@ -1100,7 +1106,7 @@ async function caricaDatiDashboardPartner() {
                 const elAzienda = document.getElementById('dash_azienda_operativo');
                 const elCodDip = document.getElementById('dash_codice_dipendente');
                 if (elAzienda) elAzienda.textContent = (partnerAzienda && (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome)) ? (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome) : '-';
-                if (elCodDip) elCodDip.textContent = dip.codice_dipendente || '-';
+                if (elCodDip) elCodDip.textContent = contesto.codicePartnerAzienda || '-';
             }
 
             if (document.getElementById('profilo_dip_nome') || document.getElementById('profilo_email')) {
