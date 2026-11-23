@@ -912,6 +912,90 @@ async function inviaNuovoOtpRegistrazione(event) {
     }
 }
 
+function aggiornaCampiGuidaProfiloOperativo() {
+    const selectRuolo = document.getElementById('profilo_dip_ruolo');
+    const gruppoSpunta = document.getElementById('gruppo_spunta_guida_profilo');
+    const chkGuida = document.getElementById('profilo_dip_abilitato_guida');
+    const sezioneGuida = document.getElementById('sezione_dati_guida_profilo');
+    const inputNumRuolo = document.getElementById('profilo_dip_numero_ruolo');
+    const chkPatente = document.getElementById('profilo_dip_autocert_patente');
+
+    if (!selectRuolo || !gruppoSpunta || !chkGuida || !sezioneGuida) return;
+
+    const ruolo = selectRuolo.value;
+    const isGuida = (ruolo === 'AUTISTA') || (ruolo === 'OPERATIVO' && chkGuida.checked);
+
+    if (ruolo === 'OPERATIVO') {
+        gruppoSpunta.classList.remove('hidden');
+    } else {
+        gruppoSpunta.classList.add('hidden');
+        chkGuida.checked = false;
+    }
+
+    if (isGuida) {
+        sezioneGuida.classList.remove('hidden');
+        if (inputNumRuolo) inputNumRuolo.required = true;
+        if (chkPatente) chkPatente.required = true;
+    } else {
+        sezioneGuida.classList.add('hidden');
+        if (inputNumRuolo) {
+            inputNumRuolo.required = false;
+            inputNumRuolo.value = '';
+        }
+        if (chkPatente) {
+            chkPatente.required = false;
+            chkPatente.checked = false;
+        }
+    }
+}
+
+async function recuperaContestoUtentePartner(token, userId) {
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`, {
+        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+    });
+    const partnerData = await partnerRes.json();
+
+    if (partnerData && partnerData.length > 0) {
+        return {
+            tipoUtente: 'partner',
+            partner: partnerData[0],
+            dipendente: null,
+            idPartnerAzienda: partnerData[0].id_partner,
+            codicePartnerAzienda: partnerData[0].codice_partner
+        };
+    }
+
+    const dipRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}`, {
+        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+    });
+    const dipData = await dipRes.json();
+
+    if (dipData && dipData.length > 0) {
+        const dip = dipData[0];
+        if (dip.stato_attivo !== true || dip.ruolo === 'AUTISTA') {
+            return null;
+        }
+
+        const partnerAziendaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${dip.id_partner}`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        const partnerAziendaData = await partnerAziendaRes.json();
+        const partnerAzienda = (partnerAziendaData && partnerAziendaData.length > 0) ? partnerAziendaData[0] : null;
+
+        return {
+            tipoUtente: 'operativo',
+            partner: partnerAzienda,
+            dipendente: dip,
+            idPartnerAzienda: dip.id_partner,
+            codicePartnerAzienda: dip.codice_partner
+        };
+    }
+
+    return null;
+}
+
 async function caricaDatiDashboardPartner() {
     let token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
@@ -933,24 +1017,48 @@ async function caricaDatiDashboardPartner() {
         }
 
         const userData = await userRes.json();
-        const userId = userData.id;
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
 
-        const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        const dbData = await dbRes.json();
+        if (!contesto) {
+            esciAccount();
+            return;
+        }
 
-        if (dbData && dbData.length > 0) {
-            const partner = dbData[0];
-            
+        if (contesto.tipoUtente === 'partner') {
+            const partner = contesto.partner;
+
             if (document.getElementById('dash_nome_partner')) {
                 document.getElementById('dash_nome_partner').textContent = partner.nome_cognome;
             }
             if (document.getElementById('dash_codice_partner')) {
                 document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
             }
+            const bloccoOpDash = document.getElementById('blocco_dati_operativo_dash');
+            if (bloccoOpDash) bloccoOpDash.classList.add('hidden');
 
             if (document.getElementById('profilo_nome')) {
+                const bloccoPrt = document.getElementById('blocco_campi_partner_profilo');
+                const bloccoOp = document.getElementById('blocco_campi_operativo_profilo');
+                const bloccoRuoloOp = document.getElementById('blocco_ruolo_operativo_profilo');
+                const bloccoSoc = document.getElementById('blocco_dati_societari_partner');
+
+                if (bloccoPrt) bloccoPrt.classList.remove('hidden');
+                if (bloccoOp) bloccoOp.classList.add('hidden');
+                if (bloccoRuoloOp) bloccoRuoloOp.classList.add('hidden');
+                if (bloccoSoc) bloccoSoc.classList.remove('hidden');
+
+                document.getElementById('profilo_nome').required = true;
+                ['profilo_dip_nome', 'profilo_dip_cognome', 'profilo_dip_numero_ruolo'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.required = false;
+                });
+                ['profilo_ragioneSociale', 'profilo_piva', 'profilo_codice_sdi', 'profilo_pec', 'profilo_indirizzo_via', 'profilo_indirizzo_cap', 'profilo_indirizzo_citta', 'profilo_indirizzo_provincia', 'profilo_iban', 'profilo_intestatario_conto', 'profilo_ruoloConducenti', 'profilo_zonaOperativa'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.required = true;
+                });
+                const chkKb = document.getElementById('profilo_autocertificazioneKb');
+                if (chkKb) chkKb.required = true;
+
                 document.getElementById('profilo_nome').value = partner.nome_cognome || '';
                 document.getElementById('profilo_email').value = partner.email || '';
                 if (itiProfiloPartner && partner.tel_partner) {
@@ -975,12 +1083,97 @@ async function caricaDatiDashboardPartner() {
                 if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
                 if (document.getElementById('profilo_notificaEmail')) document.getElementById('profilo_notificaEmail').checked = partner.notifica_email;
             }
-            
-            if (typeof applicaBozze === 'function') applicaBozze();
-
         } else {
-            esciAccount();
+            const dip = contesto.dipendente;
+            const partnerAzienda = contesto.partner;
+            const nomeCompletoOp = `${dip.nome || ''} ${dip.cognome || ''}`.trim();
+
+            if (document.getElementById('dash_nome_partner')) {
+                document.getElementById('dash_nome_partner').textContent = nomeCompletoOp || dip.email;
+            }
+            if (document.getElementById('dash_codice_partner')) {
+                document.getElementById('dash_codice_partner').textContent = contesto.codicePartnerAzienda || '-';
+            }
+            const bloccoOpDash = document.getElementById('blocco_dati_operativo_dash');
+            if (bloccoOpDash) {
+                bloccoOpDash.classList.remove('hidden');
+                const elAzienda = document.getElementById('dash_azienda_operativo');
+                const elCodDip = document.getElementById('dash_codice_dipendente');
+                if (elAzienda) elAzienda.textContent = (partnerAzienda && (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome)) ? (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome) : '-';
+                if (elCodDip) elCodDip.textContent = dip.codice_dipendente || '-';
+            }
+
+            if (document.getElementById('profilo_dip_nome') || document.getElementById('profilo_email')) {
+                const bloccoPrt = document.getElementById('blocco_campi_partner_profilo');
+                const bloccoOp = document.getElementById('blocco_campi_operativo_profilo');
+                const bloccoRuoloOp = document.getElementById('blocco_ruolo_operativo_profilo');
+                const bloccoSoc = document.getElementById('blocco_dati_societari_partner');
+
+                if (bloccoPrt) bloccoPrt.classList.add('hidden');
+                if (bloccoOp) bloccoOp.classList.remove('hidden');
+                if (bloccoRuoloOp) bloccoRuoloOp.classList.remove('hidden');
+                if (bloccoSoc) bloccoSoc.classList.add('hidden');
+
+                const inputNomePrt = document.getElementById('profilo_nome');
+                if (inputNomePrt) inputNomePrt.required = false;
+
+                ['profilo_ragioneSociale', 'profilo_piva', 'profilo_codice_sdi', 'profilo_pec', 'profilo_indirizzo_via', 'profilo_indirizzo_cap', 'profilo_indirizzo_citta', 'profilo_indirizzo_provincia', 'profilo_iban', 'profilo_intestatario_conto', 'profilo_ruoloConducenti', 'profilo_zonaOperativa'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.required = false;
+                });
+                const chkKb = document.getElementById('profilo_autocertificazioneKb');
+                if (chkKb) chkKb.required = false;
+
+                if (document.getElementById('profilo_dip_nome')) {
+                    document.getElementById('profilo_dip_nome').value = dip.nome || '';
+                    document.getElementById('profilo_dip_nome').required = true;
+                }
+                if (document.getElementById('profilo_dip_cognome')) {
+                    document.getElementById('profilo_dip_cognome').value = dip.cognome || '';
+                    document.getElementById('profilo_dip_cognome').required = true;
+                }
+                if (document.getElementById('profilo_email')) {
+                    document.getElementById('profilo_email').value = dip.email || userData.email || '';
+                }
+                if (itiProfiloPartner && dip.telefono) {
+                    itiProfiloPartner.setNumber(dip.telefono);
+                }
+                if (document.getElementById('profilo_dip_ruolo')) {
+                    document.getElementById('profilo_dip_ruolo').value = dip.ruolo || 'OPERATIVO';
+                }
+                if (document.getElementById('profilo_dip_abilitato_guida')) {
+                    document.getElementById('profilo_dip_abilitato_guida').checked = !!dip.abilitato_guida;
+                }
+                if (document.getElementById('profilo_dip_numero_ruolo')) {
+                    document.getElementById('profilo_dip_numero_ruolo').value = dip.numero_ruolo_provincia || '';
+                }
+                if (document.getElementById('profilo_dip_autocert_patente')) {
+                    document.getElementById('profilo_dip_autocert_patente').checked = !!dip.autocert_patente;
+                }
+                if (document.getElementById('profilo_notificaPush')) {
+                    document.getElementById('profilo_notificaPush').checked = !!dip.notifica_push;
+                }
+                if (document.getElementById('profilo_notificaEmail')) {
+                    document.getElementById('profilo_notificaEmail').checked = !!dip.notifica_email;
+                }
+
+                const selRuolo = document.getElementById('profilo_dip_ruolo');
+                const chkGuida = document.getElementById('profilo_dip_abilitato_guida');
+                if (selRuolo && !selRuolo.dataset.listenerAttached) {
+                    selRuolo.addEventListener('change', aggiornaCampiGuidaProfiloOperativo);
+                    selRuolo.dataset.listenerAttached = 'true';
+                }
+                if (chkGuida && !chkGuida.dataset.listenerAttached) {
+                    chkGuida.addEventListener('change', aggiornaCampiGuidaProfiloOperativo);
+                    chkGuida.dataset.listenerAttached = 'true';
+                }
+
+                aggiornaCampiGuidaProfiloOperativo();
+            }
         }
+
+        if (typeof applicaBozze === 'function') applicaBozze();
+
     } catch (error) {
         localStorage.removeItem('driverbutler_auth_token');
         window.location.href = 'login_prt.html';
@@ -1009,62 +1202,118 @@ async function aggiornaProfilo(event) {
         });
         const userData = await userRes.json();
         const userId = userData.id;
+        const contesto = await recuperaContestoUtentePartner(token, userId);
+
+        if (!contesto) {
+            throw new Error("Contesto utente non valido");
+        }
 
         let prefissoTel = "+" + itiProfiloPartner.getSelectedCountryData().dialCode;
         let numeroDigitato = document.getElementById('profilo_telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
-        const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
-        const corpoDati = {
-            nome_cognome: document.getElementById('profilo_nome').value,
-            tel_partner: telefonoFinale,
-            ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
-            piva: document.getElementById('profilo_piva').value,
-            codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
-            pec: document.getElementById('profilo_pec').value || null,
-            indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
-            indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
-            indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
-            indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
-            iban: document.getElementById('profilo_iban').value,
-            intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
-            ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
-            autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
-            zona_operativa: document.getElementById('profilo_zonaOperativa').value,
-            notifica_push: document.getElementById('profilo_notificaPush').checked,
-            notifica_email: document.getElementById('profilo_notificaEmail').checked
-        };
-        if (latLngProfiloZonaOperativa) {
-            corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
-            corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
-        }
-
-        const dbRes = await fetch(urlPatch, {
-            method: "PATCH",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json",
-                "Prefer": "return=minimal"
-            },
-            body: JSON.stringify(corpoDati)
-        });
-
-        if (!dbRes.ok) {
-            throw new Error("Errore database");
-        }
-
-        await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            method: "PUT",
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
-        });
-        
         const nuovaEmail = document.getElementById('profilo_email').value.trim();
+
+        if (contesto.tipoUtente === 'partner') {
+            const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
+            const corpoDati = {
+                nome_cognome: document.getElementById('profilo_nome').value,
+                tel_partner: telefonoFinale,
+                ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
+                piva: document.getElementById('profilo_piva').value,
+                codice_sdi: document.getElementById('profilo_codice_sdi').value || null,
+                pec: document.getElementById('profilo_pec').value || null,
+                indirizzo_via: document.getElementById('profilo_indirizzo_via').value,
+                indirizzo_cap: document.getElementById('profilo_indirizzo_cap').value,
+                indirizzo_citta: document.getElementById('profilo_indirizzo_citta').value,
+                indirizzo_provincia: document.getElementById('profilo_indirizzo_provincia').value,
+                iban: document.getElementById('profilo_iban').value,
+                intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
+                ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
+                autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
+                zona_operativa: document.getElementById('profilo_zonaOperativa').value,
+                notifica_push: document.getElementById('profilo_notificaPush').checked,
+                notifica_email: document.getElementById('profilo_notificaEmail').checked
+            };
+            if (latLngProfiloZonaOperativa) {
+                corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
+                corpoDati.zona_operativa_lng = latLngProfiloZonaOperativa.lng;
+            }
+
+            const dbRes = await fetch(urlPatch, {
+                method: "PATCH",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify(corpoDati)
+            });
+
+            if (!dbRes.ok) {
+                throw new Error("Errore database");
+            }
+
+            await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                method: "PUT",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
+            });
+        } else {
+            const nomeDip = document.getElementById('profilo_dip_nome').value.trim();
+            const cognomeDip = document.getElementById('profilo_dip_cognome').value.trim();
+            const ruoloScelto = document.getElementById('profilo_dip_ruolo').value;
+            const chkGuida = document.getElementById('profilo_dip_abilitato_guida');
+            const abilitatoGuida = ruoloScelto === 'AUTISTA' ? true : (chkGuida ? chkGuida.checked : false);
+            const numRuoloEl = document.getElementById('profilo_dip_numero_ruolo');
+            const patenteEl = document.getElementById('profilo_dip_autocert_patente');
+
+            const corpoDip = {
+                nome: nomeDip,
+                cognome: cognomeDip,
+                telefono: telefonoFinale,
+                ruolo: ruoloScelto,
+                abilitato_guida: abilitatoGuida,
+                numero_ruolo_provincia: abilitatoGuida && numRuoloEl ? (numRuoloEl.value.trim() || null) : null,
+                autocert_patente: abilitatoGuida && patenteEl ? patenteEl.checked : false,
+                notifica_push: document.getElementById('profilo_notificaPush').checked,
+                notifica_email: document.getElementById('profilo_notificaEmail').checked
+            };
+
+            if (nuovaEmail === userData.email) {
+                corpoDip.email = nuovaEmail;
+            }
+
+            const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify(corpoDip)
+            });
+
+            if (!dbRes.ok) {
+                throw new Error("Errore database");
+            }
+
+            await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                method: "PUT",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ data: { display_name: `${cognomeDip} ${nomeDip}`.trim(), name: `${nomeDip} ${cognomeDip}`.trim() } })
+            });
+        }
+
         if (nuovaEmail !== userData.email) {
             btnSubmit.disabled = false;
             nascondiMessaggioBottone('msg_stato_profilo');
@@ -1231,6 +1480,19 @@ async function verificaOtpNuovaEmail(event) {
         
         localStorage.setItem('driverbutler_auth_token', sessioneAggiornata.access_token);
         localStorage.setItem('driverbutler_refresh_token', sessioneAggiornata.refresh_token);
+
+        if (sessioneAggiornata.user && sessioneAggiornata.user.id && sessioneAggiornata.user.email) {
+            await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${sessioneAggiornata.user.id}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + sessioneAggiornata.access_token,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify({ email: sessioneAggiornata.user.email })
+            });
+        }
 
         if (typeof svuotaBozze === 'function') svuotaBozze();
 
@@ -1822,6 +2084,7 @@ async function inviaAssistenzaInterna(event) {
 
         let nomeUtente = "N/A";
         let codiceCliente = "N/A";
+        let infoAziendaOp = "";
 
         const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -1830,9 +2093,31 @@ async function inviaAssistenzaInterna(event) {
         if (datiPartner && datiPartner.length > 0) {
             nomeUtente = datiPartner[0].nome_cognome || "N/A";
             codiceCliente = datiPartner[0].codice_partner || "N/A";
+        } else {
+            const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}&select=nome,cognome,codice_dipendente,codice_partner,id_partner`, {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            const datiDip = await checkDip.json();
+            if (datiDip && datiDip.length > 0) {
+                const dip = datiDip[0];
+                nomeUtente = `${dip.nome || ''} ${dip.cognome || ''}`.trim() || "N/A";
+                codiceCliente = dip.codice_dipendente || "N/A";
+                let nomeAzienda = "N/A";
+                if (dip.id_partner) {
+                    const pRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${dip.id_partner}&select=ragione_sociale,nome_cognome,codice_partner`, {
+                        headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                    });
+                    const pData = await pRes.json();
+                    if (pData && pData.length > 0) {
+                        nomeAzienda = pData[0].ragione_sociale || pData[0].nome_cognome || "N/A";
+                    }
+                }
+                infoAziendaOp = `\nRuolo: OPERATIVO\nAzienda Partner: ${nomeAzienda} (${dip.codice_partner || 'N/A'})`;
+            }
         }
 
-        const messaggioArricchito = `Codice Partner: ${codiceCliente}\nNome: ${nomeUtente}\n\nRichiesta:\n${messaggioUtente}`;
+        const etichettaCodice = infoAziendaOp ? "Codice Dipendente" : "Codice Partner";
+        const messaggioArricchito = `${etichettaCodice}: ${codiceCliente}\nNome: ${nomeUtente}${infoAziendaOp}\n\nRichiesta:\n${messaggioUtente}`;
 
         const resSupa = await fetch(urlSupabase, {
             method: "POST",
@@ -2107,11 +2392,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
             });
             const userData = await userRes.json();
+            const contesto = await recuperaContestoUtentePartner(token, userData.id);
+            const idPartnerTarget = contesto ? contesto.idPartnerAzienda : userData.id;
             
             let targaValue = targaPulita.substring(0, 2) + ' ' + targaPulita.substring(2, 5) + ' ' + targaPulita.substring(5, 7);
 
             const corpoDati = {
-                id_partner: userData.id,
+                id_partner: idPartnerTarget,
                 modello: selectModello.value,
                 posti: selectModello.value === 'CLASSE V' ? parseInt(selectPosti.value) : null,
                 targa: targaValue,
@@ -2198,8 +2485,10 @@ async function caricaFlotta() {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const userData = await userRes.json();
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        const idPartnerTarget = contesto ? contesto.idPartnerAzienda : userData.id;
 
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}`, {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${idPartnerTarget}`, {
             headers: {
                 "apikey": chiaveAnon,
                 "Authorization": "Bearer " + token
@@ -2454,8 +2743,11 @@ async function caricaBachecaRichieste() {
         });
         if (!userRes.ok) throw new Error("Utente non loggato");
         const userData = await userRes.json();
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        if (!contesto) throw new Error("Utente non autorizzato");
+        const idPartnerTarget = contesto.idPartnerAzienda;
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=zona_operativa_lat,zona_operativa_lng,ultimo_accesso_bacheca`, {
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerTarget}&select=zona_operativa_lat,zona_operativa_lng,ultimo_accesso_bacheca`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         if (!partnerRes.ok) throw new Error("Errore recupero zona partner");
@@ -2476,10 +2768,10 @@ async function caricaBachecaRichieste() {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ p_id_partner: userData.id })
+            body: JSON.stringify({ p_id_partner: idPartnerTarget })
         });
         
-        const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${userData.id}&select=targa`, {
+        const flottaRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?id_partner=eq.${idPartnerTarget}&select=targa`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         
@@ -2722,8 +3014,10 @@ async function segnaBachecaComeLetta(skipReload = false) {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const userData = await userRes.json();
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        const idPartnerTarget = contesto ? contesto.idPartnerAzienda : userData.id;
 
-        await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}`, {
+        await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerTarget}`, {
             method: "PATCH",
             headers: {
                 "apikey": chiaveAnon,
@@ -2799,12 +3093,9 @@ async function accettaCorsa(codice, bottone) {
         if (!userRes.ok) throw new Error("Errore sessione utente");
         const userData = await userRes.json();
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=codice_partner`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        if (!partnerRes.ok) throw new Error("Errore recupero codice partner");
-        const partnerData = await partnerRes.json();
-        const codicePartner = partnerData[0].codice_partner;
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        if (!contesto) throw new Error("Errore recupero codice partner");
+        const codicePartner = contesto.codicePartnerAzienda;
 
         const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN_ATTESA`, {
             method: "PATCH",
@@ -3088,16 +3379,12 @@ async function attivaAbbonamentoPush() {
         const userData = await userRes.json();
         const userId = userData.id;
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=codice_partner`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        
+        const contesto = await recuperaContestoUtentePartner(token, userId);
         let codiceUtente = null;
-        if (partnerRes.ok) {
-            const partnerData = await partnerRes.json();
-            if (partnerData && partnerData.length > 0) {
-                codiceUtente = partnerData[0].codice_partner;
-            }
+        if (contesto) {
+            codiceUtente = contesto.tipoUtente === 'operativo' && contesto.dipendente
+                ? (contesto.dipendente.codice_dipendente || contesto.codicePartnerAzienda)
+                : contesto.codicePartnerAzienda;
         }
 
         const payloadAbbonamento = {
@@ -3198,7 +3485,11 @@ async function verificaBadgeBacheca() {
         if (!userRes.ok) return;
         const userData = await userRes.json();
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=ultimo_accesso_bacheca`, {
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        if (!contesto) return;
+        const idPartnerTarget = contesto.idPartnerAzienda;
+
+        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerTarget}&select=ultimo_accesso_bacheca`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         let ultimoAccesso = 0;
@@ -3216,7 +3507,7 @@ async function verificaBadgeBacheca() {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ p_id_partner: userData.id })
+            body: JSON.stringify({ p_id_partner: idPartnerTarget })
         });
         
         if (res.ok) {
@@ -3346,12 +3637,9 @@ async function caricaServiziCalendario() {
         if (!userRes.ok) throw new Error("Errore sessione");
         const userData = await userRes.json();
 
-        const partnerRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userData.id}&select=codice_partner`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        if (!partnerRes.ok) throw new Error("Errore partner");
-        const partnerData = await partnerRes.json();
-        const codicePartner = partnerData[0].codice_partner;
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        if (!contesto) throw new Error("Errore partner");
+        const codicePartner = contesto.codicePartnerAzienda;
 
         const anno = dataCalendarioAttuale.getFullYear();
         const mese = String(dataCalendarioAttuale.getMonth() + 1).padStart(2, '0');

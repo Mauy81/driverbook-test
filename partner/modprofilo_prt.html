@@ -20,10 +20,23 @@
                 <h1>Modifica Profilo</h1>
             </div>
             <form id="formModificaProfilo">
-                
-                <div class="form-group">
-                    <label class="label" for="profilo_nome">Nome e Cognome / Referente</label>
-                    <input type="text" id="profilo_nome" class="input" placeholder="Mario Rossi" required autocomplete="off">
+
+                <div id="blocco_campi_partner_profilo">
+                    <div class="form-group">
+                        <label class="label" for="profilo_nome">Nome e Cognome / Referente</label>
+                        <input type="text" id="profilo_nome" class="input" placeholder="Mario Rossi" required autocomplete="off">
+                    </div>
+                </div>
+
+                <div id="blocco_campi_operativo_profilo" class="hidden">
+                    <div class="form-group">
+                        <label class="label" for="profilo_dip_nome">Nome</label>
+                        <input type="text" id="profilo_dip_nome" class="input" placeholder="Mario" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="label" for="profilo_dip_cognome">Cognome</label>
+                        <input type="text" id="profilo_dip_cognome" class="input" placeholder="Rossi" autocomplete="off">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -37,80 +50,112 @@
                     <input type="tel" id="profilo_telefono" class="input" required placeholder="333 1234567" autocomplete="off">
                 </div>
 
-                <div class="form-group">
-                    <label class="label" for="profilo_ragioneSociale">Ragione Sociale</label>
-                    <input type="text" id="profilo_ragioneSociale" class="input" required placeholder="Rossi NCC di ... / Driver SRL" autocomplete="off">
-                </div>
+                <div id="blocco_ruolo_operativo_profilo" class="hidden">
+                    <div class="form-group">
+                        <label class="label" for="profilo_dip_ruolo">Ruolo Aziendale</label>
+                        <select id="profilo_dip_ruolo" class="input">
+                            <option value="OPERATIVO">OPERATIVO</option>
+                            <option value="AUTISTA">AUTISTA</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label class="label" for="profilo_piva">Partita IVA</label>
-                    <input type="text" id="profilo_piva" class="input" required placeholder="12345678901" autocomplete="off">
-                </div>
+                    <div class="form-group hidden" id="gruppo_spunta_guida_profilo">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="profilo_dip_abilitato_guida" class="checkbox-input">
+                            <label for="profilo_dip_abilitato_guida" class="checkbox-label">Operativo abilitato anche alla guida</label>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label class="label" for="profilo_codice_sdi">
-                        <span>Codice Destinatario SDI (7 caratteri)</span>
-                        <div class="label-nota">Se non possiedi un codice SDI, inserisci 0000000 (sette zeri) e compila il campo PEC.</div>
-                    </label>
-                    <input type="text" id="profilo_codice_sdi" class="input" required maxlength="7" placeholder="Es. M5UXCR1 oppure 0000000" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_pec">Indirizzo PEC</label>
-                    <input type="email" id="profilo_pec" class="input" required placeholder="azienda@pec.it" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_indirizzo_via">Indirizzo Sede Legale (Via e Civico)</label>
-                    <input type="text" id="profilo_indirizzo_via" class="input" required placeholder="Via Roma 10" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_indirizzo_cap">CAP</label>
-                    <input type="text" id="profilo_indirizzo_cap" class="input" required maxlength="5" placeholder="20121" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_indirizzo_citta">Città</label>
-                    <input type="text" id="profilo_indirizzo_citta" class="input" required placeholder="Milano" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_indirizzo_provincia">Provincia (Sigla)</label>
-                    <input type="text" id="profilo_indirizzo_provincia" class="input" required maxlength="2" placeholder="MI" autocomplete="off">
-                </div>
-                
-                <div class="form-group">
-                    <label class="label" for="profilo_iban">
-                        <span>IBAN</span>
-                        <div class="label-nota">Richiesto per ricevere i pagamenti dei servizi.</div>
-                    </label>
-                    <input type="text" id="profilo_iban" class="input" required placeholder="IT00A0000000000000000000000" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_intestatario_conto">Intestatario Conto</label>
-                    <input type="text" id="profilo_intestatario_conto" class="input" required placeholder="Mario Rossi / Driver SRL" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label class="label" for="profilo_ruoloConducenti">N° Ruolo e Provincia</label>
-                    <input type="text" id="profilo_ruoloConducenti" class="input" required placeholder="1234 - Milano" autocomplete="off">
-                </div>
-
-                <div class="form-group margine-inferiore-25">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="profilo_autocertificazioneKb" class="checkbox-input" required>
-                        <label for="profilo_autocertificazioneKb" class="checkbox-label">Dichiaro di possedere patente B valida e abilitazione CAP/KB (Art. 46-47 DPR 445/2000)</label>
+                    <div id="sezione_dati_guida_profilo" class="hidden">
+                        <div class="form-group">
+                            <label class="label" for="profilo_dip_numero_ruolo">Numero Ruolo e Provincia</label>
+                            <input type="text" id="profilo_dip_numero_ruolo" class="input" placeholder="1234 - Milano" autocomplete="off">
+                        </div>
+                        <div class="form-group margine-inferiore-25">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="profilo_dip_autocert_patente" class="checkbox-input">
+                                <label for="profilo_dip_autocert_patente" class="checkbox-label">Dichiaro di possedere patente B valida e abilitazione CAP/KB (Art. 46-47 DPR 445/2000)</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="label" for="profilo_zonaOperativa">
-                        <span>Zona Operativa</span>
-                        <div class="label-nota">Indica l'area di lavoro principale, non l'autorizzazione o la sede.</div>
-                    </label>
-                    <input type="text" id="profilo_zonaOperativa" class="input" required placeholder="Malpensa" autocomplete="off">
+                <div id="blocco_dati_societari_partner">
+                    <div class="form-group">
+                        <label class="label" for="profilo_ragioneSociale">Ragione Sociale</label>
+                        <input type="text" id="profilo_ragioneSociale" class="input" required placeholder="Rossi NCC di ... / Driver SRL" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_piva">Partita IVA</label>
+                        <input type="text" id="profilo_piva" class="input" required placeholder="12345678901" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_codice_sdi">
+                            <span>Codice Destinatario SDI (7 caratteri)</span>
+                            <div class="label-nota">Se non possiedi un codice SDI, inserisci 0000000 (sette zeri) e compila il campo PEC.</div>
+                        </label>
+                        <input type="text" id="profilo_codice_sdi" class="input" required maxlength="7" placeholder="Es. M5UXCR1 oppure 0000000" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_pec">Indirizzo PEC</label>
+                        <input type="email" id="profilo_pec" class="input" required placeholder="azienda@pec.it" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_via">Indirizzo Sede Legale (Via e Civico)</label>
+                        <input type="text" id="profilo_indirizzo_via" class="input" required placeholder="Via Roma 10" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_cap">CAP</label>
+                        <input type="text" id="profilo_indirizzo_cap" class="input" required maxlength="5" placeholder="20121" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_citta">Città</label>
+                        <input type="text" id="profilo_indirizzo_citta" class="input" required placeholder="Milano" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_indirizzo_provincia">Provincia (Sigla)</label>
+                        <input type="text" id="profilo_indirizzo_provincia" class="input" required maxlength="2" placeholder="MI" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="label" for="profilo_iban">
+                            <span>IBAN</span>
+                            <div class="label-nota">Richiesto per ricevere i pagamenti dei servizi.</div>
+                        </label>
+                        <input type="text" id="profilo_iban" class="input" required placeholder="IT00A0000000000000000000000" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_intestatario_conto">Intestatario Conto</label>
+                        <input type="text" id="profilo_intestatario_conto" class="input" required placeholder="Mario Rossi / Driver SRL" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_ruoloConducenti">N° Ruolo e Provincia</label>
+                        <input type="text" id="profilo_ruoloConducenti" class="input" required placeholder="1234 - Milano" autocomplete="off">
+                    </div>
+
+                    <div class="form-group margine-inferiore-25">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="profilo_autocertificazioneKb" class="checkbox-input" required>
+                            <label for="profilo_autocertificazioneKb" class="checkbox-label">Dichiaro di possedere patente B valida e abilitazione CAP/KB (Art. 46-47 DPR 445/2000)</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" for="profilo_zonaOperativa">
+                            <span>Zona Operativa</span>
+                            <div class="label-nota">Indica l'area di lavoro principale, non l'autorizzazione o la sede.</div>
+                        </label>
+                        <input type="text" id="profilo_zonaOperativa" class="input" required placeholder="Malpensa" autocomplete="off">
+                    </div>
                 </div>
 
                 <div class="form-group">
