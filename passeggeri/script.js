@@ -2319,7 +2319,7 @@ async function verificaPasswordPerEmail(event) {
     } catch (errore) {
         btn.disabled = false;
         document.getElementById('password_attuale_email').value = '';
-        const testoErrore = errore.message === "PWD_ERRATA" ? (dict.js_login_err_invalid || "Password errata.") : "Errore di connessione.";
+        const testoErrore = errore.message === "PWD_ERRATA" ? (dict.js_pwd_attuale_errata || "Password errata.") : "Errore di connessione.";
         mostraMessaggioBottone('msg_errore_password_email', testoErrore, 'errore');
     }
 }
