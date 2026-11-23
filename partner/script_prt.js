@@ -311,7 +311,8 @@ document.addEventListener("DOMContentLoaded", function() {
         { selector: '#formRecuperoPassword', msgId: 'msg_recupero' },
         { selector: '#formRegistrazione', msgId: 'messaggio_errore_server' },
         { selector: '#form_assistenza', msgId: 'msg_stato_assistenza' },
-        { selector: '#form_assistenza_interna', msgId: 'msg_stato_assistenza_interna' }
+        { selector: '#form_assistenza_interna', msgId: 'msg_stato_assistenza_interna' },
+        { selector: '#formGestioneDipendente', msgId: 'msg_stato_dipendente' }
     ];
 
     puliziaErroriModuli.forEach(({ selector, msgId }) => {
@@ -3789,6 +3790,9 @@ async function caricaServiziCalendario() {
     }
 }
 
+let idDipendenteInModifica = null;
+let funzioneApriModificaDipendente = null;
+
 document.addEventListener("DOMContentLoaded", function() {
     const btnApriDip = document.getElementById('bottom_bar_dipendenti');
     if (!btnApriDip) return;
@@ -3805,6 +3809,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const sezioneDatiGuida = document.getElementById('sezione_dati_guida');
     const checkAutocertPatente = document.getElementById('dip_autocert_patente');
 
+    const bloccoPasswordDip = document.getElementById('blocco_password_dipendente');
+    const inputEmailDip = document.getElementById('dip_email');
     const inputPassDip = document.getElementById('dip_password');
     const inputConfPassDip = document.getElementById('dip_conferma_password');
     const errPassDip = document.getElementById('errore_password_dip');
@@ -3890,7 +3896,26 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function apriFormDipendente() {
+    function apriFormDipendente(isModifica = false) {
+        if (isModifica) {
+            if (bloccoPasswordDip) bloccoPasswordDip.classList.add('hidden');
+            if (inputPassDip) {
+                inputPassDip.required = false;
+                inputPassDip.value = '';
+            }
+            if (inputConfPassDip) {
+                inputConfPassDip.required = false;
+                inputConfPassDip.value = '';
+            }
+            if (inputEmailDip) inputEmailDip.disabled = true;
+        } else {
+            idDipendenteInModifica = null;
+            if (bloccoPasswordDip) bloccoPasswordDip.classList.remove('hidden');
+            if (inputPassDip) inputPassDip.required = true;
+            if (inputConfPassDip) inputConfPassDip.required = true;
+            if (inputEmailDip) inputEmailDip.disabled = false;
+        }
+
         formContainerDip.classList.remove('hidden');
         btnApriDip.classList.add('hidden');
         elencoDipendenti.classList.add('hidden');
@@ -3899,24 +3924,61 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function chiudiFormDipendente() {
+        idDipendenteInModifica = null;
         formContainerDip.classList.add('hidden');
         btnApriDip.classList.remove('hidden');
         elencoDipendenti.classList.remove('hidden');
         document.querySelector('.login-wrapper').classList.remove('padding-bottom-extra');
         window.scrollTo(0, 0);
         formGestioneDip.reset();
+        if (bloccoPasswordDip) bloccoPasswordDip.classList.remove('hidden');
+        if (inputPassDip) inputPassDip.required = true;
+        if (inputConfPassDip) inputConfPassDip.required = true;
+        if (inputEmailDip) inputEmailDip.disabled = false;
         if (errPassDip) errPassDip.classList.remove('mostra');
         if (errConfPassDip) errConfPassDip.classList.remove('mostra');
         if (errNotificheDip) errNotificheDip.classList.remove('mostra');
+        nascondiMessaggioBottone('msg_stato_dipendente');
         aggiornaCampiGuida();
         if (typeof moduloSporco !== 'undefined') moduloSporco = false;
     }
+
+    funzioneApriModificaDipendente = function(dip) {
+        formGestioneDip.reset();
+        if (errPassDip) errPassDip.classList.remove('mostra');
+        if (errConfPassDip) errConfPassDip.classList.remove('mostra');
+        if (errNotificheDip) errNotificheDip.classList.remove('mostra');
+        nascondiMessaggioBottone('msg_stato_dipendente');
+
+        idDipendenteInModifica = dip.id_dipendente;
+        titoloFormDip.textContent = 'Modifica Dipendente';
+
+        document.getElementById('dip_nome').value = dip.nome || '';
+        document.getElementById('dip_cognome').value = dip.cognome || '';
+        if (inputEmailDip) inputEmailDip.value = dip.email || '';
+        if (itiDipendente && dip.telefono) {
+            itiDipendente.setNumber(dip.telefono);
+        } else {
+            document.getElementById('dip_telefono').value = dip.telefono || '';
+        }
+
+        selectRuolo.value = dip.ruolo || '';
+        checkAbilitatoGuida.checked = !!dip.abilitato_guida;
+        document.getElementById('dip_numero_ruolo').value = dip.numero_ruolo_provincia || '';
+        checkAutocertPatente.checked = !!dip.autocert_patente;
+        checkNotificaPushDip.checked = !!dip.notifica_push;
+        checkNotificaEmailDip.checked = !!dip.notifica_email;
+
+        aggiornaCampiGuida();
+        if (typeof svuotaBozze === 'function') svuotaBozze();
+        apriFormDipendente(true);
+    };
 
     btnApriDip.addEventListener('click', () => {
         formGestioneDip.reset();
         titoloFormDip.textContent = 'Nuovo Dipendente';
         aggiornaCampiGuida();
-        apriFormDipendente();
+        apriFormDipendente(false);
     });
 
     btnAnnullaDip.addEventListener('click', () => {
@@ -3931,8 +3993,16 @@ document.addEventListener("DOMContentLoaded", function() {
     formGestioneDip.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
-            return;
+        const isModifica = idDipendenteInModifica !== null;
+
+        if (!isModifica) {
+            if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
+                return;
+            }
+        } else {
+            if (!validaNotificheDipendente()) {
+                return;
+            }
         }
 
         const btnSalva = document.getElementById('btn_salva_dipendente');
@@ -3943,6 +4013,63 @@ document.addEventListener("DOMContentLoaded", function() {
         const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
         try {
+            let prefissoTel = itiDipendente ? "+" + itiDipendente.getSelectedCountryData().dialCode : "+39";
+            let numeroDigitato = document.getElementById('dip_telefono').value.trim();
+            let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
+
+            const nomeDip = document.getElementById('dip_nome').value.trim();
+            const cognomeDip = document.getElementById('dip_cognome').value.trim();
+            const ruoloScelto = selectRuolo.value;
+            const abilitatoGuida = ruoloScelto === 'AUTISTA' ? true : checkAbilitatoGuida.checked;
+
+            if (isModifica) {
+                const idTarget = idDipendenteInModifica;
+                const corpoModifica = {
+                    nome: nomeDip,
+                    cognome: cognomeDip,
+                    telefono: telefonoFinale,
+                    ruolo: ruoloScelto,
+                    abilitato_guida: abilitatoGuida,
+                    numero_ruolo_provincia: abilitatoGuida ? (document.getElementById('dip_numero_ruolo').value.trim() || null) : null,
+                    autocert_patente: abilitatoGuida ? checkAutocertPatente.checked : false,
+                    notifica_push: checkNotificaPushDip.checked,
+                    notifica_email: checkNotificaEmailDip.checked
+                };
+
+                const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${idTarget}`, {
+                    method: "PATCH",
+                    headers: {
+                        "apikey": chiaveAnon,
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal"
+                    },
+                    body: JSON.stringify(corpoModifica)
+                });
+
+                if (!updateRes.ok) {
+                    throw new Error("Errore durante il salvataggio delle modifiche.");
+                }
+
+                const userResCheck = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                    headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+                });
+                if (userResCheck.ok) {
+                    const userDataCheck = await userResCheck.json();
+                    if (userDataCheck.id === idTarget && ruoloScelto === 'AUTISTA') {
+                        esciAccount();
+                        return;
+                    }
+                }
+
+                if (typeof svuotaBozze === 'function') svuotaBozze();
+                nascondiMessaggioBottone('msg_stato_dipendente');
+                chiudiFormDipendente();
+                caricaDipendenti();
+                btnSalva.disabled = false;
+                return;
+            }
+
             const emailDip = document.getElementById('dip_email').value.trim();
 
             const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?email=eq.${encodeURIComponent(emailDip)}&select=id_partner`, { headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token } });
@@ -3987,13 +4114,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
 
-            let prefissoTel = itiDipendente ? "+" + itiDipendente.getSelectedCountryData().dialCode : "+39";
-            let numeroDigitato = document.getElementById('dip_telefono').value.trim();
-            let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
-
             const passwordDip = inputPassDip.value;
-            const nomeDip = document.getElementById('dip_nome').value.trim();
-            const cognomeDip = document.getElementById('dip_cognome').value.trim();
 
             const signupRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/signup", {
                 method: "POST",
@@ -4033,10 +4154,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 cognome: cognomeDip,
                 email: emailDip,
                 telefono: telefonoFinale,
-                ruolo: selectRuolo.value,
-                abilitato_guida: selectRuolo.value === 'AUTISTA' ? true : checkAbilitatoGuida.checked,
-                numero_ruolo_provincia: document.getElementById('dip_numero_ruolo').value.trim() || null,
-                autocert_patente: checkAutocertPatente.checked,
+                ruolo: ruoloScelto,
+                abilitato_guida: abilitatoGuida,
+                numero_ruolo_provincia: abilitatoGuida ? (document.getElementById('dip_numero_ruolo').value.trim() || null) : null,
+                autocert_patente: abilitatoGuida ? checkAutocertPatente.checked : false,
                 notifica_push: checkNotificaPushDip.checked,
                 notifica_email: checkNotificaEmailDip.checked,
                 stato_attivo: true,
@@ -4057,6 +4178,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 throw new Error("Errore durante il salvataggio dell'anagrafica.");
             }
 
+            if (typeof svuotaBozze === 'function') svuotaBozze();
             nascondiMessaggioBottone('msg_stato_dipendente');
             chiudiFormDipendente();
             caricaDipendenti();

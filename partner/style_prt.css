@@ -250,6 +250,11 @@ textarea.input {
     color: #777777;
 }
 
+.input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .pass-box {
     position: relative;
 }
