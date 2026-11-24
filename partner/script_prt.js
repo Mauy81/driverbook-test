@@ -1044,6 +1044,7 @@ async function caricaDatiDashboardPartner() {
                 if (document.getElementById('profilo_intestatario_conto')) document.getElementById('profilo_intestatario_conto').value = partner.intestatario_conto || '';
                 if (document.getElementById('profilo_ruoloConducenti')) document.getElementById('profilo_ruoloConducenti').value = partner.ruolo_conducenti || '';
                 if (document.getElementById('profilo_autocertificazioneKb')) document.getElementById('profilo_autocertificazioneKb').checked = partner.autocertificazione_kb;
+                if (document.getElementById('profilo_abilitato_guida')) document.getElementById('profilo_abilitato_guida').checked = partner.abilitato_guida !== false;
                 if (document.getElementById('profilo_zonaOperativa')) document.getElementById('profilo_zonaOperativa').value = partner.zona_operativa || '';
 
                 if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
@@ -1191,6 +1192,7 @@ async function aggiornaProfilo(event) {
                 intestatario_conto: document.getElementById('profilo_intestatario_conto').value,
                 ruolo_conducenti: document.getElementById('profilo_ruoloConducenti').value,
                 autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
+                abilitato_guida: document.getElementById('profilo_abilitato_guida') ? document.getElementById('profilo_abilitato_guida').checked : true,
                 zona_operativa: document.getElementById('profilo_zonaOperativa').value,
                 notifica_push: document.getElementById('profilo_notificaPush').checked,
                 notifica_email: false
@@ -2116,7 +2118,7 @@ let moduloSporco = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.closest('#formLogin') || e.target.closest('.hidden')) {
+        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.hasAttribute('data-no-dirty') || e.target.closest('#formLogin') || e.target.closest('.hidden')) {
             return;
         }
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
@@ -2998,6 +3000,49 @@ function mostraModaleEsito(titolo, messaggio) {
     };
 }
 
+async function recuperaConducentiAbilitatiAzienda(token, idPartnerAzienda) {
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    const [partnerRes, dipRes] = await Promise.all([
+        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerAzienda}&select=id_partner,codice_partner,nome_cognome,abilitato_guida`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        }),
+        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_partner=eq.${idPartnerAzienda}&stato_attivo=eq.true&select=id_dipendente,codice_dipendente,nome,cognome,ruolo,abilitato_guida`, {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        })
+    ]);
+
+    const partnerData = partnerRes.ok ? await partnerRes.json() : [];
+    const dipData = dipRes.ok ? await dipRes.json() : [];
+    const partner = partnerData.length > 0 ? partnerData[0] : null;
+
+    const dipendentiAbilitati = dipData
+        .filter(d => d.ruolo === 'AUTISTA' || (d.ruolo === 'OPERATIVO' && d.abilitato_guida === true))
+        .sort((a, b) => {
+            const cmpCognome = (a.cognome || '').localeCompare(b.cognome || '', 'it', { sensitivity: 'base' });
+            if (cmpCognome !== 0) return cmpCognome;
+            return (a.nome || '').localeCompare(b.nome || '', 'it', { sensitivity: 'base' });
+        });
+
+    const conducenti = dipendentiAbilitati.map(d => ({
+        tipo: 'dipendente',
+        codice: d.codice_dipendente,
+        id_dipendente: d.id_dipendente,
+        label: `${d.cognome || ''} ${d.nome || ''}`.trim()
+    }));
+
+    if (partner && partner.abilitato_guida !== false) {
+        conducenti.push({
+            tipo: 'partner',
+            codice: partner.codice_partner,
+            id_dipendente: null,
+            label: partner.nome_cognome || partner.codice_partner
+        });
+    }
+
+    return conducenti;
+}
+
 async function accettaCorsa(codice, bottone) {
     const idMsgCorsa = `msg_corsa_${codice}`;
     if (bottone) {
@@ -3020,6 +3065,23 @@ async function accettaCorsa(codice, bottone) {
         const codicePartner = contesto.codicePartnerAzienda;
         const idPartnerTarget = contesto.idPartnerAzienda;
 
+        const conducentiAbilitati = await recuperaConducentiAbilitatiAzienda(token, idPartnerTarget);
+        const payloadAccettazione = conducentiAbilitati.length === 1
+            ? {
+                stato: "ASSEGNATO",
+                codice_partner_assegnato: codicePartner,
+                id_partner: idPartnerTarget,
+                codice_autista_assegnato: conducentiAbilitati[0].codice,
+                id_dipendente: conducentiAbilitati[0].id_dipendente
+            }
+            : {
+                stato: "CONFERMATO",
+                codice_partner_assegnato: codicePartner,
+                id_partner: idPartnerTarget,
+                codice_autista_assegnato: null,
+                id_dipendente: null
+            };
+
         const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codice)}&stato=eq.IN_ATTESA`, {
             method: "PATCH",
             headers: {
@@ -3028,11 +3090,7 @@ async function accettaCorsa(codice, bottone) {
                 "Content-Type": "application/json",
                 "Prefer": "return=representation"
             },
-            body: JSON.stringify({
-                stato: "ASSEGNATO",
-                codice_partner_assegnato: codicePartner,
-                id_partner: idPartnerTarget
-            })
+            body: JSON.stringify(payloadAccettazione)
         });
 
         if (!updateRes.ok) throw new Error("Errore aggiornamento database");
@@ -3586,10 +3644,11 @@ async function caricaServiziCalendario() {
             return;
         }
         
+        const conducentiDisponibili = await recuperaConducentiAbilitatiAzienda(token, contesto.idPartnerAzienda);
         const template = document.getElementById('template_calendario_card');
 
         servizi.forEach(servizio => {
-            const isAssegnato = servizio.autista_assegnato ? true : false;
+            const isAssegnato = servizio.stato === 'ASSEGNATO' && !!servizio.codice_autista_assegnato;
             
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector('.card-bacheca-minimal');
@@ -3697,6 +3756,92 @@ async function caricaServiziCalendario() {
             
             const importoFormattato = servizio.prezzo_totale ? servizio.prezzo_totale.toFixed(2).replace('.', ',') : '0,00';
             clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${importoFormattato} €`;
+
+            const selectAutista = clone.querySelector('[data-bind="select_autista"]');
+            const msgAssegnazione = clone.querySelector('[data-bind="msg_assegnazione"]');
+
+            if (selectAutista) {
+                const optDefault = document.createElement('option');
+                optDefault.value = '';
+                optDefault.disabled = true;
+                optDefault.textContent = 'Seleziona autista...';
+                if (!servizio.codice_autista_assegnato) {
+                    optDefault.selected = true;
+                }
+                selectAutista.appendChild(optDefault);
+
+                conducentiDisponibili.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.codice;
+                    opt.textContent = c.label;
+                    if (servizio.codice_autista_assegnato === c.codice) {
+                        opt.selected = true;
+                    }
+                    selectAutista.appendChild(opt);
+                });
+
+                if (servizio.codice_autista_assegnato && !conducentiDisponibili.some(c => c.codice === servizio.codice_autista_assegnato)) {
+                    const optStorico = document.createElement('option');
+                    optStorico.value = servizio.codice_autista_assegnato;
+                    optStorico.textContent = `${servizio.codice_autista_assegnato} (Non attivo)`;
+                    optStorico.selected = true;
+                    selectAutista.appendChild(optStorico);
+                }
+
+                selectAutista.addEventListener('change', async function() {
+                    const codiceScelto = this.value;
+                    if (!codiceScelto) return;
+
+                    const conducenteScelto = conducentiDisponibili.find(c => c.codice === codiceScelto);
+                    if (!conducenteScelto) return;
+
+                    selectAutista.disabled = true;
+                    if (msgAssegnazione) {
+                        msgAssegnazione.textContent = 'Assegnazione in corso...';
+                        msgAssegnazione.classList.add('messaggio-neutro', 'mostra');
+                    }
+
+                    try {
+                        const patchRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(servizio.codice_prenotazione)}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'apikey': chiaveAnon,
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify({
+                                stato: 'ASSEGNATO',
+                                codice_autista_assegnato: conducenteScelto.codice,
+                                id_dipendente: conducenteScelto.id_dipendente
+                            })
+                        });
+
+                        if (!patchRes.ok) throw new Error('Errore assegnazione');
+
+                        badgeStato.textContent = 'ASSEGNATO';
+                        badgeStato.classList.remove('cal-stato-da-assegnare');
+                        badgeStato.classList.add('cal-stato-assegnato');
+
+                        if (msgAssegnazione) {
+                            msgAssegnazione.textContent = 'Autista assegnato!';
+                            msgAssegnazione.classList.add('messaggio-neutro', 'mostra');
+                            setTimeout(() => {
+                                msgAssegnazione.classList.remove('mostra', 'messaggio-neutro');
+                                msgAssegnazione.textContent = '';
+                            }, 3000);
+                        }
+                    } catch (err) {
+                        if (msgAssegnazione) {
+                            msgAssegnazione.classList.remove('messaggio-neutro');
+                            msgAssegnazione.textContent = "Errore durante l'assegnazione. Riprova.";
+                            msgAssegnazione.classList.add('mostra');
+                        }
+                    } finally {
+                        selectAutista.disabled = false;
+                    }
+                });
+            }
 
             contenitore.appendChild(clone);
         });
