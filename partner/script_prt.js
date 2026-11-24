@@ -2532,77 +2532,36 @@ async function caricaFlotta() {
     }
 }
 
-function chiediConfermaEliminazioneVeicolo(targa) {
-    let overlay = document.getElementById('modale_eliminazione_veicolo');
+async function eliminaVeicoloFlotta(targa, card, btnConferma) {
+    btnConferma.disabled = true;
+    btnConferma.textContent = "...";
 
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'modale_eliminazione_veicolo';
-        overlay.className = 'modale-overlay';
-        
-        let modal = document.createElement('div');
-        modal.className = 'modale-box';
-        
-        modal.innerHTML = `
-            <h3 class="modale-titolo">Elimina Veicolo</h3>
-            <p class="modale-testo">Vuoi davvero eliminare questo veicolo dalla flotta?<br><strong class="targa-evidenza">${targa}</strong></p>
-            <div class="modale-bottoni-container">
-                <button id="btn_annulla_eliminazione" class="btn-modale-bianco">NO</button>
-                <button id="btn_conferma_eliminazione" class="btn-modale-bianco">SI</button>
-            </div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
-        document.getElementById('btn_annulla_eliminazione').addEventListener('click', function() {
-            overlay.classList.add('hidden');
-        });
-    } else {
-        overlay.querySelector('.targa-evidenza').innerText = targa;
-    }
-    
-    overlay.classList.remove('hidden');
-    
-    const btnConferma = document.getElementById('btn_conferma_eliminazione');
-    
-    const nuovoBtnConferma = btnConferma.cloneNode(true);
-    btnConferma.parentNode.replaceChild(nuovoBtnConferma, btnConferma);
-    
-    nuovoBtnConferma.addEventListener('click', async function() {
-        nuovoBtnConferma.disabled = true;
-        nuovoBtnConferma.textContent = "...";
-        
-        const token = localStorage.getItem('driverbutler_auth_token');
-        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-        
-        try {
-            const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?targa=eq.${encodeURIComponent(targa)}`, {
-                method: "DELETE",
-                headers: {
-                    "apikey": chiaveAnon,
-                    "Authorization": "Bearer " + token
-                }
-            });
-            
-            if (res.ok) {
-                overlay.classList.add('hidden');
-                const cardDaRimuovere = document.querySelector(`.card-bacheca-minimal[data-targa="${targa}"]`);
-                if(cardDaRimuovere) {
-                    cardDaRimuovere.remove();
-                }
-                const contenitore = document.getElementById('sezione_elenco_veicoli');
-                if (contenitore && contenitore.children.length === 0) {
-                    contenitore.innerHTML = '<div class="msg-lista-info">Nessun veicolo presente nella flotta.</div>';
-                }
+    try {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/veicoli_flotta?targa=eq.${encodeURIComponent(targa)}`, {
+            method: "DELETE",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
             }
-        } catch (err) {
-            console.error(err);
+        });
+
+        if (res.ok) {
+            card.remove();
+            const contenitore = document.getElementById('sezione_elenco_veicoli');
+            if (contenitore && contenitore.children.length === 0) {
+                contenitore.innerHTML = '<div class="msg-lista-info">Nessun veicolo presente nella flotta.</div>';
+            }
+            return;
         }
-        
-        nuovoBtnConferma.disabled = false;
-        nuovoBtnConferma.textContent = "SI";
-    });
+    } catch (err) {
+        console.error(err);
+    }
+
+    btnConferma.disabled = false;
+    btnConferma.textContent = "SI";
 }
 
 function generaCardVeicolo(modello, posti, targa) {
@@ -2614,19 +2573,24 @@ function generaCardVeicolo(modello, posti, targa) {
     const card = clone.querySelector('.card-bacheca-minimal');
     
     card.setAttribute('data-targa', targa);
-    clone.querySelector('[data-bind="modello_completo"]').textContent = modello;
-    clone.querySelector('[data-bind="targa"]').textContent = targa;
 
-    const spanPosti = clone.querySelector('[data-bind="posti"]');
-    if (modello === 'CLASSE V' && posti) {
-        spanPosti.textContent = `VAN ${posti} POSTI`;
-    } else {
-        spanPosti.innerHTML = '&nbsp;';
-    }
+    const testoIntestazione = (modello === 'CLASSE V' && posti)
+        ? `${modello} - ${posti} PASSEGGERI - ${targa}`
+        : `${modello} - ${targa}`;
 
-    const btnElimina = clone.querySelector('[data-bind-action="elimina"]');
-    btnElimina.onclick = function() {
-        chiediConfermaEliminazioneVeicolo(targa);
+    clone.querySelector('[data-bind="intestazione_veicolo"]').textContent = testoIntestazione;
+
+    clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+        card.classList.toggle('aperta');
+    };
+
+    clone.querySelector('[data-bind-action="annulla_elimina"]').onclick = function() {
+        card.classList.remove('aperta');
+    };
+
+    const btnConferma = clone.querySelector('[data-bind-action="conferma_elimina"]');
+    btnConferma.onclick = function() {
+        eliminaVeicoloFlotta(targa, card, btnConferma);
     };
 
     contenitore.appendChild(clone);

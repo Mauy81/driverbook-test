@@ -41,7 +41,7 @@
                     <div class="form-group hidden" id="gruppo_posti_v">
                         <label class="label" for="veicolo_posti">Posti Passeggeri effettivi</label>
                         <select id="veicolo_posti" class="input" required>
-                            <option value="" disabled selected>Seleziona posti...</option>
+                            <option value="" disabled selected>Seleziona passeggeri...</option>
                             <option value="4">4</option>
                             <option value="5">5</option>
                             <option value="6">6</option>
@@ -91,21 +91,25 @@
     
     <template id="template_card_veicolo">
         <div class="card-bacheca-minimal" data-targa="">
-            <div class="bacheca-header-touch">
+            <div class="bacheca-header-touch" data-bind-action="toggle">
                 <div class="bacheca-info-sintesi">
                     <div class="bacheca-riga-intestazione">
                         <div class="bacheca-dati-servizio">
-                            <span class="bacheca-data-evidenziata" data-bind="modello_completo"></span>
-                            <span data-bind="targa"></span>
+                            <span class="bacheca-data-evidenziata" data-bind="intestazione_veicolo"></span>
                         </div>
                     </div>
-                    <div class="calendario-riga-indirizzo">
-                        <span class="bacheca-label-indirizzo" data-bind="posti">&nbsp;</span>
+                </div>
+                <svg class="icona-tendina-mini" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+
+            <div class="bacheca-body-dettaglio">
+                <div class="checkout-style-block margine-bacheca-dettaglio">
+                    <div class="checkout-style-value">Vuoi eliminare questo veicolo dalla flotta?</div>
+                    <div class="btn-coppia form-bottoni-veicolo margine-bottoni-dettaglio">
+                        <button type="button" data-bind-action="annulla_elimina" class="btn testo-piccolo">NO</button>
+                        <button type="button" data-bind-action="conferma_elimina" class="btn testo-piccolo">SI</button>
                     </div>
                 </div>
-                <button type="button" class="btn-elimina-veicolo" data-bind-action="elimina">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>
             </div>
         </div>
     </template>
