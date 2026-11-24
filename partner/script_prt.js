@@ -4105,7 +4105,16 @@ async function caricaDipendenti() {
 
         const template = document.getElementById('template_dipendente_card');
 
-        dipendenti.forEach(dip => {
+        const ordinaPerCognome = (a, b) => {
+            const cmpCognome = (a.cognome || '').localeCompare(b.cognome || '', 'it', { sensitivity: 'base' });
+            if (cmpCognome !== 0) return cmpCognome;
+            return (a.nome || '').localeCompare(b.nome || '', 'it', { sensitivity: 'base' });
+        };
+
+        const dipendentiAttivi = dipendenti.filter(d => d.stato_attivo === true).sort(ordinaPerCognome);
+        const dipendentiSospesi = dipendenti.filter(d => d.stato_attivo !== true).sort(ordinaPerCognome);
+
+        const renderizzaDipendente = (dip) => {
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector('.card-bacheca-minimal');
 
@@ -4151,7 +4160,18 @@ async function caricaDipendenti() {
             };
 
             contenitore.appendChild(clone);
-        });
+        };
+
+        dipendentiAttivi.forEach(renderizzaDipendente);
+
+        if (dipendentiSospesi.length > 0) {
+            const separatore = document.createElement('div');
+            separatore.className = 'separatore-bacheca';
+            separatore.innerHTML = '<span>Dipendenti sospesi</span>';
+            contenitore.appendChild(separatore);
+
+            dipendentiSospesi.forEach(renderizzaDipendente);
+        }
         
     } catch (e) {
         contenitore.innerHTML = '<div class="msg-lista-errore">Errore di caricamento.</div>';
