@@ -29,28 +29,28 @@
                 <div class="auth-header">
                     <h2 id="titolo_form_dipendente">Nuovo Dipendente</h2>
                 </div>
-                <form id="formGestioneDipendente">
+                <form id="formGestioneDipendente" autocomplete="off">
                     <div class="form-group">
                         <label class="label">Nome</label>
-                        <input type="text" id="dip_nome" class="input" required>
+                        <input type="text" id="dip_nome" class="input" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="label">Cognome</label>
-                        <input type="text" id="dip_cognome" class="input" required>
+                        <input type="text" id="dip_cognome" class="input" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="label">Email (Username di accesso)</label>
-                        <input type="email" id="dip_email" class="input" required>
+                        <input type="email" id="dip_email" class="input" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="label">Telefono Cellulare</label>
-                        <input type="tel" id="dip_telefono" class="input" required>
+                        <input type="tel" id="dip_telefono" class="input" required autocomplete="off">
                     </div>
                     <div id="blocco_password_dipendente">
                         <div class="form-group">
                             <label class="label">Password Provvisoria</label>
                             <div class="pass-box">
-                                <input type="password" id="dip_password" class="input" required>
+                                <input type="password" id="dip_password" class="input" required autocomplete="new-password">
                                 <button type="button" class="eye-btn" data-target-input="dip_password">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>
@@ -61,7 +61,7 @@
                         <div class="form-group">
                             <label class="label">Conferma Password Provvisoria</label>
                             <div class="pass-box">
-                                <input type="password" id="dip_conferma_password" class="input" required>
+                                <input type="password" id="dip_conferma_password" class="input" required autocomplete="new-password">
                                 <button type="button" class="eye-btn" data-target-input="dip_conferma_password">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>

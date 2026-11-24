@@ -2116,7 +2116,7 @@ let moduloSporco = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.closest('#formLogin')) {
+        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.closest('#formLogin') || e.target.closest('.hidden')) {
             return;
         }
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
@@ -3818,6 +3818,7 @@ document.addEventListener("DOMContentLoaded", function() {
         btnApriDip.classList.add('hidden');
         elencoDipendenti.classList.add('hidden');
         document.querySelector('.login-wrapper').classList.add('padding-bottom-extra');
+        if (typeof moduloSporco !== 'undefined') moduloSporco = false;
         window.scrollTo(0, 0);
     }
 
