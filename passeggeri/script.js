@@ -453,24 +453,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    const checkPush = document.getElementById('profilo_notificaPush');
-    if (checkPush) {
-        checkPush.addEventListener('change', function() {
-            if (typeof validaNotificheDashboard === 'function') {
-                validaNotificheDashboard();
-            }
-        });
-    }
-
-    const checkEmail = document.getElementById('profilo_notificaEmail');
-    if (checkEmail) {
-        checkEmail.addEventListener('change', function() {
-            if (typeof validaNotificheDashboard === 'function') {
-                validaNotificheDashboard();
-            }
-        });
-    }
-
     const btnModificaPassword = document.getElementById('btn_modifica_password');
     if (btnModificaPassword) {
         btnModificaPassword.addEventListener('click', function() {
@@ -619,12 +601,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const chkRichiedeFattura = document.getElementById('richiedeFattura');
     if (chkRichiedeFattura) chkRichiedeFattura.addEventListener('change', toggleFatturazione);
-
-    const chkNotificaPush = document.getElementById('notificaPush');
-    if (chkNotificaPush) chkNotificaPush.addEventListener('change', validaNotifiche);
-
-    const chkNotificaEmail = document.getElementById('notificaEmail');
-    if (chkNotificaEmail) chkNotificaEmail.addEventListener('change', validaNotifiche);
 
     const btnConfermaPrenotazione = document.getElementById('btn_conferma_prenotazione');
     if (btnConfermaPrenotazione) btnConfermaPrenotazione.addEventListener('click', confermaPrenotazione);
@@ -1044,38 +1020,6 @@ function verificaCoincidenzaPassword() {
     }
 
     if (pass !== confermaPass) {
-        msgErrore.classList.add('mostra');
-        return false;
-    } else {
-        msgErrore.classList.remove('mostra');
-        return true;
-    }
-}
-
-function validaNotifiche() {
-    const notificaPush = document.getElementById('notificaPush').checked;
-    const notificaEmail = document.getElementById('notificaEmail').checked;
-    const msgErrore = document.getElementById('errore_notifiche');
-
-    if (!msgErrore) return true;
-
-    if (!notificaPush && !notificaEmail) {
-        msgErrore.classList.add('mostra');
-        return false;
-    } else {
-        msgErrore.classList.remove('mostra');
-        return true;
-    }
-}
-
-function validaNotificheDashboard() {
-    const notificaPush = document.getElementById('profilo_notificaPush').checked;
-    const notificaEmail = document.getElementById('profilo_notificaEmail').checked;
-    const msgErrore = document.getElementById('errore_notifiche_dashboard');
-
-    if (!msgErrore) return true;
-
-    if (!notificaPush && !notificaEmail) {
         msgErrore.classList.add('mostra');
         return false;
     } else {
@@ -1892,7 +1836,7 @@ async function inviaRegistrazionePasseggero(event) {
 
     nascondiMessaggioBottone('messaggio_errore_server');
 
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
+    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword()) {
         return;
     }
 
@@ -1942,8 +1886,8 @@ async function inviaRegistrazionePasseggero(event) {
             indirizzo_cap: richiedeFattura ? document.getElementById('indirizzo_cap').value : null,
             indirizzo_citta: richiedeFattura ? document.getElementById('indirizzo_citta').value : null,
             indirizzo_provincia: richiedeFattura ? document.getElementById('indirizzo_provincia').value : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
+            notifica_push: true,
+            notifica_email: false,
             linguaggio: linguaAttuale
         };
 
@@ -2197,7 +2141,6 @@ async function caricaDatiDashboardPasseggero() {
                 }
 
                 document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
-                document.getElementById('profilo_notificaEmail').checked = passeggero.notifica_email;
             }
             
             if (typeof applicaBozze === 'function') applicaBozze();
@@ -2218,8 +2161,6 @@ async function aggiornaProfilo(event) {
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
     nascondiMessaggioBottone('msg_stato_profilo');
-
-    if (!validaNotificheDashboard()) return;
 
     const btnSubmit = document.querySelector('#formModificaProfilo button[type="submit"]');
 
@@ -2272,7 +2213,7 @@ async function aggiornaProfilo(event) {
             indirizzo_citta: richiedeFattura ? document.getElementById('profilo_indirizzo_citta').value : null,
             indirizzo_provincia: richiedeFattura ? document.getElementById('profilo_indirizzo_provincia').value : null,
             notifica_push: document.getElementById('profilo_notificaPush').checked,
-            notifica_email: document.getElementById('profilo_notificaEmail').checked
+            notifica_email: false
         };
 
         const dbRes = await fetch(urlPatch, {
