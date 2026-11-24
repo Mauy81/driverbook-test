@@ -229,24 +229,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    const checkPush = document.getElementById('profilo_notificaPush');
-    if (checkPush) {
-        checkPush.addEventListener('change', function() {
-            if (typeof validaNotificheDashboard === 'function') {
-                validaNotificheDashboard();
-            }
-        });
-    }
-
-    const checkEmail = document.getElementById('profilo_notificaEmail');
-    if (checkEmail) {
-        checkEmail.addEventListener('change', function() {
-            if (typeof validaNotificheDashboard === 'function') {
-                validaNotificheDashboard();
-            }
-        });
-    }
-
     const btnModificaPassword = document.getElementById('btn_modifica_password');
     if (btnModificaPassword) {
         btnModificaPassword.addEventListener('click', function() {
@@ -656,44 +638,12 @@ function verificaCoincidenzaPassword() {
     }
 }
 
-function validaNotifiche() {
-    const notificaPush = document.getElementById('notificaPush').checked;
-    const notificaEmail = document.getElementById('notificaEmail').checked;
-    const msgErrore = document.getElementById('errore_notifiche');
-
-    if (!msgErrore) return true;
-
-    if (!notificaPush && !notificaEmail) {
-        msgErrore.classList.add('mostra');
-        return false;
-    } else {
-        msgErrore.classList.remove('mostra');
-        return true;
-    }
-}
-
-function validaNotificheDashboard() {
-    const notificaPush = document.getElementById('profilo_notificaPush').checked;
-    const notificaEmail = document.getElementById('profilo_notificaEmail').checked;
-    const msgErrore = document.getElementById('errore_notifiche_dashboard');
-
-    if (!msgErrore) return true;
-
-    if (!notificaPush && !notificaEmail) {
-        msgErrore.classList.add('mostra');
-        return false;
-    } else {
-        msgErrore.classList.remove('mostra');
-        return true;
-    }
-}
-
 async function inviaRegistrazione(event) {
     event.preventDefault();
 
     nascondiMessaggioBottone('messaggio_errore_server');
 
-    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword() || !validaNotifiche()) {
+    if (!validaComplessitaPassword() || !verificaCoincidenzaPassword()) {
         return;
     }
 
@@ -747,8 +697,8 @@ async function inviaRegistrazione(event) {
             zona_operativa: document.getElementById('zonaOperativa').value,
             zona_operativa_lat: latLngZonaOperativa ? latLngZonaOperativa.lat : null,
             zona_operativa_lng: latLngZonaOperativa ? latLngZonaOperativa.lng : null,
-            notifica_push: document.getElementById('notificaPush').checked,
-            notifica_email: document.getElementById('notificaEmail').checked,
+            notifica_push: true,
+            notifica_email: false,
             linguaggio: 'it'
         };
 
@@ -1085,7 +1035,6 @@ async function caricaDatiDashboardPartner() {
                 if (document.getElementById('profilo_zonaOperativa')) document.getElementById('profilo_zonaOperativa').value = partner.zona_operativa || '';
 
                 if (document.getElementById('profilo_notificaPush')) document.getElementById('profilo_notificaPush').checked = partner.notifica_push;
-                if (document.getElementById('profilo_notificaEmail')) document.getElementById('profilo_notificaEmail').checked = partner.notifica_email;
             }
         } else {
             const dip = contesto.dipendente;
@@ -1160,9 +1109,6 @@ async function caricaDatiDashboardPartner() {
                 if (document.getElementById('profilo_notificaPush')) {
                     document.getElementById('profilo_notificaPush').checked = !!dip.notifica_push;
                 }
-                if (document.getElementById('profilo_notificaEmail')) {
-                    document.getElementById('profilo_notificaEmail').checked = !!dip.notifica_email;
-                }
 
                 const selRuolo = document.getElementById('profilo_dip_ruolo');
                 const chkGuida = document.getElementById('profilo_dip_abilitato_guida');
@@ -1191,10 +1137,6 @@ async function aggiornaProfilo(event) {
     event.preventDefault();
 
     nascondiMessaggioBottone('msg_stato_profilo');
-
-    if (!validaNotificheDashboard()) {
-        return;
-    }
 
     const btnSubmit = document.querySelector('#formModificaProfilo button[type="submit"]');
     btnSubmit.disabled = true;
@@ -1239,7 +1181,7 @@ async function aggiornaProfilo(event) {
                 autocertificazione_kb: document.getElementById('profilo_autocertificazioneKb').checked,
                 zona_operativa: document.getElementById('profilo_zonaOperativa').value,
                 notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
+                notifica_email: false
             };
             if (latLngProfiloZonaOperativa) {
                 corpoDati.zona_operativa_lat = latLngProfiloZonaOperativa.lat;
@@ -1288,7 +1230,7 @@ async function aggiornaProfilo(event) {
                 numero_ruolo_provincia: abilitatoGuida && numRuoloEl ? (numRuoloEl.value.trim() || null) : null,
                 autocert_patente: abilitatoGuida && patenteEl ? patenteEl.checked : false,
                 notifica_push: document.getElementById('profilo_notificaPush').checked,
-                notifica_email: document.getElementById('profilo_notificaEmail').checked
+                notifica_email: false
             };
 
             if (nuovaEmail === userData.email) {
@@ -3807,24 +3749,6 @@ document.addEventListener("DOMContentLoaded", function() {
         inputConfPassDip.addEventListener('input', validaCoincidenzaDipendente);
     }
 
-    const checkNotificaPushDip = document.getElementById('dip_notifica_push');
-    const checkNotificaEmailDip = document.getElementById('dip_notifica_email');
-    const errNotificheDip = document.getElementById('errore_notifiche_dip');
-
-    function validaNotificheDipendente() {
-        if (!checkNotificaPushDip.checked && !checkNotificaEmailDip.checked) {
-            errNotificheDip.classList.add('mostra');
-            return false;
-        }
-        errNotificheDip.classList.remove('mostra');
-        return true;
-    }
-
-    if (checkNotificaPushDip && checkNotificaEmailDip) {
-        checkNotificaPushDip.addEventListener('change', validaNotificheDipendente);
-        checkNotificaEmailDip.addEventListener('change', validaNotificheDipendente);
-    }
-
     function aggiornaCampiGuida() {
         const ruolo = selectRuolo.value;
         const isGuida = (ruolo === 'AUTISTA') || (ruolo === 'OPERATIVO' && checkAbilitatoGuida.checked);
@@ -3890,7 +3814,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (inputEmailDip) inputEmailDip.disabled = false;
         if (errPassDip) errPassDip.classList.remove('mostra');
         if (errConfPassDip) errConfPassDip.classList.remove('mostra');
-        if (errNotificheDip) errNotificheDip.classList.remove('mostra');
         nascondiMessaggioBottone('msg_stato_dipendente');
         aggiornaCampiGuida();
         if (typeof moduloSporco !== 'undefined') moduloSporco = false;
@@ -3900,7 +3823,6 @@ document.addEventListener("DOMContentLoaded", function() {
         formGestioneDip.reset();
         if (errPassDip) errPassDip.classList.remove('mostra');
         if (errConfPassDip) errConfPassDip.classList.remove('mostra');
-        if (errNotificheDip) errNotificheDip.classList.remove('mostra');
         nascondiMessaggioBottone('msg_stato_dipendente');
 
         idDipendenteInModifica = dip.id_dipendente;
@@ -3919,8 +3841,6 @@ document.addEventListener("DOMContentLoaded", function() {
         checkAbilitatoGuida.checked = !!dip.abilitato_guida;
         document.getElementById('dip_numero_ruolo').value = dip.numero_ruolo_provincia || '';
         checkAutocertPatente.checked = !!dip.autocert_patente;
-        checkNotificaPushDip.checked = !!dip.notifica_push;
-        checkNotificaEmailDip.checked = !!dip.notifica_email;
 
         aggiornaCampiGuida();
         if (typeof svuotaBozze === 'function') svuotaBozze();
@@ -3949,11 +3869,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const isModifica = idDipendenteInModifica !== null;
 
         if (!isModifica) {
-            if (!validaPasswordDipendente() || !validaCoincidenzaDipendente() || !validaNotificheDipendente()) {
-                return;
-            }
-        } else {
-            if (!validaNotificheDipendente()) {
+            if (!validaPasswordDipendente() || !validaCoincidenzaDipendente()) {
                 return;
             }
         }
@@ -3984,9 +3900,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     ruolo: ruoloScelto,
                     abilitato_guida: abilitatoGuida,
                     numero_ruolo_provincia: abilitatoGuida ? (document.getElementById('dip_numero_ruolo').value.trim() || null) : null,
-                    autocert_patente: abilitatoGuida ? checkAutocertPatente.checked : false,
-                    notifica_push: checkNotificaPushDip.checked,
-                    notifica_email: checkNotificaEmailDip.checked
+                    autocert_patente: abilitatoGuida ? checkAutocertPatente.checked : false
                 };
 
                 const updateRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${idTarget}`, {
@@ -4111,8 +4025,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 abilitato_guida: abilitatoGuida,
                 numero_ruolo_provincia: abilitatoGuida ? (document.getElementById('dip_numero_ruolo').value.trim() || null) : null,
                 autocert_patente: abilitatoGuida ? checkAutocertPatente.checked : false,
-                notifica_push: checkNotificaPushDip.checked,
-                notifica_email: checkNotificaEmailDip.checked,
+                notifica_push: true,
+                notifica_email: false,
                 stato_attivo: true,
                 linguaggio: 'it'
             };
@@ -4371,13 +4285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         inputOtp.addEventListener('input', function() {
             nascondiMessaggioBottone('messaggio_errore_otp');
         });
-    }
-
-    const checkPush = document.getElementById('notificaPush');
-    const checkEmail = document.getElementById('notificaEmail');
-    if (checkPush && checkEmail) {
-        checkPush.addEventListener('change', validaNotifiche);
-        checkEmail.addEventListener('change', validaNotifiche);
     }
     
     const inputPass = document.getElementById('password');
