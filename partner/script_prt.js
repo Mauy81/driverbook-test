@@ -2621,7 +2621,7 @@ function generaCardVeicolo(modello, posti, targa) {
     if (modello === 'CLASSE V' && posti) {
         spanPosti.textContent = `VAN ${posti} POSTI`;
     } else {
-        spanPosti.textContent = '';
+        spanPosti.innerHTML = '&nbsp;';
     }
 
     const btnElimina = clone.querySelector('[data-bind-action="elimina"]');

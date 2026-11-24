@@ -91,18 +91,16 @@
     
     <template id="template_card_veicolo">
         <div class="card-bacheca-minimal" data-targa="">
-            <div class="bacheca-header-touch no-click">
+            <div class="bacheca-header-touch">
                 <div class="bacheca-info-sintesi">
                     <div class="bacheca-riga-intestazione">
                         <div class="bacheca-dati-servizio">
                             <span class="bacheca-data-evidenziata" data-bind="modello_completo"></span>
-                        </div>
-                        <div class="bacheca-prezzo-sintesi">
-                            <span class="cal-badge-stato" data-bind="posti"></span>
+                            <span data-bind="targa"></span>
                         </div>
                     </div>
                     <div class="calendario-riga-indirizzo">
-                        <span class="bacheca-label-indirizzo">TARGA:</span> <span class="bacheca-valore-indirizzo" data-bind="targa"></span>
+                        <span class="bacheca-label-indirizzo" data-bind="posti">&nbsp;</span>
                     </div>
                 </div>
                 <button type="button" class="btn-elimina-veicolo" data-bind-action="elimina">
