@@ -95,7 +95,9 @@
                 <div class="bacheca-info-sintesi">
                     <div class="bacheca-riga-intestazione">
                         <div class="bacheca-dati-servizio">
-                            <span class="bacheca-data-evidenziata" data-bind="intestazione_veicolo"></span>
+                            <span class="bacheca-data-evidenziata" data-bind="modello"></span>
+                            <span data-bind="targa"></span>
+                            <span data-bind="posti" class="hidden"></span>
                         </div>
                     </div>
                 </div>
@@ -105,9 +107,8 @@
             <div class="bacheca-body-dettaglio">
                 <div class="checkout-style-block margine-bacheca-dettaglio">
                     <div class="checkout-style-value">Vuoi eliminare questo veicolo dalla flotta?</div>
-                    <div class="btn-coppia form-bottoni-veicolo margine-bottoni-dettaglio">
-                        <button type="button" data-bind-action="annulla_elimina" class="btn testo-piccolo">NO</button>
-                        <button type="button" data-bind-action="conferma_elimina" class="btn testo-piccolo">SI</button>
+                    <div class="margine-bottoni-dettaglio">
+                        <button type="button" data-bind-action="conferma_elimina" class="btn btn-compatto testo-piccolo">SI</button>
                     </div>
                 </div>
             </div>

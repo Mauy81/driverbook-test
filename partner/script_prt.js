@@ -2573,19 +2573,17 @@ function generaCardVeicolo(modello, posti, targa) {
     const card = clone.querySelector('.card-bacheca-minimal');
     
     card.setAttribute('data-targa', targa);
+    clone.querySelector('[data-bind="modello"]').textContent = modello;
+    clone.querySelector('[data-bind="targa"]').textContent = targa;
 
-    const testoIntestazione = (modello === 'CLASSE V' && posti)
-        ? `${modello} - ${posti} PASSEGGERI - ${targa}`
-        : `${modello} - ${targa}`;
-
-    clone.querySelector('[data-bind="intestazione_veicolo"]').textContent = testoIntestazione;
+    const spanPosti = clone.querySelector('[data-bind="posti"]');
+    if (modello === 'CLASSE V' && posti) {
+        spanPosti.textContent = `${posti} PASSEGGERI`;
+        spanPosti.classList.remove('hidden');
+    }
 
     clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
         card.classList.toggle('aperta');
-    };
-
-    clone.querySelector('[data-bind-action="annulla_elimina"]').onclick = function() {
-        card.classList.remove('aperta');
     };
 
     const btnConferma = clone.querySelector('[data-bind-action="conferma_elimina"]');
