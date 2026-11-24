@@ -2587,7 +2587,7 @@ function chiediConfermaEliminazioneVeicolo(targa) {
             
             if (res.ok) {
                 overlay.classList.add('hidden');
-                const cardDaRimuovere = document.querySelector(`.vettura-card[data-targa="${targa}"]`);
+                const cardDaRimuovere = document.querySelector(`.card-bacheca-minimal[data-targa="${targa}"]`);
                 if(cardDaRimuovere) {
                     cardDaRimuovere.remove();
                 }
@@ -2610,28 +2610,18 @@ function generaCardVeicolo(modello, posti, targa) {
     const template = document.getElementById('template_card_veicolo');
     if (!contenitore || !template) return;
 
-    let classeVettura = '';
-    let testoPosti = '';
-    
-    if (modello === 'CLASSE V') {
-        classeVettura = 'V';
-        testoPosti = `VAN ${posti} POSTI`;
-    } else if (modello === 'CLASSE E') {
-        classeVettura = 'E';
-    } else if (modello === 'CLASSE S') {
-        classeVettura = 'S';
-    }
-
     const clone = template.content.cloneNode(true);
-    const card = clone.querySelector('.vettura-card');
+    const card = clone.querySelector('.card-bacheca-minimal');
     
     card.setAttribute('data-targa', targa);
-    clone.querySelector('[data-bind="classe"]').textContent = classeVettura;
+    clone.querySelector('[data-bind="modello_completo"]').textContent = modello;
     clone.querySelector('[data-bind="targa"]').textContent = targa;
 
-    if (classeVettura === 'V') {
-        clone.querySelector('[data-bind-container="posti_block"]').classList.remove('hidden');
-        clone.querySelector('[data-bind="posti"]').textContent = testoPosti;
+    const spanPosti = clone.querySelector('[data-bind="posti"]');
+    if (modello === 'CLASSE V' && posti) {
+        spanPosti.textContent = `VAN ${posti} POSTI`;
+    } else {
+        spanPosti.textContent = '';
     }
 
     const btnElimina = clone.querySelector('[data-bind-action="elimina"]');

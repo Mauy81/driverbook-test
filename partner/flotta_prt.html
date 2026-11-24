@@ -90,16 +90,24 @@
     
     
     <template id="template_card_veicolo">
-        <div class="vettura-card vettura-card-mini" data-targa="">
-            <div class="card-flex-container">
-                <div class="testo-card-veicolo"><span class="testo-label">CLASSE</span> <span class="testo-valore" data-bind="classe"></span></div>
-                <div class="testo-card-veicolo hidden" data-bind-container="posti_block"><span class="testo-label" data-bind="posti"></span></div>
-            </div>
-            <div class="card-flex-container">
-                <div class="testo-card-veicolo"><span class="testo-valore" data-bind="targa"></span></div>
-                <div class="btn-elimina-veicolo" data-bind-action="elimina">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <div class="card-bacheca-minimal" data-targa="">
+            <div class="bacheca-header-touch no-click">
+                <div class="bacheca-info-sintesi">
+                    <div class="bacheca-riga-intestazione">
+                        <div class="bacheca-dati-servizio">
+                            <span class="bacheca-data-evidenziata" data-bind="modello_completo"></span>
+                        </div>
+                        <div class="bacheca-prezzo-sintesi">
+                            <span class="cal-badge-stato" data-bind="posti"></span>
+                        </div>
+                    </div>
+                    <div class="calendario-riga-indirizzo">
+                        <span class="bacheca-label-indirizzo">TARGA:</span> <span class="bacheca-valore-indirizzo" data-bind="targa"></span>
+                    </div>
                 </div>
+                <button type="button" class="btn-elimina-veicolo" data-bind-action="elimina">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
             </div>
         </div>
     </template>
