@@ -1657,12 +1657,12 @@ body.page-calendario .login-wrapper,
 }
 
 .page-flotta .bacheca-dati-servizio {
-    column-gap: 28px;
+    column-gap: 45px;
 }
 
 @media (max-width: 450px) {
     .page-flotta .bacheca-dati-servizio {
-        column-gap: 18px;
+        column-gap: 25px;
     }
 }
 
