@@ -385,8 +385,14 @@ async function inviaLogin(event) {
         if (datiPartner && datiPartner.length > 0) {
             ruoloAssegnato = 'partner';
         } else {
-            const checkDipendente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}&select=ruolo,stato_attivo`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
+            const checkDipendente = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/check_stato_dipendente", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + datiSessione.access_token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
             });
             const datiDipendente = await checkDipendente.json();
 
@@ -394,12 +400,12 @@ async function inviaLogin(event) {
                 throw new Error("Account non autorizzato per questa App.");
             }
 
-            if (datiDipendente[0].stato_attivo !== true) {
-                throw new Error("Account sospeso. Contatta il tuo amministratore.");
-            }
-
             if (datiDipendente[0].ruolo === 'AUTISTA') {
                 throw new Error("Accesso non consentito. Sei registrato come Autista, scarica e utilizza l'App Autisti dedicata.");
+            }
+
+            if (datiDipendente[0].stato_attivo !== true) {
+                throw new Error("Account sospeso.");
             }
 
             ruoloAssegnato = 'operativo';
@@ -497,19 +503,25 @@ async function verificaOtpLogin() {
         if (datiPartner && datiPartner.length > 0) {
             ruoloAssegnato = 'partner';
         } else {
-            const checkDipendente = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}&select=ruolo,stato_attivo`, {
-                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + datiSessione.access_token }
+            const checkDipendente = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/check_stato_dipendente", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + datiSessione.access_token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
             });
             const datiDipendente = await checkDipendente.json();
 
             if (!datiDipendente || datiDipendente.length === 0) {
                 throw new Error("Account non autorizzato per questa App.");
             }
-            if (datiDipendente[0].stato_attivo !== true) {
-                throw new Error("Account sospeso. Contatta il tuo amministratore.");
-            }
             if (datiDipendente[0].ruolo === 'AUTISTA') {
                 throw new Error("Accesso non consentito. Sei registrato come Autista, scarica e utilizza l'App Autisti dedicata.");
+            }
+            if (datiDipendente[0].stato_attivo !== true) {
+                throw new Error("Account sospeso.");
             }
             ruoloAssegnato = 'operativo';
         }
@@ -2537,36 +2549,43 @@ function generaCardVeicolo(modello, posti, targa) {
 }
 
 window.applicaBozze = function() {
-    const blacklistPagineAutosave = ['login_prt.html', 'pwreset_prt.html', 'index.html'];
+    const blacklistPagineAutosave = ['login_prt.html', 'pwreset_prt.html', 'index.html', 'dipendenti_prt.html', 'flotta_prt.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
     const prefix = 'prt_';
 
-    if (!blacklistPagineAutosave.includes(paginaAutosave)) {
-        localStorage.removeItem(prefix + 'db_draft_' + paginaAutosave + '_swipe_logout_range');
-        document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range):not(#input_data_calendario), textarea, select').forEach(campo => {
-            if (campo.id) {
-                const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
-                if (valoreSalvato !== null) {
-                    if (campo.type === 'checkbox' || campo.type === 'radio') {
-                        campo.checked = (valoreSalvato === 'true');
-                    } else {
-                        campo.value = valoreSalvato;
-                    }
-                    if (typeof moduloSporco !== 'undefined') {
-                        moduloSporco = true;
-                    }
-                    
-                    if (campo.tagName === 'SELECT') {
-                        campo.dispatchEvent(new Event('change'));
-                    }
-                }
+    if (blacklistPagineAutosave.includes(paginaAutosave)) {
+        Object.keys(localStorage).forEach(k => {
+            if (k.startsWith(`${prefix}db_draft_${paginaAutosave}_`)) {
+                localStorage.removeItem(k);
             }
         });
+        return;
     }
+
+    localStorage.removeItem(prefix + 'db_draft_' + paginaAutosave + '_swipe_logout_range');
+    document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range):not(#input_data_calendario), textarea, select').forEach(campo => {
+        if (campo.id) {
+            const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
+            if (valoreSalvato !== null) {
+                if (campo.type === 'checkbox' || campo.type === 'radio') {
+                    campo.checked = (valoreSalvato === 'true');
+                } else {
+                    campo.value = valoreSalvato;
+                }
+                if (typeof moduloSporco !== 'undefined') {
+                    moduloSporco = true;
+                }
+                
+                if (campo.tagName === 'SELECT') {
+                    campo.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+    });
 };
 
 document.addEventListener("DOMContentLoaded", function() {
-    const blacklistPagineAutosave = ['login_prt.html', 'pwreset_prt.html', 'index.html'];
+    const blacklistPagineAutosave = ['login_prt.html', 'pwreset_prt.html', 'index.html', 'dipendenti_prt.html', 'flotta_prt.html'];
     const paginaAutosave = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0].split('#')[0];
     const prefix = 'prt_';
 
@@ -2582,6 +2601,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         });
+    } else if (typeof applicaBozze === 'function') {
+        applicaBozze();
     }
 });
 
@@ -4086,6 +4107,18 @@ async function caricaDipendenti() {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     try {
+        let currentUserId = null;
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+        if (userRes.ok) {
+            const userData = await userRes.json();
+            currentUserId = userData.id;
+        }
+
         const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?order=cognome.asc,nome.asc", {
             headers: {
                 "apikey": chiaveAnon,
@@ -4117,10 +4150,17 @@ async function caricaDipendenti() {
         const renderizzaDipendente = (dip) => {
             const clone = template.content.cloneNode(true);
             const card = clone.querySelector('.card-bacheca-minimal');
+            const isUtenteCorrente = currentUserId && dip.id_dipendente === currentUserId;
 
-            clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
-                card.classList.toggle('aperta');
-            };
+            if (isUtenteCorrente) {
+                card.classList.add('card-dipendente-corrente', 'no-click');
+                const iconaTendina = clone.querySelector('.icona-tendina-mini');
+                if (iconaTendina) iconaTendina.classList.add('hidden');
+            } else {
+                clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+                    card.classList.toggle('aperta');
+                };
+            }
 
             clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
 

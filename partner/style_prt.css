@@ -1812,3 +1812,11 @@ body.page-calendario .login-wrapper,
     text-align: center;
     margin-bottom: 15px;
 }
+
+.card-dipendente-corrente {
+    opacity: 0.45;
+}
+
+.card-dipendente-corrente .bacheca-header-touch {
+    cursor: default;
+}
