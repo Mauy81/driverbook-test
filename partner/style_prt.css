@@ -1656,6 +1656,16 @@ body.page-calendario .login-wrapper,
     }
 }
 
+.page-flotta .bacheca-dati-servizio {
+    column-gap: 28px;
+}
+
+@media (max-width: 450px) {
+    .page-flotta .bacheca-dati-servizio {
+        column-gap: 18px;
+    }
+}
+
 .testo-nota-grigia {
     font-size: 0.85em;
     color: #aaaaaa;
