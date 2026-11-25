@@ -63,6 +63,11 @@ document.addEventListener("DOMContentLoaded", function() {
         document.head.appendChild(linkFavicon);
     }
 
+    if (sessionStorage.getItem('prt_avviso_email_modificata') === 'true') {
+        sessionStorage.removeItem('prt_avviso_email_modificata');
+        mostraModaleEmailModificata();
+    }
+
     if (localStorage.getItem('driverbutler_ricordami') === 'false' && !sessionStorage.getItem('finestra_attiva')) {
         esciAccount();
         return;
@@ -1720,7 +1725,52 @@ async function inviaAssistenza(event) {
     }
 }
 
-async function esciAccount() {
+function mostraModaleEmailModificata() {
+    let overlay = document.getElementById('modale_email_modificata');
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_email_modificata';
+        overlay.className = 'modale-overlay';
+        overlay.innerHTML = `
+            <div class="modale-box">
+                <h3 class="modale-titolo">Email di accesso modificata</h3>
+                <p class="modale-testo">La tua email di accesso è stata modificata. Accedi con il nuovo indirizzo e verifica che la tua ultima operazione sia andata a buon fine.</p>
+                <div class="modale-bottoni-container btn-singolo-container">
+                    <button id="btn_ok_email_modificata" class="btn-modale-bianco">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn_ok_email_modificata').addEventListener('click', function() {
+            overlay.classList.add('hidden');
+        });
+    }
+
+    overlay.classList.remove('hidden');
+}
+
+let disconnessioneForzataInCorso = false;
+const originalFetchPrt = window.fetch.bind(window);
+window.fetch = async function(...args) {
+    const response = await originalFetchPrt(...args);
+    const urlRichiesta = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url ? args[0].url : '');
+
+    if (
+        urlRichiesta.includes('drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user') &&
+        (response.status === 401 || response.status === 403) &&
+        localStorage.getItem('driverbutler_auth_token') &&
+        !disconnessioneForzataInCorso
+    ) {
+        disconnessioneForzataInCorso = true;
+        rinnovaSessioneSilenziosa();
+    }
+
+    return response;
+};
+
+async function esciAccount(sessioneRevocata = false) {
     let endpointCorrente = null;
     let subCorrente = null;
     
@@ -1779,6 +1829,11 @@ async function esciAccount() {
     sessionStorage.removeItem('finestra_attiva');
 	if ('caches' in window) {
         caches.delete('driverbutler-partner-session');
+    }
+    if (sessioneRevocata === true) {
+        sessionStorage.setItem('prt_avviso_email_modificata', 'true');
+        window.location.href = 'login_prt.html';
+        return;
     }
     window.location.href = 'index.html';
 }
@@ -2231,7 +2286,7 @@ async function rinnovaSessioneSilenziosa() {
             console.log("Sessione rinnovata con successo dietro le quinte.");
         } else {
             console.warn("Impossibile rinnovare la sessione. Disconnessione imminente.");
-            esciAccount();
+            esciAccount(true);
         }
     } catch (errore) {
         console.error("Errore di rete durante il rinnovo:", errore);
