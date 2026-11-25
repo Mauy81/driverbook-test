@@ -3007,7 +3007,7 @@ async function recuperaConducentiAbilitatiAzienda(token, idPartnerAzienda) {
         fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerAzienda}&select=id_partner,codice_partner,nome_cognome,abilitato_guida`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         }),
-        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_partner=eq.${idPartnerAzienda}&stato_attivo=eq.true&select=id_dipendente,codice_dipendente,nome,cognome,ruolo,abilitato_guida`, {
+        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_partner=eq.${idPartnerAzienda}&stato_attivo=eq.true&email_verificata=eq.true&select=id_dipendente,codice_dipendente,nome,cognome,ruolo,abilitato_guida`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         })
     ]);
@@ -3852,6 +3852,7 @@ async function caricaServiziCalendario() {
 }
 
 let idDipendenteInModifica = null;
+let emailOriginaleDipendenteInModifica = null;
 let funzioneApriModificaDipendente = null;
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -3950,9 +3951,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 inputConfPassDip.required = false;
                 inputConfPassDip.value = '';
             }
-            if (inputEmailDip) inputEmailDip.disabled = true;
+            if (inputEmailDip) inputEmailDip.disabled = false;
         } else {
             idDipendenteInModifica = null;
+            emailOriginaleDipendenteInModifica = null;
             if (bloccoPasswordDip) bloccoPasswordDip.classList.remove('hidden');
             if (inputPassDip) inputPassDip.required = true;
             if (inputConfPassDip) inputConfPassDip.required = true;
@@ -3969,6 +3971,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function chiudiFormDipendente() {
         idDipendenteInModifica = null;
+        emailOriginaleDipendenteInModifica = null;
         formContainerDip.classList.add('hidden');
         btnApriDip.classList.remove('hidden');
         elencoDipendenti.classList.remove('hidden');
@@ -3993,6 +3996,7 @@ document.addEventListener("DOMContentLoaded", function() {
         nascondiMessaggioBottone('msg_stato_dipendente');
 
         idDipendenteInModifica = dip.id_dipendente;
+        emailOriginaleDipendenteInModifica = (dip.email || '').trim().toLowerCase();
         titoloFormDip.textContent = 'Modifica Dipendente';
 
         document.getElementById('dip_nome').value = dip.nome || '';
@@ -4060,6 +4064,36 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (isModifica) {
                 const idTarget = idDipendenteInModifica;
+                const emailModificata = inputEmailDip ? inputEmailDip.value.trim().toLowerCase() : '';
+
+                if (!emailModificata) {
+                    throw new Error("Inserisci un indirizzo email valido.");
+                }
+
+                if (emailModificata !== emailOriginaleDipendenteInModifica) {
+                    const edgeRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/functions/v1/gestione-email-dipendente", {
+                        method: "POST",
+                        headers: {
+                            "apikey": chiaveAnon,
+                            "Authorization": "Bearer " + token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            azione: "cambia_email",
+                            id_dipendente: idTarget,
+                            nuova_email: emailModificata
+                        })
+                    });
+
+                    const edgeData = await edgeRes.json().catch(() => ({}));
+                    if (!edgeRes.ok) {
+                        if (edgeData.error === "EMAIL_ESISTENTE") {
+                            throw new Error("EMAIL_ESISTENTE");
+                        }
+                        throw new Error(edgeData.error || "Errore durante l'aggiornamento dell'email.");
+                    }
+                }
+
                 const corpoModifica = {
                     nome: nomeDip,
                     cognome: cognomeDip,
@@ -4310,11 +4344,14 @@ async function caricaDipendenti() {
 
             clone.querySelector('[data-bind="nome_cognome_sintesi"]').textContent = dip.cognome + ' ' + dip.nome;
 
+            const isVerificato = dip.email_verificata === true;
             const badge = clone.querySelector('[data-bind="badge_stato"]');
-            if (dip.stato_attivo) {
-                badge.textContent = "ATTIVO";
-            } else {
+            if (!dip.stato_attivo) {
                 badge.textContent = "SOSPESO";
+            } else if (!isVerificato) {
+                badge.textContent = "DA VERIFICARE";
+            } else {
+                badge.textContent = "ATTIVO";
             }
 
             clone.querySelector('[data-bind="ruolo_sintesi"]').textContent = dip.ruolo;
@@ -4340,10 +4377,19 @@ async function caricaDipendenti() {
             };
 
             const btnSospendi = clone.querySelector('[data-bind-action="sospendi"]');
-            btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "ATTIVA";
-            btnSospendi.onclick = function() {
-                cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
-            };
+            const msgCard = clone.querySelector('[data-bind="msg_card_dipendente"]');
+
+            if (dip.stato_attivo && !isVerificato) {
+                btnSospendi.textContent = "REINVIA VERIFICA";
+                btnSospendi.onclick = function() {
+                    reinviaVerificaDipendente(dip.id_dipendente, btnSospendi, msgCard);
+                };
+            } else {
+                btnSospendi.textContent = dip.stato_attivo ? "SOSPENDI" : "ATTIVA";
+                btnSospendi.onclick = function() {
+                    cambiaStatoDipendente(dip.id_dipendente, !dip.stato_attivo, btnSospendi);
+                };
+            }
 
             contenitore.appendChild(clone);
         };
@@ -4361,6 +4407,57 @@ async function caricaDipendenti() {
         
     } catch (e) {
         contenitore.innerHTML = '<div class="msg-lista-errore">Errore di caricamento.</div>';
+    }
+}
+
+async function reinviaVerificaDipendente(id_dipendente, btn, msgEl) {
+    btn.disabled = true;
+    const testoOriginale = btn.textContent;
+    btn.textContent = "INVIO...";
+
+    if (msgEl) {
+        msgEl.classList.remove('mostra', 'messaggio-neutro');
+        msgEl.textContent = '';
+    }
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    try {
+        const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/functions/v1/gestione-email-dipendente", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                azione: "reinvia_verifica",
+                id_dipendente: id_dipendente
+            })
+        });
+
+        if (!res.ok) {
+            throw new Error("Errore invio email");
+        }
+
+        if (msgEl) {
+            msgEl.textContent = "Email di verifica reinviata!";
+            msgEl.classList.add('messaggio-neutro', 'mostra');
+            setTimeout(() => {
+                msgEl.classList.remove('mostra', 'messaggio-neutro');
+                msgEl.textContent = '';
+            }, 5000);
+        }
+    } catch (e) {
+        if (msgEl) {
+            msgEl.classList.remove('messaggio-neutro');
+            msgEl.textContent = "Errore durante l'invio. Riprova.";
+            msgEl.classList.add('mostra');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = testoOriginale;
     }
 }
 
