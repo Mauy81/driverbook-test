@@ -3475,6 +3475,29 @@ async function caricaViaggiProgrammati() {
             contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
             return;
         }
+
+        const mappaAutisti = {};
+        if (viaggi.some(v => v.stato === 'ASSEGNATO')) {
+            try {
+                const autistiRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_dati_autista_prenotazione", {
+                    method: "POST",
+                    headers: {
+                        "apikey": chiaveAnon,
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                });
+                if (autistiRes.ok) {
+                    const listaAutisti = await autistiRes.json();
+                    listaAutisti.forEach(a => {
+                        mappaAutisti[a.codice_prenotazione] = a;
+                    });
+                }
+            } catch (e) {
+                console.error("Errore caricamento dati autista:", e);
+            }
+        }
         
         viaggi.forEach(viaggio => {
             let classeBadge = 'badge-attesa';
@@ -3558,6 +3581,30 @@ async function caricaViaggiProgrammati() {
             
             let noteServizio = (viaggio.note_servizio && viaggio.note_servizio.trim() !== '') ? viaggio.note_servizio : (dict.js_nessuna_nota || "Nessuna nota o richiesta particolare inserita.");
 
+            let bloccoAutistaHtml = "";
+            if (viaggio.stato === 'ASSEGNATO') {
+                const infoAutista = mappaAutisti[viaggio.codice_prenotazione] || {};
+                const nomeAutista = infoAutista.nome_cognome || "-";
+                const telAutista = infoAutista.telefono || "";
+                const telAutistaHtml = telAutista
+                    ? `<a href="tel:${telAutista.replace(/\s+/g, '')}" class="link-navigatore">${telAutista}</a>`
+                    : "-";
+
+                bloccoAutistaHtml = `
+                    <div class="checkout-style-block">
+                        <div class="checkout-style-title">${(dict.h2_autista_assegnato || 'AUTISTA ASSEGNATO').toUpperCase()}</div>
+                        <div class="checkout-style-row">
+                            <span class="checkout-style-label">${dict.lbl_nome_autista || 'Nome e Cognome'}</span>
+                            <span class="checkout-style-value">${nomeAutista}</span>
+                        </div>
+                        <div class="checkout-style-row">
+                            <span class="checkout-style-label">${dict.lbl_tel_autista || 'Telefono Autista'}</span>
+                            <span class="checkout-style-value">${telAutistaHtml}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
             const classeAperta = codiciAperti.includes(viaggio.codice_prenotazione) ? ' aperta' : '';
 
             const htmlCard = `
@@ -3609,6 +3656,8 @@ async function caricaViaggiProgrammati() {
                                 <span class="checkout-style-value">${dataFormattata}${dict.js_alle_ore || ' alle ore '}${viaggio.ora_partenza}</span>
                             </div>
                         </div>
+
+                        ${bloccoAutistaHtml}
 
                         <div class="checkout-style-block">
                             <div class="checkout-style-title">${(dict.h2_itinerario || 'ITINERARIO').toUpperCase()}</div>
