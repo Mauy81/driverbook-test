@@ -1688,6 +1688,52 @@ async function confermaPrenotazione() {
     };
 
     try {
+        const resCopertura = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_partner_idonei", {
+            method: "POST",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                p_partenza_lat: corpoDati.partenza_lat,
+                p_partenza_lng: corpoDati.partenza_lng,
+                p_arrivo_lat: corpoDati.arrivo_lat,
+                p_arrivo_lng: corpoDati.arrivo_lng,
+                p_vettura: corpoDati.vettura_selezionata
+            })
+        });
+
+        if (!resCopertura.ok) {
+            throw new Error("Errore verifica copertura");
+        }
+
+        const partnerIdonei = await resCopertura.json();
+
+        if (!partnerIdonei || partnerIdonei.length === 0) {
+            const chiaviDaCancellare = [
+                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
+                'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
+                'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
+                'db_pax', 'db_grandi', 'db_mano', 'db_vettura', 'db_note_servizio', 'db_prezzo_stimato', 'db_prezzo_stripe'
+            ];
+            chiaviDaCancellare.forEach(chiave => localStorage.removeItem(chiave));
+
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes('draft_prenotazione.html')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            mostraUiNessunaCopertura('body');
+
+            document.getElementById('btn_chiudi_nessuna_copertura').onclick = function() {
+                window.location.href = 'dashboard.html';
+            };
+            return;
+        }
+
         const risposta = await fetch(urlCompleto, {
             method: "POST",
             headers: {
@@ -3310,6 +3356,16 @@ function mostraUiPrenotazioneErrore(containerId) {
     const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_check_err_title">${dict.js_check_err_title}</h2>`;
     const messaggio = `<p class="feedback-testo" data-i18n="js_check_err_text">${dict.js_check_err_text}</p>`;
     const bottone = `<button id="btn_riprova_errore" class="btn">${btnRiprovaStr}</button>`;
+    mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
+}
+
+function mostraUiNessunaCopertura(containerId) {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+    const btnPannelloStr = dict.js_btn_pannello_utente || (linguaAttuale === 'en' ? 'Go to Dashboard' : 'Vai al Pannello Utente');
+    const titolo = `<h2 class="feedback-titolo feedback-titolo-errore" data-i18n="js_no_copertura_title">${dict.js_no_copertura_title}</h2>`;
+    const messaggio = `<p class="feedback-testo" data-i18n="js_no_copertura_text">${dict.js_no_copertura_text}</p>`;
+    const bottone = `<button id="btn_chiudi_nessuna_copertura" class="btn">${btnPannelloStr}</button>`;
     mostraSchermataFeedback('errore', containerId, titolo, messaggio, bottone);
 }
 
