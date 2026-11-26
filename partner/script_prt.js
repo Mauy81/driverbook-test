@@ -3843,6 +3843,8 @@ async function caricaServiziCalendario() {
                     selectAutista.appendChild(optStorico);
                 }
 
+                let valorePrecedenteAutista = servizio.codice_autista_assegnato || '';
+
                 selectAutista.addEventListener('change', async function() {
                     const codiceScelto = this.value;
                     if (!codiceScelto) return;
@@ -3874,6 +3876,8 @@ async function caricaServiziCalendario() {
 
                         if (!patchRes.ok) throw new Error('Errore assegnazione');
 
+                        valorePrecedenteAutista = conducenteScelto.codice;
+
                         badgeStato.textContent = 'ASSEGNATO';
                         badgeStato.classList.remove('cal-stato-da-assegnare');
                         badgeStato.classList.add('cal-stato-assegnato');
@@ -3887,6 +3891,7 @@ async function caricaServiziCalendario() {
                             }, 3000);
                         }
                     } catch (err) {
+                        selectAutista.value = valorePrecedenteAutista;
                         if (msgAssegnazione) {
                             msgAssegnazione.classList.remove('messaggio-neutro');
                             msgAssegnazione.textContent = "Errore durante l'assegnazione. Riprova.";
