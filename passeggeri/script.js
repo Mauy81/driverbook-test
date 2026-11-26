@@ -1710,7 +1710,8 @@ async function confermaPrenotazione() {
                 p_partenza_lng: corpoDati.partenza_lng,
                 p_arrivo_lat: corpoDati.arrivo_lat,
                 p_arrivo_lng: corpoDati.arrivo_lng,
-                p_vettura: corpoDati.vettura_selezionata
+                p_vettura: corpoDati.vettura_selezionata,
+                p_passeggeri: corpoDati.passeggeri || 1
             })
         });
 
