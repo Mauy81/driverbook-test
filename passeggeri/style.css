@@ -174,6 +174,22 @@ body {
     white-space: nowrap;
 }
 
+.btn-coppia-compatta {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn-coppia-compatta .btn {
+    flex: 1;
+    max-width: 180px;
+    width: auto;
+    margin: 0 !important;
+    padding: 10px 5px;
+}
+
 .login-wrapper {
     flex-grow: 1;
     display: flex;
@@ -1121,52 +1137,74 @@ input[type="time"]:focus::-webkit-datetime-edit-minute-field {
 }
 
 .checkout-section-header {
-    margin-top: 60px;
-    margin-bottom: 10px;
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+.auth-card .checkout-section-header h2 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    border-left: 2px solid #00FF66;
+    padding-left: 6px;
 }
 
 .form-group-checkout {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+}
+
+.form-group-checkout .label-nota {
+    font-size: 0.70rem;
+    color: #777777;
+    margin-top: 0;
+    margin-bottom: 2px;
+    display: block;
 }
 
 .checkout-data-value {
     color: #ffffff;
-    font-size: 1rem;
+    font-size: 0.85rem;
     line-height: 1.4;
+    word-break: break-word;
 }
 
 .checkout-data-note {
     color: #ffffff;
-    font-size: 1rem;
+    font-size: 0.85rem;
     line-height: 1.4;
     white-space: pre-line;
+    word-break: break-word;
 }
 
 .checkout-total-header {
-    margin-top: 60px;
-    margin-bottom: 20px;
+    margin-top: 16px;
+    margin-bottom: 6px;
     border-top: 1px solid #333333;
-    padding-top: 60px;
+    padding-top: 16px;
+}
+
+.auth-card .checkout-total-header h1 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    border-left: 2px solid #00FF66;
+    padding-left: 6px;
 }
 
 .checkout-total-value {
     color: #00FF66;
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     font-weight: 700;
     line-height: 1.4;
-	margin-bottom: 30px;
+    margin-bottom: 15px;
 }
 
 .checkout-submit-btn {
-    margin-top: 30px;
-}
-
-@media (min-width: 769px) {
-    .checkout-submit-btn {
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+    margin-top: 15px;
 }
 
 .alert-redirect {
@@ -1361,34 +1399,34 @@ input:-webkit-autofill:active {
 }
 
 .checkout-style-block {
-    margin-bottom: 25px;
+    margin-bottom: 12px;
 }
 
 .checkout-style-title {
-    color: #00FF66;
-    font-size: 0.85rem;
+    color: #ffffff;
+    font-size: 0.75rem;
     text-transform: uppercase;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
     border-left: 2px solid #00FF66;
-    padding-left: 8px;
-    letter-spacing: 1px;
+    padding-left: 6px;
+    letter-spacing: 0.5px;
 }
 
 .checkout-style-row {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .checkout-style-label {
     color: #777777;
-    font-size: 0.75rem;
+    font-size: 0.70rem;
     margin-bottom: 2px;
     display: block;
 }
 
 .checkout-style-value {
     color: #ffffff;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     line-height: 1.4;
     word-break: break-word;
 }
@@ -1396,36 +1434,36 @@ input:-webkit-autofill:active {
 .viaggio-limbo-box {
     background-color: transparent;
     padding: 0;
-    margin-top: 15px;
-    margin-bottom: 25px;
-    font-size: 0.85rem;
-    color: #ffffff;
+    margin-top: 6px;
+    margin-bottom: 14px;
+    font-size: 0.80rem;
+    color: #aaaaaa;
     line-height: 1.4;
 }
 
 .viaggio-footer-totale {
-    margin-top: 25px;
+    margin-top: 12px;
     padding-top: 0;
 }
 
 .viaggio-codice-label {
     color: #777777;
-    font-size: 0.8rem;
+    font-size: 0.70rem;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 .viaggio-codice-valore {
     color: #ffffff;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .viaggio-prezzo-totale {
     color: #00FF66;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
-    margin: 15px 0;
+    margin: 8px 0 12px 0;
 }
 
 .box-messaggio-errore {
@@ -1486,7 +1524,7 @@ input:-webkit-autofill:active {
 }
 
 .note-row-margine {
-    margin-top: 15px;
+    margin-top: 6px;
 }
 
 .nota-vuota {

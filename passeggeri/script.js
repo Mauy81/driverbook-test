@@ -3998,7 +3998,7 @@ async function caricaViaggiProgrammati() {
             
             const htmlAzioniFooter = viaggio.stato === 'IN_ATTESA'
                 ? `
-                    <div class="btn-coppia">
+                    <div class="btn-coppia-compatta">
                         <button type="button" data-action="modifica" data-codice="${viaggio.codice_prenotazione}" class="btn">
                             ${dict.btn_modifica_viaggio || 'MODIFICA'}
                         </button>
