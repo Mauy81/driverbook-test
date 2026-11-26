@@ -2677,6 +2677,8 @@ window.svuotaBozze = function() {
     }
 };
 
+let filtroSoloInScadenza = false;
+
 async function caricaBachecaRichieste() {
     const contenitore = document.getElementById('contenitore_bacheca');
     if (!contenitore) return;
@@ -2687,6 +2689,8 @@ async function caricaBachecaRichieste() {
     const msgNoVeicoli = document.getElementById('msg_bacheca_no_veicoli');
     const msgVuota = document.getElementById('msg_bacheca_vuota');
     const msgErroreRete = document.getElementById('msg_bacheca_errore_rete');
+    const boxFiltroScadenza = document.getElementById('box_filtro_scadenza');
+    const btnFiltroScadenza = document.getElementById('btn_filtro_scadenza');
 
     let codiciAperti = [];
     if (listaCard) {
@@ -2786,12 +2790,44 @@ async function caricaBachecaRichieste() {
         msgLoading.classList.add('hidden');
 
         if (richiesteFiltrate.length === 0) {
+            filtroSoloInScadenza = false;
+            if (boxFiltroScadenza) boxFiltroScadenza.classList.add('hidden');
             msgVuota.classList.remove('hidden');
             aggiornaBadgeMenu(0);
             if (typeof segnaBachecaComeLetta === 'function') {
                 segnaBachecaComeLetta(true);
             }
             return;
+        }
+
+        const adessoMs = Date.now();
+        const isCorsaInScadenza = (v) => {
+            if (!v.scadenza_sollecito) return false;
+            return new Date(v.scadenza_sollecito).getTime() <= adessoMs;
+        };
+
+        const richiesteUrgenti = richiesteFiltrate.filter(isCorsaInScadenza);
+
+        if (richiesteUrgenti.length === 0) {
+            filtroSoloInScadenza = false;
+        }
+
+        if (boxFiltroScadenza && btnFiltroScadenza) {
+            if (richiesteUrgenti.length > 0) {
+                boxFiltroScadenza.classList.remove('hidden');
+                btnFiltroScadenza.textContent = `In scadenza (${richiesteUrgenti.length})`;
+                if (filtroSoloInScadenza) {
+                    btnFiltroScadenza.classList.add('attivo');
+                } else {
+                    btnFiltroScadenza.classList.remove('attivo');
+                }
+                btnFiltroScadenza.onclick = function() {
+                    filtroSoloInScadenza = !filtroSoloInScadenza;
+                    caricaBachecaRichieste();
+                };
+            } else {
+                boxFiltroScadenza.classList.add('hidden');
+            }
         }
 
         const template = document.getElementById('template_bacheca_card');
@@ -2856,8 +2892,14 @@ async function caricaBachecaRichieste() {
                 card.classList.toggle('aperta');
             };
 
+            const spanDataOra = clone.querySelector('[data-bind="data_ora"]');
+            spanDataOra.textContent = `${dataCompatta} - ${viaggio.ora_partenza}`;
+            if (isCorsaInScadenza(viaggio)) {
+                spanDataOra.classList.remove('bacheca-data-evidenziata');
+                spanDataOra.classList.add('bacheca-data-scadenza');
+            }
+
             clone.querySelector('[data-bind="prezzo"]').textContent = `${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €`;
-            clone.querySelector('[data-bind="data_ora"]').textContent = `${dataCompatta} - ${viaggio.ora_partenza}`;
             clone.querySelector('[data-bind="tipo_vettura"]').textContent = `${tipoServizioLeggibile} - ${vetturaPulita}`;
 
             let stringaPartenza = (viaggio.partenza_citta && viaggio.partenza_via) ? `${viaggio.partenza_citta}, ${viaggio.partenza_via}` : viaggio.partenza;
@@ -2957,6 +2999,19 @@ async function caricaBachecaRichieste() {
 
             listaCard.appendChild(clone);
         };
+
+        if (filtroSoloInScadenza) {
+            const urgentiOrdinate = [...richiesteUrgenti].sort((a, b) => {
+                const scadA = a.scadenza_attesa ? new Date(a.scadenza_attesa).getTime() : Number.MAX_SAFE_INTEGER;
+                const scadB = b.scadenza_attesa ? new Date(b.scadenza_attesa).getTime() : Number.MAX_SAFE_INTEGER;
+                return scadA - scadB;
+            });
+            urgentiOrdinate.forEach(v => {
+                const isNuova = !!(v.created_at && new Date(v.created_at) > ultimoAccesso);
+                renderizzaCard(v, isNuova);
+            });
+            return;
+        }
 
         if (richiesteNuove.length > 0) {
             richiesteNuove.forEach(v => renderizzaCard(v, true));
@@ -3567,6 +3622,9 @@ function azzeraNotifichePWA() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(registration => {
             registration.getNotifications({ tag: 'driverbutler-notifiche' }).then(notifiche => {
+                notifiche.forEach(notifica => notifica.close());
+            });
+            registration.getNotifications({ tag: 'driverbutler-sollecito' }).then(notifiche => {
                 notifiche.forEach(notifica => notifica.close());
             });
         });

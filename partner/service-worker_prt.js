@@ -69,11 +69,41 @@ self.addEventListener('push', event => {
             }
 
             let urlDestinazione = './bacheca_prt.html';
+            let payloadDati = {};
             if (event.data) {
                 try {
-                    const payload = event.data.json();
-                    if (payload.url) urlDestinazione = payload.url;
+                    payloadDati = event.data.json();
+                    if (payloadDati.url) urlDestinazione = payloadDati.url;
                 } catch (e) {}
+            }
+
+            if (payloadDati.tipo === 'SOLLECITO_SCADENZA') {
+                const oraItaliaStr = new Date().toLocaleString('en-US', {
+                    timeZone: 'Europe/Rome',
+                    hour: 'numeric',
+                    hour12: false
+                });
+                const oraItalia = parseInt(oraItaliaStr, 10);
+                const isNotte = (oraItalia >= 22 || oraItalia < 7);
+
+                const opzioniSollecito = {
+                    body: payloadDati.body || "Sta scadendo una richiesta di servizio. Apri la bacheca e prendila in carico prima che venga annullata.",
+                    icon: '../logo/icona-pwa-prt.png',
+                    badge: '../logo/badge-bianco.png',
+                    data: {
+                        url: urlDestinazione
+                    },
+                    tag: 'driverbutler-sollecito',
+                    renotify: true,
+                    silent: isNotte
+                };
+
+                if (!isNotte) {
+                    opzioniSollecito.vibrate = [200, 100, 200];
+                }
+
+                await self.registration.showNotification(payloadDati.title || "Richiesta in scadenza", opzioniSollecito);
+                return;
             }
 
             const notifiche = await self.registration.getNotifications({ tag: 'driverbutler-notifiche' });
