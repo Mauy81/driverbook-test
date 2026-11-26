@@ -34,6 +34,17 @@ let phoneInput;
 let itiPasseggero, itiReferente, itiProfiloPasseggero, itiModPasseggero, itiModReferente;
 let viaggioInModificaCorrente = null;
 let mappaViaggiProgrammati = {};
+let timerHeartbeatCancellazione = null;
+let codiceCancellazioneAttivo = null;
+
+function getAdessoItalia() {
+    const strItalia = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Rome' });
+    return new Date(strItalia.replace(' ', 'T'));
+}
+
+function getOggiItaliaString() {
+    return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' });
+}
 let latLngPartenza = null;
 let latLngArrivo = null;
 let strutturalePartenzaCitta = null;
@@ -1136,11 +1147,7 @@ function gestisciCampi() {
 function impostaLimitiData() {
     const inputData = document.getElementById('data_partenza');
     if (inputData) {
-        const oggi = new Date();
-        const anno = oggi.getFullYear();
-        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-        const giorno = String(oggi.getDate()).padStart(2, '0');
-        inputData.min = `${anno}-${mese}-${giorno}`;
+        inputData.min = getOggiItaliaString();
     }
 }
 
@@ -1152,7 +1159,7 @@ function validaOrario() {
     if (!inputData || !inputOra) return true;
 
     const dataOraScelta = new Date(`${inputData}T${inputOra}`);
-    const adesso = new Date();
+    const adesso = getAdessoItalia();
     const limiteMinimo = new Date(adesso.getTime() + (3 * 60 * 60 * 1000));
 
     if (dataOraScelta < limiteMinimo) {
@@ -3500,11 +3507,7 @@ function inizializzaModuloModificaViaggio() {
 
     const inputDataMod = document.getElementById('mod_data_partenza');
     if (inputDataMod) {
-        const oggi = new Date();
-        const anno = oggi.getFullYear();
-        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-        const giorno = String(oggi.getDate()).padStart(2, '0');
-        inputDataMod.min = `${anno}-${mese}-${giorno}`;
+        inputDataMod.min = getOggiItaliaString();
         inputDataMod.addEventListener('click', function() {
             if (typeof this.showPicker === 'function') this.showPicker();
         });
@@ -3619,7 +3622,7 @@ function validaOrarioModifica() {
     if (!inputData || !inputOra) return true;
 
     const dataOraScelta = new Date(`${inputData}T${inputOra}`);
-    const adesso = new Date();
+    const adesso = getAdessoItalia();
     const limiteMinimo = new Date(adesso.getTime() + (3 * 60 * 60 * 1000));
 
     if (dataOraScelta < limiteMinimo) {
@@ -3931,7 +3934,7 @@ async function caricaViaggiProgrammati() {
             localStorage.setItem('driverbutler_privato_tel', profiloPax.telefono || '');
         }
 
-        const oggi = new Date().toISOString().split('T')[0];
+        const oggi = getOggiItaliaString();
         
         const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_passeggero=eq.${codicePasseggero}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
         
@@ -4239,30 +4242,120 @@ async function caricaViaggiProgrammati() {
     }
 }
 
-function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
-    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
-    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
-    
-    const dataPartenza = new Date(`${data}T${ora}:00`);
-    const oraAttuale = new Date();
-    const oreMancanti = (dataPartenza - oraAttuale) / (1000 * 60 * 60);
-    
-    let titoloModale = dict.js_btn_annulla_viaggio || "Annulla Richiesta";
-    let testoModale = "";
-    let penale = false;
-    
-    if (statoAttuale === 'IN_ATTESA') {
-        testoModale = linguaAttuale === 'en' ? "Are you sure you want to cancel this request? The pre-authorized amount will be immediately released." : "Sei sicuro di voler annullare questa richiesta? L'importo pre-autorizzato verrà sbloccato immediatamente.";
-    } else if (statoAttuale === 'ASSEGNATO') {
-        if (oreMancanti > 24) {
-            testoModale = linguaAttuale === 'en' ? "Are you sure you want to cancel? Since there are more than 24 hours until departure, no penalty will be applied." : "Sei sicuro di voler annullare? Mancando più di 24 ore alla partenza, non verrà applicata alcuna penale.";
-        } else {
-            titoloModale = dict.js_penale_avviso || "Annullamento con Penale 100%";
-            testoModale = dict.js_penale_testo || "Mancano meno di 24 ore alla partenza. Come da termini accettati, l'annullamento comporterà l'addebito dell'intero importo della corsa.";
-            penale = true;
+function fermaHeartbeatCancellazione(sbloccaServer = false) {
+    if (timerHeartbeatCancellazione) {
+        clearInterval(timerHeartbeatCancellazione);
+        timerHeartbeatCancellazione = null;
+    }
+    const codiceDaSbloccare = codiceCancellazioneAttivo;
+    codiceCancellazioneAttivo = null;
+
+    if (sbloccaServer && codiceDaSbloccare) {
+        const token = localStorage.getItem('driverbutler_auth_token');
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        if (token) {
+            fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/sblocca_corsa_cancellazione", {
+                method: "POST",
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ p_codice_prenotazione: codiceDaSbloccare })
+            }).catch(() => {});
         }
     }
-    
+}
+
+async function inviaHeartbeatCancellazione(codice) {
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    if (!token) return null;
+
+    const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/blocca_corsa_cancellazione", {
+        method: "POST",
+        headers: {
+            "apikey": chiaveAnon,
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ p_codice_prenotazione: codice })
+    });
+
+    if (!res.ok) return null;
+    const dati = await res.json();
+    return (dati && dati.length > 0) ? dati[0] : null;
+}
+
+async function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    const card = document.getElementById('card_' + codice);
+    if (card) card.classList.add('card-loading-state');
+
+    let statoReale = statoAttuale;
+    let prezzoTotale = (mappaViaggiProgrammati[codice] && mappaViaggiProgrammati[codice].prezzo_totale) ? parseFloat(mappaViaggiProgrammati[codice].prezzo_totale) : 0;
+
+    try {
+        const statoServer = await inviaHeartbeatCancellazione(codice);
+        if (statoServer) {
+            statoReale = statoServer.stato;
+            prezzoTotale = parseFloat(statoServer.prezzo_totale) || prezzoTotale;
+        }
+    } catch (e) {}
+
+    if (card) card.classList.remove('card-loading-state');
+
+    if (statoReale === 'ANNULLATO') {
+        caricaViaggiProgrammati();
+        return;
+    }
+
+    fermaHeartbeatCancellazione(false);
+    codiceCancellazioneAttivo = codice;
+    timerHeartbeatCancellazione = setInterval(() => {
+        if (codiceCancellazioneAttivo === codice) {
+            inviaHeartbeatCancellazione(codice).catch(() => {});
+        }
+    }, 10000);
+
+    const oraPulita = ora.length === 5 ? `${ora}:00` : ora;
+    const dataPartenza = new Date(`${data}T${oraPulita}`);
+    const oraAttuale = getAdessoItalia();
+    const oreMancanti = (dataPartenza - oraAttuale) / (1000 * 60 * 60);
+
+    let percentualePenale = 0;
+    let importoPenale = 0;
+
+    if (statoReale === 'CONFERMATO' || statoReale === 'ASSEGNATO') {
+        if (oreMancanti <= 6) {
+            percentualePenale = 100;
+            importoPenale = Math.round(prezzoTotale * 100) / 100;
+        } else if (oreMancanti <= 12) {
+            percentualePenale = 50;
+            importoPenale = Math.round(prezzoTotale * 0.5 * 100) / 100;
+        }
+    }
+
+    const importoFormattato = linguaAttuale === 'en'
+        ? importoPenale.toFixed(2)
+        : importoPenale.toFixed(2).replace('.', ',');
+
+    let titoloModale = dict.js_btn_annulla_viaggio || "Annulla Richiesta";
+    let testoModale = dict.js_annulla_gratis_testo || "Sei sicuro di voler cancellare questo servizio?<br><br>Nessun addebito: <strong>0,00 €</strong>";
+    let penale = false;
+
+    if (percentualePenale === 50) {
+        titoloModale = dict.js_penale_50_titolo || "Cancellazione con Penale 50%";
+        testoModale = (dict.js_penale_50_testo || "Mancano tra 12 e 6 ore alla partenza. Sei sicuro di voler cancellare questo servizio?<br><br>Importo trattenuto (50%): <strong>{IMPORTO} €</strong>").replace('{IMPORTO}', importoFormattato);
+        penale = true;
+    } else if (percentualePenale === 100) {
+        titoloModale = dict.js_penale_100_titolo || "Cancellazione con Penale 100%";
+        testoModale = (dict.js_penale_100_testo || "Mancano meno di 6 ore alla partenza. Sei sicuro di voler cancellare questo servizio?<br><br>Importo trattenuto (100%): <strong>{IMPORTO} €</strong>").replace('{IMPORTO}', importoFormattato);
+        penale = true;
+    }
+
     let overlay = document.getElementById('modale_annullamento');
     if (!overlay) {
         overlay = document.createElement('div');
@@ -4270,7 +4363,7 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
         overlay.className = 'modale-overlay';
         document.body.appendChild(overlay);
     }
-    
+
     let classeTitolo = penale ? 'testo-pericolo' : '';
 
     overlay.innerHTML = `
@@ -4283,60 +4376,76 @@ function chiediConfermaAnnullamento(codice, data, ora, statoAttuale) {
             </div>
         </div>
     `;
-    
+
     overlay.classList.remove('hidden');
-    
+
     document.getElementById('btn_chiudi_modale_annulla').onclick = function() {
+        fermaHeartbeatCancellazione(true);
         overlay.classList.add('hidden');
     };
-    
+
     document.getElementById('btn_procedi_annullamento').onclick = function() {
-        eseguiAnnullamento(codice);
+        fermaHeartbeatCancellazione(false);
         overlay.classList.add('hidden');
+        eseguiAnnullamento(codice, percentualePenale, importoPenale);
     };
 }
 
-async function eseguiAnnullamento(codice) {
+async function eseguiAnnullamento(codice, percentualePenale, importoPenale) {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
     const token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    
+
     const card = document.getElementById('card_' + codice);
     if (card) {
         card.classList.add('card-loading-state');
     }
-    
+
     try {
-        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${codice}`, {
-            method: "PATCH",
+        const res = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/annulla_prenotazione_passeggero", {
+            method: "POST",
             headers: {
                 "apikey": chiaveAnon,
                 "Authorization": "Bearer " + token,
-                "Content-Type": "application/json",
-                "Prefer": "return=minimal"
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({ stato: 'ANNULLATO' })
+            body: JSON.stringify({
+                p_codice_prenotazione: codice,
+                p_penale_percentuale: percentualePenale,
+                p_importo_penale: importoPenale
+            })
         });
-        
+
         if (!res.ok) throw new Error("Errore aggiornamento DB");
-        
+
+        const esito = await res.json();
+        if (esito !== true) throw new Error("Annullamento non eseguito");
+
+        delete mappaViaggiProgrammati[codice];
+
         if (card) {
             card.remove();
         }
-        
+
         const contenitore = document.getElementById('lista_viaggi_attivi_edit');
         if (contenitore && contenitore.children.length === 0) {
             contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
         }
-        
-        alert(dict.js_annulla_success || "Richiesta annullata correttamente. I fondi pre-autorizzati sono stati sbloccati.");
-        
+
+        mostraModaleInfoViaggio(
+            dict.js_annulla_titolo_ok || "Servizio Cancellato",
+            dict.js_annulla_success || "Il servizio è stato cancellato correttamente."
+        );
+
     } catch (errore) {
         if (card) {
             card.classList.remove('card-loading-state');
         }
-        alert(dict.js_annulla_error || "Impossibile annullare la richiesta al momento. Riprova più tardi.");
+        mostraModaleInfoViaggio(
+            dict.modale_uscita_titolo || "Attenzione",
+            dict.js_annulla_error || "Impossibile cancellare il servizio al momento. Riprova più tardi."
+        );
     }
 }
 
