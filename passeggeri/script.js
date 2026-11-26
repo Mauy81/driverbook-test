@@ -31,7 +31,9 @@
 })();
 
 let phoneInput;
-let itiPasseggero, itiReferente, itiProfiloPasseggero;
+let itiPasseggero, itiReferente, itiProfiloPasseggero, itiModPasseggero, itiModReferente;
+let viaggioInModificaCorrente = null;
+let mappaViaggiProgrammati = {};
 let latLngPartenza = null;
 let latLngArrivo = null;
 let strutturalePartenzaCitta = null;
@@ -383,6 +385,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (document.getElementById('lista_viaggi_attivi_edit')) {
+        inizializzaModuloModificaViaggio();
         caricaViaggiProgrammati();
     }
 
@@ -3475,6 +3478,416 @@ window.svuotaBozze = function() {
     }
 };
 
+function inizializzaModuloModificaViaggio() {
+    const formMod = document.getElementById('form_modifica_prenotazione');
+    if (!formMod) return;
+
+    const inputTelModPax = document.getElementById('mod_tel_passeggero');
+    if (inputTelModPax && window.intlTelInput) {
+        itiModPasseggero = window.intlTelInput(inputTelModPax, {
+            preferredCountries: ['it'],
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+        });
+    }
+
+    const inputTelModRef = document.getElementById('mod_tel_referente');
+    if (inputTelModRef && window.intlTelInput) {
+        itiModReferente = window.intlTelInput(inputTelModRef, {
+            preferredCountries: ['it'],
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+        });
+    }
+
+    const inputDataMod = document.getElementById('mod_data_partenza');
+    if (inputDataMod) {
+        const oggi = new Date();
+        const anno = oggi.getFullYear();
+        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+        const giorno = String(oggi.getDate()).padStart(2, '0');
+        inputDataMod.min = `${anno}-${mese}-${giorno}`;
+        inputDataMod.addEventListener('click', function() {
+            if (typeof this.showPicker === 'function') this.showPicker();
+        });
+        inputDataMod.addEventListener('change', validaOrarioModifica);
+    }
+
+    const inputOraMod = document.getElementById('mod_ora_partenza');
+    if (inputOraMod) {
+        inputOraMod.addEventListener('click', function() {
+            if (typeof this.showPicker === 'function') this.showPicker();
+        });
+        inputOraMod.addEventListener('change', validaOrarioModifica);
+    }
+
+    const chkRefMod = document.getElementById('mod_chk_referente');
+    if (chkRefMod) {
+        chkRefMod.addEventListener('change', gestisciVisualizzazioneReferenteModifica);
+    }
+
+    const chkHubMod = document.getElementById('mod_chk_hub');
+    if (chkHubMod) {
+        chkHubMod.addEventListener('change', gestisciVisualizzazioneHubModifica);
+    }
+
+    const btnAnnullaMod = document.getElementById('btn_annulla_modifica_viaggio');
+    if (btnAnnullaMod) {
+        btnAnnullaMod.addEventListener('click', chiudiModuloModificaViaggio);
+    }
+
+    formMod.addEventListener('input', () => nascondiMessaggioBottone('msg_stato_modifica_viaggio'));
+    formMod.addEventListener('change', () => nascondiMessaggioBottone('msg_stato_modifica_viaggio'));
+    formMod.addEventListener('submit', salvaModificheViaggio);
+}
+
+function gestisciVisualizzazioneReferenteModifica() {
+    const chk = document.getElementById('mod_chk_referente');
+    const sezione = document.getElementById('mod_sezione_referente');
+    const inputNome = document.getElementById('mod_nome_referente');
+    const inputTel = document.getElementById('mod_tel_referente');
+    const inputNomePax = document.getElementById('mod_nome_passeggero');
+
+    if (!chk || !sezione) return;
+
+    if (chk.checked) {
+        sezione.classList.remove('hidden');
+        if (inputNome) inputNome.required = true;
+        if (inputTel) inputTel.required = true;
+
+        if (localStorage.getItem('driverbutler_is_business') === 'false') {
+            const defaultNome = localStorage.getItem('driverbutler_privato_nome') || '';
+            const defaultTel = localStorage.getItem('driverbutler_privato_tel') || '';
+
+            if (inputNome && !inputNome.value.trim()) inputNome.value = defaultNome;
+            if (itiModReferente && inputTel && !inputTel.value.trim()) itiModReferente.setNumber(defaultTel);
+
+            const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
+            let currentTelPax = '';
+            if (itiModPasseggero) {
+                currentTelPax = itiModPasseggero.getNumber().replace(/\s+/g, '');
+            }
+            const cleanDefaultTel = defaultTel.replace(/\s+/g, '');
+
+            if (currentNomePax === defaultNome.trim() && currentTelPax === cleanDefaultTel) {
+                if (inputNomePax) inputNomePax.value = '';
+                if (itiModPasseggero) itiModPasseggero.setNumber('');
+            }
+        }
+    } else {
+        sezione.classList.add('hidden');
+        if (inputNome) inputNome.required = false;
+        if (inputTel) inputTel.required = false;
+
+        if (localStorage.getItem('driverbutler_is_business') === 'false') {
+            const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
+            const inputTelPax = document.getElementById('mod_tel_passeggero');
+            const currentTelVal = inputTelPax ? inputTelPax.value.trim() : '';
+
+            if (!currentNomePax && !currentTelVal) {
+                if (inputNomePax) inputNomePax.value = localStorage.getItem('driverbutler_privato_nome') || '';
+                if (itiModPasseggero) itiModPasseggero.setNumber(localStorage.getItem('driverbutler_privato_tel') || '');
+            }
+            if (inputNome) inputNome.value = '';
+            if (itiModReferente) itiModReferente.setNumber('');
+        }
+    }
+}
+
+function gestisciVisualizzazioneHubModifica() {
+    const chk = document.getElementById('mod_chk_hub');
+    const sezione = document.getElementById('mod_sezione_hub');
+    const inputInfo = document.getElementById('mod_info_trasporto');
+
+    if (!chk || !sezione) return;
+
+    if (chk.checked) {
+        sezione.classList.remove('hidden');
+        if (inputInfo) inputInfo.required = true;
+    } else {
+        sezione.classList.add('hidden');
+        if (inputInfo) {
+            inputInfo.required = false;
+            inputInfo.value = '';
+        }
+    }
+}
+
+function validaOrarioModifica() {
+    const inputData = document.getElementById('mod_data_partenza').value;
+    const inputOra = document.getElementById('mod_ora_partenza').value;
+    const msgErrore = document.getElementById('mod_errore_ora');
+
+    if (!inputData || !inputOra) return true;
+
+    const dataOraScelta = new Date(`${inputData}T${inputOra}`);
+    const adesso = new Date();
+    const limiteMinimo = new Date(adesso.getTime() + (3 * 60 * 60 * 1000));
+
+    if (dataOraScelta < limiteMinimo) {
+        if (msgErrore) msgErrore.classList.add('mostra');
+        document.getElementById('mod_ora_partenza').value = '';
+        return false;
+    } else {
+        if (msgErrore) msgErrore.classList.remove('mostra');
+        return true;
+    }
+}
+
+function apriModuloModificaViaggio(codice) {
+    const viaggio = mappaViaggiProgrammati[codice];
+    if (!viaggio || viaggio.stato !== 'IN_ATTESA') return;
+
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    viaggioInModificaCorrente = viaggio;
+
+    const listaEl = document.getElementById('lista_viaggi_attivi_edit');
+    const modEl = document.getElementById('blocco_modifica_prenotazione');
+    const titoloH1 = document.querySelector('#card_viaggi_edit .auth-header h1');
+
+    if (titoloH1) titoloH1.textContent = dict.h1_modifica_viaggio || 'Modifica Viaggio';
+    if (listaEl) listaEl.classList.add('hidden');
+    if (modEl) modEl.classList.remove('hidden');
+
+    document.getElementById('mod_nome_passeggero').value = viaggio.nome_passeggero || '';
+    if (itiModPasseggero && viaggio.tel_passeggero) {
+        itiModPasseggero.setNumber(viaggio.tel_passeggero);
+    } else {
+        document.getElementById('mod_tel_passeggero').value = viaggio.tel_passeggero || '';
+    }
+
+    const labelRef = document.querySelector('label[for="mod_chk_referente"]');
+    if (labelRef) {
+        if (localStorage.getItem('driverbutler_is_business') === 'false') {
+            labelRef.textContent = dict.js_prenotazione_terzi || "Sto effettuando la prenotazione per un'altra persona";
+        } else {
+            labelRef.textContent = dict.label_chk_ref || "La prenotazione viene effettuata da un referente? (es. Hotel, Azienda)";
+        }
+    }
+
+    const chkRef = document.getElementById('mod_chk_referente');
+    const sezRef = document.getElementById('mod_sezione_referente');
+    const inpNomeRef = document.getElementById('mod_nome_referente');
+    const inpTelRef = document.getElementById('mod_tel_referente');
+
+    chkRef.checked = !!viaggio.chk_referente;
+    if (viaggio.chk_referente) {
+        sezRef.classList.remove('hidden');
+        inpNomeRef.required = true;
+        inpTelRef.required = true;
+        inpNomeRef.value = viaggio.nome_referente || '';
+        if (itiModReferente && viaggio.tel_referente) {
+            itiModReferente.setNumber(viaggio.tel_referente);
+        } else {
+            inpTelRef.value = viaggio.tel_referente || '';
+        }
+    } else {
+        sezRef.classList.add('hidden');
+        inpNomeRef.required = false;
+        inpTelRef.required = false;
+        inpNomeRef.value = '';
+        if (itiModReferente) itiModReferente.setNumber('');
+    }
+
+    const chkHub = document.getElementById('mod_chk_hub');
+    const sezHub = document.getElementById('mod_sezione_hub');
+    const inpInfoHub = document.getElementById('mod_info_trasporto');
+
+    chkHub.checked = !!viaggio.chk_hub;
+    if (viaggio.chk_hub) {
+        sezHub.classList.remove('hidden');
+        inpInfoHub.required = true;
+        inpInfoHub.value = viaggio.info_trasporto || '';
+    } else {
+        sezHub.classList.add('hidden');
+        inpInfoHub.required = false;
+        inpInfoHub.value = '';
+    }
+
+    document.getElementById('mod_data_partenza').value = viaggio.data_partenza || '';
+    document.getElementById('mod_ora_partenza').value = viaggio.ora_partenza || '';
+    document.getElementById('mod_note_servizio').value = viaggio.note_servizio || '';
+
+    const msgOra = document.getElementById('mod_errore_ora');
+    if (msgOra) msgOra.classList.remove('mostra');
+    nascondiMessaggioBottone('msg_stato_modifica_viaggio');
+
+    if (typeof svuotaBozze === 'function') svuotaBozze();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function chiudiModuloModificaViaggio() {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    viaggioInModificaCorrente = null;
+
+    const listaEl = document.getElementById('lista_viaggi_attivi_edit');
+    const modEl = document.getElementById('blocco_modifica_prenotazione');
+    const titoloH1 = document.querySelector('#card_viaggi_edit .auth-header h1');
+
+    if (titoloH1) titoloH1.textContent = dict.h1_viaggi_programma || 'Viaggi in programma';
+    if (modEl) modEl.classList.add('hidden');
+    if (listaEl) listaEl.classList.remove('hidden');
+
+    if (typeof svuotaBozze === 'function') svuotaBozze();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function salvaModificheViaggio(event) {
+    event.preventDefault();
+    if (!viaggioInModificaCorrente) return;
+
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    nascondiMessaggioBottone('msg_stato_modifica_viaggio');
+
+    if (!validaOrarioModifica()) return;
+
+    const btnSalva = document.getElementById('btn_salva_modifica_viaggio');
+    const btnAnnulla = document.getElementById('btn_annulla_modifica_viaggio');
+    if (btnSalva) btnSalva.disabled = true;
+    if (btnAnnulla) btnAnnulla.disabled = true;
+
+    mostraMessaggioBottone('msg_stato_modifica_viaggio', dict.js_prof_loading || 'Salvataggio in corso...', 'neutro');
+
+    let prefissoPax = itiModPasseggero ? "+" + itiModPasseggero.getSelectedCountryData().dialCode : "+39";
+    let numPax = document.getElementById('mod_tel_passeggero').value.trim();
+    let telPaxFinale = (numPax.startsWith('+') ? numPax : (prefissoPax + numPax)).replace(/\s+/g, '');
+
+    const chkRefAttivo = document.getElementById('mod_chk_referente').checked;
+    let prefissoRef = itiModReferente ? "+" + itiModReferente.getSelectedCountryData().dialCode : "+39";
+    let numRef = document.getElementById('mod_tel_referente').value.trim();
+    let telRefFinale = (chkRefAttivo && numRef !== "") ? (numRef.startsWith('+') ? numRef : (prefissoRef + numRef)).replace(/\s+/g, '') : null;
+
+    const chkHubAttivo = document.getElementById('mod_chk_hub').checked;
+    const infoHubVal = chkHubAttivo ? (document.getElementById('mod_info_trasporto').value.trim() || null) : null;
+    const noteVal = document.getElementById('mod_note_servizio').value.trim() || null;
+
+    const payloadModifica = {
+        nome_passeggero: document.getElementById('mod_nome_passeggero').value.trim(),
+        tel_passeggero: telPaxFinale,
+        chk_referente: chkRefAttivo,
+        nome_referente: chkRefAttivo ? (document.getElementById('mod_nome_referente').value.trim() || null) : null,
+        tel_referente: telRefFinale,
+        chk_hub: chkHubAttivo,
+        info_trasporto: infoHubVal,
+        data_partenza: document.getElementById('mod_data_partenza').value,
+        ora_partenza: document.getElementById('mod_ora_partenza').value,
+        note_servizio: noteVal
+    };
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+    const codiceTarget = viaggioInModificaCorrente.codice_prenotazione;
+
+    try {
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_prenotazione=eq.${encodeURIComponent(codiceTarget)}&stato=eq.IN_ATTESA`, {
+            method: "PATCH",
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json",
+                "Prefer": "return=representation"
+            },
+            body: JSON.stringify(payloadModifica)
+        });
+
+        if (!res.ok) throw new Error("Errore aggiornamento database");
+
+        const righeAggiornate = await res.json();
+
+        if (!righeAggiornate || righeAggiornate.length === 0) {
+            chiudiModuloModificaViaggio();
+            mostraModaleInfoViaggio(dict.modale_uscita_titolo || 'Attenzione', dict.js_mod_viaggio_bloccato || 'Il servizio è stato appena preso in carico da un partner e non può più essere modificato.');
+            caricaViaggiProgrammati();
+            return;
+        }
+
+        chiudiModuloModificaViaggio();
+        mostraModaleInfoViaggio(dict.js_check_success_title || 'Richiesta Inviata!', dict.js_mod_viaggio_success || 'Modifiche salvate con successo!');
+        caricaViaggiProgrammati();
+
+    } catch (errore) {
+        mostraMessaggioBottone('msg_stato_modifica_viaggio', dict.js_mod_viaggio_err || 'Errore durante il salvataggio delle modifiche. Riprova.', 'errore');
+    } finally {
+        if (btnSalva) btnSalva.disabled = false;
+        if (btnAnnulla) btnAnnulla.disabled = false;
+    }
+}
+
+function mostraModaleInfoViaggio(titolo, testo) {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    let overlay = document.getElementById('modale_info_viaggio');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_info_viaggio';
+        overlay.className = 'modale-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    overlay.innerHTML = `
+        <div class="modale-box">
+            <h3 class="modale-titolo">${titolo}</h3>
+            <p class="modale-testo">${testo}</p>
+            <div class="modale-bottoni-container btn-singolo-container">
+                <button id="btn_chiudi_modale_info_viaggio" class="btn-modale-bianco">${dict.modale_notifiche_bloccate_btn_ok || 'OK'}</button>
+            </div>
+        </div>
+    `;
+
+    overlay.classList.remove('hidden');
+    document.getElementById('btn_chiudi_modale_info_viaggio').onclick = function() {
+        overlay.classList.add('hidden');
+    };
+}
+
+function apriModaleContattoAutista(telefono) {
+    const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+    const dict = traduzioni[linguaAttuale] || traduzioni['it'];
+
+    const telPulito = telefono.replace(/\s+/g, '');
+    const waNumero = telPulito.replace(/[^0-9]/g, '');
+
+    let overlay = document.getElementById('modale_contatto_autista');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_contatto_autista';
+        overlay.className = 'modale-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    overlay.innerHTML = `
+        <div class="modale-box">
+            <h3 class="modale-titolo">${dict.modale_contatto_autista_titolo || 'Contatta Autista'}</h3>
+            <p class="modale-testo">${dict.modale_contatto_autista_testo || 'Scegli come vuoi contattare il tuo autista:'}</p>
+            <div class="modale-bottoni-container">
+                <a href="tel:${telPulito}" id="btn_chiama_autista_modale" class="btn-modale-bianco btn-modale-link">${dict.btn_chiama_autista || 'Chiama'}</a>
+                <a href="https://wa.me/${waNumero}" target="_blank" rel="noopener noreferrer" id="btn_wa_autista_modale" class="btn-modale-bianco btn-modale-link">${dict.btn_whatsapp_autista || 'WhatsApp'}</a>
+            </div>
+        </div>
+    `;
+
+    overlay.classList.remove('hidden');
+
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            overlay.classList.add('hidden');
+        }
+    };
+
+    document.getElementById('btn_chiama_autista_modale').onclick = function() {
+        overlay.classList.add('hidden');
+    };
+
+    document.getElementById('btn_wa_autista_modale').onclick = function() {
+        overlay.classList.add('hidden');
+    };
+}
+
 async function caricaViaggiProgrammati() {
     const contenitore = document.getElementById('lista_viaggi_attivi_edit');
     if (!contenitore) return;
@@ -3504,12 +3917,19 @@ async function caricaViaggiProgrammati() {
         if (!userRes.ok) throw new Error("Utente non loggato");
         const userData = await userRes.json();
         
-        const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero`, {
+        const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero,nome_cognome,telefono,richiede_fattura`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         if (!passRes.ok) throw new Error("Errore lettura passeggero");
         const passData = await passRes.json();
-        const codicePasseggero = passData[0].codice_passeggero;
+        const profiloPax = passData[0];
+        const codicePasseggero = profiloPax.codice_passeggero;
+
+        localStorage.setItem('driverbutler_is_business', profiloPax.richiede_fattura ? 'true' : 'false');
+        if (!profiloPax.richiede_fattura) {
+            localStorage.setItem('driverbutler_privato_nome', profiloPax.nome_cognome || '');
+            localStorage.setItem('driverbutler_privato_tel', profiloPax.telefono || '');
+        }
 
         const oggi = new Date().toISOString().split('T')[0];
         
@@ -3526,6 +3946,7 @@ async function caricaViaggiProgrammati() {
         
         const viaggi = await res.json();
         contenitore.innerHTML = '';
+        mappaViaggiProgrammati = {};
         
         if (viaggi.length === 0) {
             contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
@@ -3556,10 +3977,13 @@ async function caricaViaggiProgrammati() {
         }
         
         viaggi.forEach(viaggio => {
+            mappaViaggiProgrammati[viaggio.codice_prenotazione] = viaggio;
+
             let classeBadge = 'badge-attesa';
             let testoStato = dict.js_stato_in_attesa || 'IN ATTESA DI ASSEGNAZIONE';
             
             if (viaggio.stato === 'CONFERMATO') {
+                classeBadge = 'badge-confermato';
                 testoStato = dict.js_stato_confermato || 'VIAGGIO CONFERMATO';
             } else if (viaggio.stato === 'ASSEGNATO') {
                 classeBadge = 'badge-assegnato';
@@ -3572,11 +3996,22 @@ async function caricaViaggiProgrammati() {
                 </div>
             ` : '';
             
-            const btnAnnulla = `
-                <button onclick="chiediConfermaAnnullamento('${viaggio.codice_prenotazione}', '${viaggio.data_partenza}', '${viaggio.ora_partenza}', '${viaggio.stato}')" class="btn btn-compatto">
-                    ${dict.js_btn_annulla_viaggio || 'ANNULLA RICHIESTA'}
-                </button>
-            `;
+            const htmlAzioniFooter = viaggio.stato === 'IN_ATTESA'
+                ? `
+                    <div class="btn-coppia">
+                        <button type="button" data-action="modifica" data-codice="${viaggio.codice_prenotazione}" class="btn">
+                            ${dict.btn_modifica_viaggio || 'MODIFICA'}
+                        </button>
+                        <button type="button" data-action="annulla" data-codice="${viaggio.codice_prenotazione}" class="btn">
+                            ${dict.js_btn_annulla_viaggio || 'ANNULLA RICHIESTA'}
+                        </button>
+                    </div>
+                `
+                : `
+                    <button type="button" data-action="annulla" data-codice="${viaggio.codice_prenotazione}" class="btn btn-compatto">
+                        ${dict.js_btn_annulla_viaggio || 'ANNULLA RICHIESTA'}
+                    </button>
+                `;
 
             let dataFormattata = viaggio.data_partenza;
             const parti = dataFormattata.split('-');
@@ -3628,6 +4063,19 @@ async function caricaViaggiProgrammati() {
                 `;
             }
 
+            let bloccoHubHtml = "";
+            if (viaggio.chk_hub && viaggio.info_trasporto) {
+                bloccoHubHtml = `
+                    <div class="checkout-style-block">
+                        <div class="checkout-style-title">${(dict.h2_monitoraggio || 'MONITORAGGIO').toUpperCase()}</div>
+                        <div class="checkout-style-row">
+                            <span class="checkout-style-label">${dict.lbl_volo_treno_nave || 'Volo / Treno / Nave'}</span>
+                            <span class="checkout-style-value">${viaggio.info_trasporto}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
             let pax = viaggio.passeggeri || 1;
             let grandi = viaggio.bagagli_grandi || 0;
             let mano = viaggio.bagagli_mano || 0;
@@ -3643,7 +4091,7 @@ async function caricaViaggiProgrammati() {
                 const nomeAutista = infoAutista.nome_cognome || "-";
                 const telAutista = infoAutista.telefono || "";
                 const telAutistaHtml = telAutista
-                    ? `<a href="tel:${telAutista.replace(/\s+/g, '')}" class="link-navigatore">${telAutista}</a>`
+                    ? `<span data-action="contatta_autista" data-tel="${telAutista}" class="link-navigatore">${telAutista}</span>`
                     : "-";
 
                 bloccoAutistaHtml = `
@@ -3666,12 +4114,12 @@ async function caricaViaggiProgrammati() {
             const htmlCard = `
                 <div class="card-viaggio${classeAperta}" id="card_${viaggio.codice_prenotazione}">
                     
-                    <div class="viaggio-header-touch" onclick="document.getElementById('card_${viaggio.codice_prenotazione}').classList.toggle('aperta')">
+                    <div class="viaggio-header-touch" data-action="toggle_card" data-codice="${viaggio.codice_prenotazione}">
                         <div class="viaggio-header-info">
                             <span class="viaggio-data">${dataFormattata} - ${viaggio.ora_partenza}</span>
                             <span class="viaggio-badge ${classeBadge}">${testoStato}</span>
                         </div>
-                        <svg class="icona-tendina" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg class="icona-tendina" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
 
                     <div class="viaggio-dettaglio-body">
@@ -3724,6 +4172,8 @@ async function caricaViaggiProgrammati() {
                             ${arrivoHtml}
                         </div>
 
+                        ${bloccoHubHtml}
+
                         <div class="checkout-style-block">
                             <div class="checkout-style-title">${(dict.h2_logistica || 'LOGISTICA E NOTE').toUpperCase()}</div>
                             <div class="checkout-style-row">
@@ -3743,7 +4193,7 @@ async function caricaViaggiProgrammati() {
                                 ${viaggio.prezzo_totale.toFixed(2).replace('.', ',')} €
                             </div>
                             
-                            ${btnAnnulla}
+                            ${htmlAzioniFooter}
                         </div>
                         
                     </div>
@@ -3751,6 +4201,37 @@ async function caricaViaggiProgrammati() {
             `;
             
             contenitore.insertAdjacentHTML('beforeend', htmlCard);
+        });
+
+        contenitore.querySelectorAll('[data-action="toggle_card"]').forEach(header => {
+            header.addEventListener('click', function() {
+                const codice = this.getAttribute('data-codice');
+                const cardEl = document.getElementById('card_' + codice);
+                if (cardEl) cardEl.classList.toggle('aperta');
+            });
+        });
+
+        contenitore.querySelectorAll('[data-action="modifica"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const codice = this.getAttribute('data-codice');
+                apriModuloModificaViaggio(codice);
+            });
+        });
+
+        contenitore.querySelectorAll('[data-action="annulla"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const codice = this.getAttribute('data-codice');
+                const v = mappaViaggiProgrammati[codice];
+                if (v) chiediConfermaAnnullamento(v.codice_prenotazione, v.data_partenza, v.ora_partenza, v.stato);
+            });
+        });
+
+        contenitore.querySelectorAll('[data-action="contatta_autista"]').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const tel = this.getAttribute('data-tel');
+                if (tel) apriModaleContattoAutista(tel);
+            });
         });
         
     } catch (errore) {
@@ -3823,8 +4304,7 @@ async function eseguiAnnullamento(codice) {
     
     const card = document.getElementById('card_' + codice);
     if (card) {
-        card.style.opacity = '0.5';
-        card.style.pointerEvents = 'none';
+        card.classList.add('card-loading-state');
     }
     
     try {
@@ -3854,8 +4334,7 @@ async function eseguiAnnullamento(codice) {
         
     } catch (errore) {
         if (card) {
-            card.style.opacity = '1';
-            card.style.pointerEvents = 'auto';
+            card.classList.remove('card-loading-state');
         }
         alert(dict.js_annulla_error || "Impossibile annullare la richiesta al momento. Riprova più tardi.");
     }

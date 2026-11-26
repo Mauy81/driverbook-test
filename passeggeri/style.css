@@ -1261,88 +1261,91 @@ input:-webkit-autofill:active {
 .card-viaggio {
     background-color: #000000;
     border: none;
-    border-radius: 6px;
-    margin-bottom: 15px;
     overflow: hidden;
+    margin-bottom: 16px;
 }
 
 .viaggio-header-touch {
-    padding: 15px 20px;
+    padding: 6px 12px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #000000;
-    transition: background-color 0.3s ease;
-    border-radius: 6px;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    line-height: 1.4;
 }
 
-.viaggio-header-touch:hover {
+.viaggio-header-touch:active {
     background-color: #111111;
 }
 
 .viaggio-header-info {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     flex-grow: 1;
-    gap: 15px;
+    gap: 12px;
+    margin-right: 12px;
 }
 
 .viaggio-data {
     font-weight: bold;
     color: #ffffff;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     white-space: nowrap;
+    border-left: 2px solid #00FF66;
+    padding-left: 8px;
+    line-height: 1.4;
 }
 
 .viaggio-badge {
-    font-size: 0.55rem;
+    font-size: 0.70rem;
     font-weight: bold;
     text-transform: uppercase;
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     white-space: nowrap;
-    margin: 0 auto;
+    line-height: 1.4;
 }
 
 .badge-attesa {
-	color: #ffffff;
-	border-color: #ffffff;
+    color: #aaaaaa;
+}
+
+.badge-confermato {
+    color: #ffffff;
 }
 
 .badge-assegnato {
-	color: #ffffff;
-	border-color: #00FF66;
+    color: #00FF66;
 }
 
-@media (max-width: 768px) {
+.icona-tendina {
+    stroke: #888888;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+@media (max-width: 450px) {
     .viaggio-header-touch {
-        padding: 12px 8px;
+        padding: 6px 8px;
     }
     .viaggio-header-info {
         gap: 8px;
+        margin-right: 8px;
     }
     .viaggio-data {
         font-size: 0.75rem;
     }
     .viaggio-badge {
-        font-size: 0.45rem;
-        padding: 3px 4px;
+        font-size: 0.65rem;
         letter-spacing: 0px;
-        margin: 0 auto;
-    }
-    .icona-tendina {
-        width: 18px;
-        height: 18px;
-        margin-left: 5px;
     }
 }
 
 .viaggio-dettaglio-body {
     display: none;
-    padding: 0 20px 20px 20px;
+    padding: 15px 12px 20px 12px;
 }
 
 .card-viaggio.aperta .viaggio-dettaglio-body {
@@ -1602,4 +1605,37 @@ input:-webkit-autofill:active {
 
 .link-recupero-otp:hover {
     color: #ffffff;
+}
+
+.link-navigatore {
+    color: #ffffff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#mod_blocco_chk_referente {
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+#mod_blocco_chk_hub {
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+#mod_data_partenza,
+#mod_ora_partenza {
+    cursor: pointer;
+}
+
+.card-loading-state {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.btn-modale-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }

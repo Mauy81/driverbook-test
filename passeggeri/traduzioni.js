@@ -320,7 +320,17 @@ const traduzioni = {
         btn_verifica_codice: "Verifica Codice",
         link_invia_nuovo_otp: "Codice scaduto o non ricevuto? Invia di nuovo",
         js_otp_err_length: "Il codice deve essere di 6 cifre.",
-        js_otp_err_invalid: "Codice errato o scaduto."
+        js_otp_err_invalid: "Codice errato o scaduto.",
+        btn_modifica_viaggio: "Modifica",
+        h1_modifica_viaggio: "Modifica Viaggio",
+        btn_salva_modifiche_viaggio: "Salva Modifiche",
+        js_mod_viaggio_success: "Modifiche salvate con successo!",
+        js_mod_viaggio_bloccato: "Il servizio è stato appena preso in carico da un partner e non può più essere modificato.",
+        js_mod_viaggio_err: "Errore durante il salvataggio delle modifiche. Riprova.",
+        modale_contatto_autista_titolo: "Contatta Autista",
+        modale_contatto_autista_testo: "Scegli come vuoi contattare il tuo autista:",
+        btn_chiama_autista: "Chiama",
+        btn_whatsapp_autista: "WhatsApp"
     },
     en: {
         titolo_pagina: "DriverButler - Chauffeur Service",
@@ -643,6 +653,16 @@ const traduzioni = {
         btn_verifica_codice: "Verify Code",
         link_invia_nuovo_otp: "Code expired or not received? Send again",
         js_otp_err_length: "The code must be 6 digits.",
-        js_otp_err_invalid: "Invalid or expired code."
+        js_otp_err_invalid: "Invalid or expired code.",
+        btn_modifica_viaggio: "Edit",
+        h1_modifica_viaggio: "Edit Trip",
+        btn_salva_modifiche_viaggio: "Save Changes",
+        js_mod_viaggio_success: "Changes saved successfully!",
+        js_mod_viaggio_bloccato: "This service has just been accepted by a partner and can no longer be modified.",
+        js_mod_viaggio_err: "Error saving changes. Please try again.",
+        modale_contatto_autista_titolo: "Contact Driver",
+        modale_contatto_autista_testo: "Choose how you would like to contact your driver:",
+        btn_chiama_autista: "Call",
+        btn_whatsapp_autista: "WhatsApp"
     }
 };

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title_viaggi_programma">Viaggi in Programma - DriverButler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,13 +24,82 @@
                     <span class="label" data-i18n="lbl_nessun_viaggio_gestire">Nessun viaggio in programma da gestire.</span>
                 </div>
             </div>
+
+            <div id="blocco_modifica_prenotazione" class="hidden">
+                <form id="form_modifica_prenotazione">
+                    <div class="form-group">
+                        <label class="label" data-i18n="label_nome_pax">Nome e Cognome Passeggero</label>
+                        <input type="text" id="mod_nome_passeggero" class="input" required>
+                        <div class="label-nota" data-i18n="nota_cartello">(Per il cartello di benvenuto)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" data-i18n="label_tel_pax">Telefono Passeggero</label>
+                        <input type="tel" id="mod_tel_passeggero" class="input" required>
+                        <div class="label-nota" data-i18n="nota_incontro">(Per coordinare il punto d'incontro all'arrivo)</div>
+                    </div>
+
+                    <div class="checkbox-group" id="mod_blocco_chk_referente">
+                        <input type="checkbox" id="mod_chk_referente" class="checkbox-input">
+                        <label for="mod_chk_referente" class="checkbox-label" data-i18n="label_chk_ref">La prenotazione viene effettuata da un referente? (es. Hotel, Azienda)</label>
+                    </div>
+
+                    <div id="mod_sezione_referente" class="gruppo-dinamico hidden">
+                        <div class="form-group">
+                            <label class="label" data-i18n="label_nome_ref">Nome Referente</label>
+                            <input type="text" id="mod_nome_referente" class="input">
+                        </div>
+                        <div class="form-group">
+                            <label class="label" data-i18n="label_tel_ref">Telefono Referente</label>
+                            <input type="tel" id="mod_tel_referente" class="input">
+                            <div class="label-nota" data-i18n="nota_logistica">(Per comunicazioni logistiche e amministrative)</div>
+                        </div>
+                    </div>
+
+                    <div id="mod_blocco_chk_hub">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="mod_chk_hub" class="checkbox-input">
+                            <label for="mod_chk_hub" class="checkbox-label" data-i18n="label_chk_hub">Il servizio prevede la partenza o l'arrivo in Aeroporto, Stazione o Porto?</label>
+                        </div>
+                    </div>
+
+                    <div id="mod_sezione_hub" class="gruppo-dinamico hidden">
+                        <div class="form-group">
+                            <label class="label" data-i18n="label_info_trasporto">Numero del Volo, Treno o Nave</label>
+                            <input type="text" id="mod_info_trasporto" class="input">
+                            <div class="label-nota" data-i18n="nota_trasporto">(Necessario all'autista per identificare il terminal, il punto di ingresso/uscita e monitorare lo stato in tempo reale)</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" data-i18n="label_data_servizio">Data del Servizio</label>
+                        <input type="date" id="mod_data_partenza" class="input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" data-i18n="label_ora_partenza">Ora di Partenza</label>
+                        <input type="time" id="mod_ora_partenza" class="input" required>
+                        <div id="mod_errore_ora" class="error-message" data-i18n="err_preavviso">Preavviso minimo richiesto: 3 ore</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label" data-i18n="label_note_servizio">Note e Richieste Particolari</label>
+                        <textarea id="mod_note_servizio" class="input textarea-small"></textarea>
+                        <div class="label-nota" data-i18n="nota_note">(Segnala qui la necessità di seggiolini, contatti di assistenti o altre necessità logistiche)</div>
+                    </div>
+
+                    <div id="msg_stato_modifica_viaggio" class="error-message error-message-centered"></div>
+
+                    <div class="btn-coppia">
+                        <button type="button" id="btn_annulla_modifica_viaggio" class="btn" data-i18n="btn_annulla_chiusura">ANNULLA</button>
+                        <button type="submit" id="btn_salva_modifica_viaggio" class="btn" data-i18n="btn_salva_modifiche_viaggio">Salva Modifiche</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </main>
 
-    
-
-    
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
     <script src="traduzioni.js"></script>
     <script src="script.js"></script>
 </body>
