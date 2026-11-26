@@ -2113,9 +2113,107 @@ async function inviaNuovoOtpRegistrazione(event) {
     }
 }
 
+function leggiCachePax(chiave) {
+    try {
+        const userId = localStorage.getItem('driverbutler_last_user');
+        if (!userId) return null;
+        const raw = localStorage.getItem(`pax_cache_${userId}_${chiave}`);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function salvaCachePax(chiave, dati) {
+    try {
+        const userId = localStorage.getItem('driverbutler_last_user');
+        if (!userId) return;
+        localStorage.setItem(`pax_cache_${userId}_${chiave}`, JSON.stringify(dati));
+    } catch (e) {}
+}
+
+function svuotaCachePax() {
+    try {
+        Object.keys(localStorage).forEach(k => {
+            if (k.startsWith('pax_cache_')) {
+                localStorage.removeItem(k);
+            }
+        });
+    } catch (e) {}
+}
+
+function applicaDatiPasseggeroUI(passeggero) {
+    if (!passeggero) return;
+
+    if (document.getElementById('dash_nome_utente')) {
+        document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
+    }
+    if (document.getElementById('dash_codice_cliente')) {
+        document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
+    }
+    
+    if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
+        if (passeggero.richiede_fattura) {
+            document.getElementById('chk_referente').checked = true;
+            gestisciVisualizzazioneReferente();
+            document.getElementById('nome_referente').value = passeggero.ragione_sociale || passeggero.nome_cognome || '';
+            if (itiReferente && passeggero.telefono) {
+                itiReferente.setNumber(passeggero.telefono);
+            }
+            localStorage.setItem('driverbutler_is_business', 'true');
+        } else {
+            document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
+            if (itiPasseggero && passeggero.telefono) {
+                itiPasseggero.setNumber(passeggero.telefono);
+            }
+            localStorage.setItem('driverbutler_is_business', 'false');
+            localStorage.setItem('driverbutler_privato_nome', passeggero.nome_cognome || '');
+            localStorage.setItem('driverbutler_privato_tel', passeggero.telefono || '');
+            
+            const labelRef = document.querySelector('label[for="chk_referente"]');
+            if (labelRef) {
+                const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
+                labelRef.textContent = traduzioni[linguaAttuale].js_prenotazione_terzi;
+            }
+        }
+    }
+    
+    if (document.getElementById('profilo_nome')) {
+        document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
+        document.getElementById('profilo_email').value = passeggero.email || '';
+        if (itiProfiloPasseggero && passeggero.telefono) {
+            itiProfiloPasseggero.setNumber(passeggero.telefono);
+        }
+        
+        document.getElementById('profilo_richiedeFattura').checked = passeggero.richiede_fattura;
+        if (passeggero.richiede_fattura) {
+            document.getElementById('sezione_fatturazione_profilo').classList.remove('hidden');
+            document.getElementById('profilo_ragioneSociale').value = passeggero.ragione_sociale || '';
+            document.getElementById('profilo_piva_cf').value = passeggero.piva_cf || '';
+            document.getElementById('profilo_codice_sdi').value = passeggero.codice_sdi || '';
+            document.getElementById('profilo_pec').value = passeggero.pec || '';
+            document.getElementById('profilo_indirizzo_via').value = passeggero.indirizzo_via || '';
+            document.getElementById('profilo_indirizzo_cap').value = passeggero.indirizzo_cap || '';
+            document.getElementById('profilo_indirizzo_citta').value = passeggero.indirizzo_citta || '';
+            document.getElementById('profilo_indirizzo_provincia').value = passeggero.indirizzo_provincia || '';
+        } else {
+            document.getElementById('sezione_fatturazione_profilo').classList.add('hidden');
+        }
+
+        document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
+    }
+    
+    if (typeof applicaBozze === 'function') applicaBozze();
+}
+
 async function caricaDatiDashboardPasseggero() {
     let token = localStorage.getItem('driverbutler_auth_token');
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    const cacheProfilo = leggiCachePax('profilo');
+    if (cacheProfilo) {
+        applicaDatiPasseggeroUI(cacheProfilo);
+    }
     
     try {
         let userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
@@ -2135,6 +2233,7 @@ async function caricaDatiDashboardPasseggero() {
 
         const userData = await userRes.json();
         const userId = userData.id;
+        localStorage.setItem('driverbutler_last_user', userId);
 
         const dbRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
@@ -2143,65 +2242,12 @@ async function caricaDatiDashboardPasseggero() {
 
         if (dbData && dbData.length > 0) {
             const passeggero = dbData[0];
-            
-            if (document.getElementById('dash_nome_utente')) {
-                document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
-            }
-            if (document.getElementById('dash_codice_cliente')) {
-                document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
-            }
-            
-            if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
-                if (passeggero.richiede_fattura) {
-                    document.getElementById('chk_referente').checked = true;
-                    gestisciVisualizzazioneReferente();
-                    document.getElementById('nome_referente').value = passeggero.ragione_sociale || passeggero.nome_cognome || '';
-                    if (itiReferente && passeggero.telefono) {
-                        itiReferente.setNumber(passeggero.telefono);
-                    }
-                    localStorage.setItem('driverbutler_is_business', 'true');
-                } else {
-                    document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
-                    if (itiPasseggero && passeggero.telefono) {
-                        itiPasseggero.setNumber(passeggero.telefono);
-                    }
-                    localStorage.setItem('driverbutler_is_business', 'false');
-                    localStorage.setItem('driverbutler_privato_nome', passeggero.nome_cognome || '');
-                    localStorage.setItem('driverbutler_privato_tel', passeggero.telefono || '');
-                    
-                    const labelRef = document.querySelector('label[for="chk_referente"]');
-                    if (labelRef) {
-                        const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
-                        labelRef.textContent = traduzioni[linguaAttuale].js_prenotazione_terzi;
-                    }
+            if (JSON.stringify(passeggero) !== JSON.stringify(cacheProfilo)) {
+                salvaCachePax('profilo', passeggero);
+                if (!moduloSporco) {
+                    applicaDatiPasseggeroUI(passeggero);
                 }
             }
-            
-            if (document.getElementById('profilo_nome')) {
-                document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
-                document.getElementById('profilo_email').value = passeggero.email || '';
-                if (itiProfiloPasseggero && passeggero.telefono) {
-                    itiProfiloPasseggero.setNumber(passeggero.telefono);
-                }
-                
-                document.getElementById('profilo_richiedeFattura').checked = passeggero.richiede_fattura;
-                if (passeggero.richiede_fattura) {
-                    document.getElementById('sezione_fatturazione_profilo').classList.remove('hidden');
-                    document.getElementById('profilo_ragioneSociale').value = passeggero.ragione_sociale || '';
-                    document.getElementById('profilo_piva_cf').value = passeggero.piva_cf || '';
-                    document.getElementById('profilo_codice_sdi').value = passeggero.codice_sdi || '';
-                    document.getElementById('profilo_pec').value = passeggero.pec || '';
-                    document.getElementById('profilo_indirizzo_via').value = passeggero.indirizzo_via || '';
-                    document.getElementById('profilo_indirizzo_cap').value = passeggero.indirizzo_cap || '';
-                    document.getElementById('profilo_indirizzo_citta').value = passeggero.indirizzo_citta || '';
-                    document.getElementById('profilo_indirizzo_provincia').value = passeggero.indirizzo_provincia || '';
-                }
-
-                document.getElementById('profilo_notificaPush').checked = passeggero.notifica_push;
-            }
-            
-            if (typeof applicaBozze === 'function') applicaBozze();
-
         } else {
             esciAccount();
         }
@@ -2771,6 +2817,7 @@ async function esciAccount() {
         } catch (e) {}
     }
 
+    svuotaCachePax();
     const chiaviDaCancellare = [
         'driverbutler_auth_token', 'driverbutler_refresh_token', 'driverbutler_ruolo', 'driverbutler_last_user', 'driverbutler_last_page',
         'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
@@ -3892,7 +3939,7 @@ function apriModaleContattoAutista(telefono) {
     };
 }
 
-async function caricaViaggiProgrammati() {
+async function caricaViaggiProgrammati(silenzioso = false) {
     const contenitore = document.getElementById('lista_viaggi_attivi_edit');
     if (!contenitore) return;
     
@@ -3906,78 +3953,94 @@ async function caricaViaggiProgrammati() {
             codiciAperti.push(card.id.replace('card_', ''));
         }
     });
-    
-    contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
-    
-    await rinnovaSessioneSilenziosa();
-    
-    const token = localStorage.getItem('driverbutler_auth_token');
-    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
-    
-    try {
-        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        if (!userRes.ok) throw new Error("Utente non loggato");
-        const userData = await userRes.json();
-        
-        const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero,nome_cognome,telefono,richiede_fattura`, {
-            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
-        });
-        if (!passRes.ok) throw new Error("Errore lettura passeggero");
-        const passData = await passRes.json();
-        const profiloPax = passData[0];
-        const codicePasseggero = profiloPax.codice_passeggero;
 
-        localStorage.setItem('driverbutler_is_business', profiloPax.richiede_fattura ? 'true' : 'false');
-        if (!profiloPax.richiede_fattura) {
-            localStorage.setItem('driverbutler_privato_nome', profiloPax.nome_cognome || '');
-            localStorage.setItem('driverbutler_privato_tel', profiloPax.telefono || '');
+    const cacheViaggi = leggiCachePax('viaggi_programmati');
+    let viaggi = [];
+    let mappaAutisti = {};
+
+    try {
+        if (!silenzioso && cacheViaggi && Array.isArray(cacheViaggi.viaggi)) {
+            viaggi = cacheViaggi.viaggi;
+            mappaAutisti = cacheViaggi.mappaAutisti || {};
+            setTimeout(() => caricaViaggiProgrammati(true), 0);
+        } else {
+            if (!silenzioso) {
+                contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+                await rinnovaSessioneSilenziosa();
+            }
+            
+            const token = localStorage.getItem('driverbutler_auth_token');
+            const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+            const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (!userRes.ok) throw new Error("Utente non loggato");
+            const userData = await userRes.json();
+            localStorage.setItem('driverbutler_last_user', userData.id);
+            
+            const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero,nome_cognome,telefono,richiede_fattura`, {
+                headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+            });
+            if (!passRes.ok) throw new Error("Errore lettura passeggero");
+            const passData = await passRes.json();
+            const profiloPax = passData[0];
+            const codicePasseggero = profiloPax.codice_passeggero;
+
+            localStorage.setItem('driverbutler_is_business', profiloPax.richiede_fattura ? 'true' : 'false');
+            if (!profiloPax.richiede_fattura) {
+                localStorage.setItem('driverbutler_privato_nome', profiloPax.nome_cognome || '');
+                localStorage.setItem('driverbutler_privato_tel', profiloPax.telefono || '');
+            }
+
+            const oggi = getOggiItaliaString();
+            const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_passeggero=eq.${codicePasseggero}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
+            
+            const res = await fetch(urlFetch, {
+                headers: {
+                    "apikey": chiaveAnon,
+                    "Authorization": "Bearer " + token
+                }
+            });
+            
+            if (!res.ok) throw new Error("Errore lettura viaggi");
+            viaggi = await res.json();
+
+            if (viaggi.some(v => v.stato === 'ASSEGNATO')) {
+                try {
+                    const autistiRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_dati_autista_prenotazione", {
+                        method: "POST",
+                        headers: {
+                            "apikey": chiaveAnon,
+                            "Authorization": "Bearer " + token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({})
+                    });
+                    if (autistiRes.ok) {
+                        const listaAutisti = await autistiRes.json();
+                        listaAutisti.forEach(a => {
+                            mappaAutisti[a.codice_prenotazione] = a;
+                        });
+                    }
+                } catch (e) {
+                    console.error("Errore caricamento dati autista:", e);
+                }
+            }
+
+            const nuovoPayload = { viaggi: viaggi, mappaAutisti: mappaAutisti };
+            if (silenzioso && JSON.stringify(nuovoPayload) === JSON.stringify(cacheViaggi)) {
+                return;
+            }
+            salvaCachePax('viaggi_programmati', nuovoPayload);
         }
 
-        const oggi = getOggiItaliaString();
-        
-        const urlFetch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_passeggero=eq.${codicePasseggero}&data_partenza=gte.${oggi}&stato=neq.ANNULLATO&order=data_partenza.asc,ora_partenza.asc`;
-        
-        const res = await fetch(urlFetch, {
-            headers: {
-                "apikey": chiaveAnon,
-                "Authorization": "Bearer " + token
-            }
-        });
-        
-        if (!res.ok) throw new Error("Errore lettura viaggi");
-        
-        const viaggi = await res.json();
         contenitore.innerHTML = '';
         mappaViaggiProgrammati = {};
         
         if (viaggi.length === 0) {
             contenitore.innerHTML = `<div class="form-group"><span class="label">${dict.lbl_nessun_viaggio_gestire || 'Nessun viaggio in programma da gestire.'}</span></div>`;
             return;
-        }
-
-        const mappaAutisti = {};
-        if (viaggi.some(v => v.stato === 'ASSEGNATO')) {
-            try {
-                const autistiRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/rpc/get_dati_autista_prenotazione", {
-                    method: "POST",
-                    headers: {
-                        "apikey": chiaveAnon,
-                        "Authorization": "Bearer " + token,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({})
-                });
-                if (autistiRes.ok) {
-                    const listaAutisti = await autistiRes.json();
-                    listaAutisti.forEach(a => {
-                        mappaAutisti[a.codice_prenotazione] = a;
-                    });
-                }
-            } catch (e) {
-                console.error("Errore caricamento dati autista:", e);
-            }
         }
         
         viaggi.forEach(viaggio => {
@@ -4239,7 +4302,9 @@ async function caricaViaggiProgrammati() {
         });
         
     } catch (errore) {
-        contenitore.innerHTML = `<div class="msg-errore-viaggi">Impossibile caricare i viaggi. Riprova più tardi.</div>`;
+        if (!silenzioso) {
+            contenitore.innerHTML = `<div class="msg-errore-viaggi">Impossibile caricare i viaggi. Riprova più tardi.</div>`;
+        }
     }
 }
 
@@ -4471,7 +4536,7 @@ document.addEventListener('visibilitychange', async () => {
             await rinnovaSessioneSilenziosa();
             
             if (document.getElementById('lista_viaggi_attivi_edit') && typeof caricaViaggiProgrammati === 'function') {
-                caricaViaggiProgrammati();
+                caricaViaggiProgrammati(true);
             }
             if ((document.getElementById('dash_nome_utente') || document.getElementById('profilo_nome')) && typeof caricaDatiDashboardPasseggero === 'function') {
                 caricaDatiDashboardPasseggero();
@@ -5083,3 +5148,42 @@ document.addEventListener('invalid', function(e) {
         }, 350);
     }
 }, true);
+
+let timerDebounceViaggiPax = null;
+
+function inizializzaRealtimeViaggiPax() {
+    if (!document.getElementById('lista_viaggi_attivi_edit')) return;
+    const token = localStorage.getItem('driverbutler_auth_token');
+    if (!token) return;
+
+    const avviaCanale = () => {
+        const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+        const clientSupa = supabase.createClient("https://drpgiwjwkfxztjbdyncm.supabase.co", chiaveAnon, {
+            global: { headers: { Authorization: `Bearer ${token}` } }
+        });
+
+        clientSupa.channel('viaggi-pax-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, () => {
+                clearTimeout(timerDebounceViaggiPax);
+                timerDebounceViaggiPax = setTimeout(() => {
+                    if (document.getElementById('lista_viaggi_attivi_edit') && !viaggioInModificaCorrente) {
+                        caricaViaggiProgrammati(true);
+                    }
+                }, 400);
+            })
+            .subscribe();
+    };
+
+    if (typeof supabase === 'undefined') {
+        const scriptSupa = document.createElement('script');
+        scriptSupa.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+        scriptSupa.onload = avviaCanale;
+        document.head.appendChild(scriptSupa);
+    } else {
+        avviaCanale();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(inizializzaRealtimeViaggiPax, 1500);
+});
