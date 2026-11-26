@@ -2691,6 +2691,8 @@ async function caricaBachecaRichieste() {
     const msgErroreRete = document.getElementById('msg_bacheca_errore_rete');
     const boxFiltroScadenza = document.getElementById('box_filtro_scadenza');
     const btnFiltroScadenza = document.getElementById('btn_filtro_scadenza');
+    const voceTutte = document.getElementById('voce_tutte');
+    const voceScadenza = document.getElementById('voce_scadenza');
 
     let codiciAperti = [];
     if (listaCard) {
@@ -2708,6 +2710,7 @@ async function caricaBachecaRichieste() {
     msgNoVeicoli.classList.add('hidden');
     msgVuota.classList.add('hidden');
     msgErroreRete.classList.add('hidden');
+    if (boxFiltroScadenza) boxFiltroScadenza.classList.add('hidden');
     
     const modaleFlotta = document.getElementById('modale_flotta_vuota');
     if (modaleFlotta) {
@@ -2789,17 +2792,6 @@ async function caricaBachecaRichieste() {
 
         msgLoading.classList.add('hidden');
 
-        if (richiesteFiltrate.length === 0) {
-            filtroSoloInScadenza = false;
-            if (boxFiltroScadenza) boxFiltroScadenza.classList.add('hidden');
-            msgVuota.classList.remove('hidden');
-            aggiornaBadgeMenu(0);
-            if (typeof segnaBachecaComeLetta === 'function') {
-                segnaBachecaComeLetta(true);
-            }
-            return;
-        }
-
         const adessoMs = Date.now();
         const isCorsaInScadenza = (v) => {
             if (!v.scadenza_sollecito) return false;
@@ -2808,26 +2800,34 @@ async function caricaBachecaRichieste() {
 
         const richiesteUrgenti = richiesteFiltrate.filter(isCorsaInScadenza);
 
-        if (richiesteUrgenti.length === 0) {
-            filtroSoloInScadenza = false;
+        if (boxFiltroScadenza && btnFiltroScadenza) {
+            boxFiltroScadenza.classList.remove('hidden');
+            if (voceTutte) {
+                voceTutte.textContent = `Tutte (${richiesteFiltrate.length})`;
+                voceTutte.classList.toggle('attivo', !filtroSoloInScadenza);
+            }
+            if (voceScadenza) {
+                voceScadenza.textContent = `In scadenza (${richiesteUrgenti.length})`;
+                voceScadenza.classList.toggle('attivo', filtroSoloInScadenza);
+            }
+            btnFiltroScadenza.onclick = function() {
+                this.blur();
+                filtroSoloInScadenza = !filtroSoloInScadenza;
+                caricaBachecaRichieste();
+            };
         }
 
-        if (boxFiltroScadenza && btnFiltroScadenza) {
-            if (richiesteUrgenti.length > 0) {
-                boxFiltroScadenza.classList.remove('hidden');
-                btnFiltroScadenza.textContent = `In scadenza (${richiesteUrgenti.length})`;
-                if (filtroSoloInScadenza) {
-                    btnFiltroScadenza.classList.add('attivo');
-                } else {
-                    btnFiltroScadenza.classList.remove('attivo');
-                }
-                btnFiltroScadenza.onclick = function() {
-                    filtroSoloInScadenza = !filtroSoloInScadenza;
-                    caricaBachecaRichieste();
-                };
+        if (richiesteFiltrate.length === 0) {
+            if (filtroSoloInScadenza) {
+                listaCard.innerHTML = '<div class="messaggio-stato-bacheca">Nessuna richiesta in scadenza.</div>';
             } else {
-                boxFiltroScadenza.classList.add('hidden');
+                msgVuota.classList.remove('hidden');
             }
+            aggiornaBadgeMenu(0);
+            if (typeof segnaBachecaComeLetta === 'function') {
+                segnaBachecaComeLetta(true);
+            }
+            return;
         }
 
         const template = document.getElementById('template_bacheca_card');
@@ -3001,6 +3001,10 @@ async function caricaBachecaRichieste() {
         };
 
         if (filtroSoloInScadenza) {
+            if (richiesteUrgenti.length === 0) {
+                listaCard.innerHTML = '<div class="messaggio-stato-bacheca">Nessuna richiesta in scadenza.</div>';
+                return;
+            }
             const urgentiOrdinate = [...richiesteUrgenti].sort((a, b) => {
                 const scadA = a.scadenza_attesa ? new Date(a.scadenza_attesa).getTime() : Number.MAX_SAFE_INTEGER;
                 const scadB = b.scadenza_attesa ? new Date(b.scadenza_attesa).getTime() : Number.MAX_SAFE_INTEGER;
