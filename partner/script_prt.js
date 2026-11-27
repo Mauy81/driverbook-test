@@ -5488,11 +5488,9 @@ function caricaImmagineSvg(src) {
     });
 }
 
-function disegnaTestoAdattatoCanvas(ctx, testo, centerX, centerY, maxWidth) {
-    let fontSize = 135;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#FFFFFF';
+function calcolaFontCanvas(ctx, testo, maxWidth) {
+    if (!testo) return 0;
+    let fontSize = 340;
     while (fontSize > 36) {
         ctx.font = `700 ${fontSize}px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif`;
         if (ctx.measureText(testo).width <= maxWidth) {
@@ -5500,17 +5498,45 @@ function disegnaTestoAdattatoCanvas(ctx, testo, centerX, centerY, maxWidth) {
         }
         fontSize -= 4;
     }
+    return fontSize;
+}
+
+function disegnaRigaCanvas(ctx, testo, fontSize, centerX, centerY) {
+    if (!testo || !fontSize) return;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `700 ${fontSize}px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif`;
     ctx.fillText(testo, centerX, centerY);
 }
 
 async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
     const canvas = document.createElement('canvas');
     canvas.width = 1920;
-    canvas.height = 1080;
     const ctx = canvas.getContext('2d');
+
+    const margine = 55;
+    const logoH = 110;
+    const gapBrandTesto = 70;
+    const gapNomeCognome = 32;
+    const maxWidthTesto = canvas.width - (margine * 2);
+
+    const nomePulito = (nomePax || '').trim();
+    const cognomePulito = (cognomePax || '').trim();
+
+    const fontNome = calcolaFontCanvas(ctx, nomePulito, maxWidthTesto);
+    const fontCognome = calcolaFontCanvas(ctx, cognomePulito, maxWidthTesto);
+
+    const altezzaNome = fontNome ? fontNome * 1.02 : 0;
+    const altezzaCognome = fontCognome ? fontCognome * 1.02 : 0;
+    const gapEffettivoRighe = (altezzaNome && altezzaCognome) ? gapNomeCognome : 0;
+
+    canvas.height = Math.round(margine + logoH + gapBrandTesto + altezzaNome + gapEffettivoRighe + altezzaCognome + margine);
 
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const centerYBrand = margine + (logoH / 2);
 
     try {
         const [logoImg, scrittaImg] = await Promise.all([
@@ -5518,14 +5544,12 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
             caricaImmagineSvg('../logo/scritta.svg')
         ]);
 
-        const logoH = 110;
         const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH || 110;
         const scrittaH = 44;
         const scrittaW = (scrittaImg.naturalWidth / scrittaImg.naturalHeight) * scrittaH || 340;
         const gap = 28;
         const totaleW = logoW + gap + scrittaW;
         const startX = (canvas.width - totaleW) / 2;
-        const centerYBrand = 320;
 
         ctx.drawImage(logoImg, startX, centerYBrand - (logoH / 2), logoW, logoH);
         ctx.drawImage(scrittaImg, startX + logoW + gap, centerYBrand - (scrittaH / 2), scrittaW, scrittaH);
@@ -5534,12 +5558,17 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
         ctx.font = '700 54px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('DRIVERBUTLER', canvas.width / 2, 320);
+        ctx.fillText('DRIVERBUTLER', canvas.width / 2, centerYBrand);
     }
 
-    const maxWidthTesto = canvas.width - 180;
-    disegnaTestoAdattatoCanvas(ctx, (nomePax || '').trim(), canvas.width / 2, 530, maxWidthTesto);
-    disegnaTestoAdattatoCanvas(ctx, (cognomePax || '').trim(), canvas.width / 2, 715, maxWidthTesto);
+    let cursoreY = margine + logoH + gapBrandTesto;
+    if (altezzaNome) {
+        disegnaRigaCanvas(ctx, nomePulito, fontNome, canvas.width / 2, cursoreY + (altezzaNome / 2));
+        cursoreY += altezzaNome + gapEffettivoRighe;
+    }
+    if (altezzaCognome) {
+        disegnaRigaCanvas(ctx, cognomePulito, fontCognome, canvas.width / 2, cursoreY + (altezzaCognome / 2));
+    }
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) return;
