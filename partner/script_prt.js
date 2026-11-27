@@ -2331,6 +2331,9 @@ async function rinnovaSessioneSilenziosa() {
             const nuoviDati = await risposta.json();
             localStorage.setItem('driverbutler_auth_token', nuoviDati.access_token);
             localStorage.setItem('driverbutler_refresh_token', nuoviDati.refresh_token);
+            if (window._clientSupaRealtime) {
+                window._clientSupaRealtime.realtime.setAuth(nuoviDati.access_token);
+            }
             console.log("Sessione rinnovata con successo dietro le quinte.");
         } else {
             console.warn("Impossibile rinnovare la sessione. Disconnessione imminente.");
@@ -3674,6 +3677,8 @@ function avviaConnessioneRealtime(token) {
     const clientSupa = supabase.createClient("https://drpgiwjwkfxztjbdyncm.supabase.co", chiaveAnon, {
         global: { headers: { Authorization: `Bearer ${token}` } }
     });
+    clientSupa.realtime.setAuth(token);
+    window._clientSupaRealtime = clientSupa;
 
     clientSupa.channel('bacheca-globale')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, payload => {
@@ -3937,7 +3942,7 @@ function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDispon
         const badgeStato = clone.querySelector('[data-bind="badge_stato"]');
         if (isAnnullato) {
             badgeStato.textContent = 'ANNULLATO';
-            badgeStato.classList.add('msg-errore');
+            badgeStato.classList.add('cal-stato-annullato');
         } else if (isAssegnato) {
             badgeStato.textContent = 'ASSEGNATO';
             badgeStato.classList.add('cal-stato-assegnato');

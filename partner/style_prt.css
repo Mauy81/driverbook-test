@@ -1642,6 +1642,10 @@ body.page-calendario .login-wrapper,
     color: #00FF66;
 }
 
+.cal-stato-annullato {
+    color: #FF4444;
+}
+
 .calendario-riga-indirizzo {
     display: grid;
     grid-template-columns: 30px 1fr;
