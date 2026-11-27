@@ -3679,13 +3679,18 @@ function avviaConnessioneRealtime(token) {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, payload => {
             const statoNuovo = payload.new ? payload.new.stato : null;
             const statoVecchio = payload.old ? payload.old.stato : null;
-            if (payload.eventType === 'UPDATE' && statoNuovo && statoVecchio && statoNuovo !== 'IN_ATTESA' && statoVecchio !== 'IN_ATTESA') {
+            const isCambioBacheca = !statoNuovo || !statoVecchio || statoNuovo === 'IN_ATTESA' || statoVecchio === 'IN_ATTESA';
+            const isCambioCalendario = document.getElementById('lista_servizi_calendario') && (statoNuovo === 'ANNULLATO' || statoVecchio === 'ANNULLATO' || statoNuovo === 'CONFERMATO' || statoNuovo === 'ASSEGNATO');
+
+            if (payload.eventType === 'UPDATE' && !isCambioBacheca && !isCambioCalendario) {
                 return;
             }
             clearTimeout(timerDebounceBacheca);
             timerDebounceBacheca = setTimeout(() => {
                 if (document.getElementById('contenitore_bacheca')) {
                     caricaBachecaRichieste(true);
+                } else if (document.getElementById('lista_servizi_calendario')) {
+                    caricaServiziCalendario(true);
                 } else {
                     if (typeof verificaBadgeBacheca === 'function') verificaBadgeBacheca();
                 }
@@ -3785,8 +3790,21 @@ window.addEventListener('focus', azzeraNotifichePWA);
 window.addEventListener('load', azzeraNotifichePWA);
 
 let dataCalendarioAttuale = new Date();
+let filtroCalendarioAnnullati = false;
 
 function inizializzaCalendario() {
+    const parametriUrl = new URLSearchParams(window.location.search);
+    const dataParam = parametriUrl.get('data');
+    const tabParam = parametriUrl.get('tab');
+
+    if (dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam)) {
+        const partiData = dataParam.split('-');
+        dataCalendarioAttuale = new Date(parseInt(partiData[0], 10), parseInt(partiData[1], 10) - 1, parseInt(partiData[2], 10));
+    }
+    if (tabParam === 'annullati') {
+        filtroCalendarioAnnullati = true;
+    }
+
     aggiornaUISelezioneData();
 
     const btnPrec = document.getElementById('btn_giorno_prec');
@@ -3849,7 +3867,33 @@ function aggiornaUISelezioneData() {
     testoData.textContent = dataCalendarioAttuale.toLocaleDateString('it-IT', opzioni);
 }
 
-function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili, dataQuery, token, chiaveAnon) {
+function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDisponibili, dataQuery, token, chiaveAnon) {
+    const listaTotali = Array.isArray(serviziTotali) ? serviziTotali : [];
+    const serviziAttivi = listaTotali.filter(s => s.stato !== 'ANNULLATO');
+    const serviziAnnullati = listaTotali.filter(s => s.stato === 'ANNULLATO');
+
+    const boxFiltroCal = document.getElementById('box_filtro_calendario');
+    const btnFiltroCal = document.getElementById('btn_filtro_calendario');
+    const voceCalAttivi = document.getElementById('voce_cal_attivi');
+    const voceCalAnnullati = document.getElementById('voce_cal_annullati');
+
+    if (boxFiltroCal && btnFiltroCal) {
+        boxFiltroCal.classList.remove('hidden');
+        if (voceCalAttivi) {
+            voceCalAttivi.textContent = `Attivi (${serviziAttivi.length})`;
+            voceCalAttivi.classList.toggle('attivo', !filtroCalendarioAnnullati);
+        }
+        if (voceCalAnnullati) {
+            voceCalAnnullati.textContent = `Annullati (${serviziAnnullati.length})`;
+            voceCalAnnullati.classList.toggle('attivo', filtroCalendarioAnnullati);
+        }
+        btnFiltroCal.onclick = function() {
+            this.blur();
+            filtroCalendarioAnnullati = !filtroCalendarioAnnullati;
+            renderizzaElencoCalendario(contenitore, listaTotali, conducentiDisponibili, dataQuery, token, chiaveAnon);
+        };
+    }
+
     let codiciAperti = [];
     contenitore.querySelectorAll('.card-bacheca-minimal.aperta').forEach(card => {
         const spanCodice = card.querySelector('[data-bind="codice_prenotazione_dettaglio"]');
@@ -3858,8 +3902,13 @@ function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili,
 
     contenitore.innerHTML = '';
 
-    if (!servizi || servizi.length === 0) {
-        contenitore.innerHTML = '<div class="msg-caricamento">Nessun servizio in questa data.</div>';
+    const servizi = filtroCalendarioAnnullati ? serviziAnnullati : serviziAttivi;
+
+    if (servizi.length === 0) {
+        const msgVuotoCal = filtroCalendarioAnnullati
+            ? 'Nessun servizio annullato in questa data.'
+            : 'Nessun servizio in questa data.';
+        contenitore.innerHTML = `<div class="msg-caricamento">${msgVuotoCal}</div>`;
         return;
     }
 
@@ -3867,6 +3916,7 @@ function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili,
     if (!template) return;
 
     servizi.forEach(servizio => {
+        const isAnnullato = servizio.stato === 'ANNULLATO';
         const isAssegnato = servizio.stato === 'ASSEGNATO' && !!servizio.codice_autista_assegnato;
         
         const clone = template.content.cloneNode(true);
@@ -3885,7 +3935,10 @@ function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili,
         clone.querySelector('[data-bind="intestazione_unificata"]').textContent = `${servizio.ora_partenza} - ${tipoServizioStr} - ${vetturaPulita}`;
 
         const badgeStato = clone.querySelector('[data-bind="badge_stato"]');
-        if (isAssegnato) {
+        if (isAnnullato) {
+            badgeStato.textContent = 'ANNULLATO';
+            badgeStato.classList.add('msg-errore');
+        } else if (isAssegnato) {
             badgeStato.textContent = 'ASSEGNATO';
             badgeStato.classList.add('cal-stato-assegnato');
         } else {
@@ -3984,6 +4037,9 @@ function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili,
         const msgAssegnazione = clone.querySelector('[data-bind="msg_assegnazione"]');
 
         if (selectAutista) {
+            if (servizio.stato === 'ANNULLATO') {
+                selectAutista.disabled = true;
+            }
             const optDefault = document.createElement('option');
             optDefault.value = '';
             optDefault.disabled = true;
@@ -4082,7 +4138,7 @@ function renderizzaElencoCalendario(contenitore, servizi, conducentiDisponibili,
     });
 }
 
-async function caricaServiziCalendario() {
+async function caricaServiziCalendario(silenzioso = false) {
     const contenitore = document.getElementById('lista_servizi_calendario');
     if (!contenitore) return;
 
@@ -4095,10 +4151,14 @@ async function caricaServiziCalendario() {
     const dataQuery = `${anno}-${mese}-${giorno}`;
 
     const cacheCal = leggiCachePartner(`cal_${dataQuery}`);
-    if (cacheCal && Array.isArray(cacheCal.servizi)) {
-        renderizzaElencoCalendario(contenitore, cacheCal.servizi, cacheCal.conducenti || [], dataQuery, token, chiaveAnon);
-    } else {
-        contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+    if (!silenzioso) {
+        if (cacheCal && Array.isArray(cacheCal.servizi)) {
+            renderizzaElencoCalendario(contenitore, cacheCal.servizi, cacheCal.conducenti || [], dataQuery, token, chiaveAnon);
+        } else {
+            const boxFiltroCal = document.getElementById('box_filtro_calendario');
+            if (boxFiltroCal) boxFiltroCal.classList.add('hidden');
+            contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+        }
     }
     
     try {
@@ -4113,7 +4173,7 @@ async function caricaServiziCalendario() {
         const codicePartner = contesto.codicePartnerAzienda;
 
         const [res, conducentiDisponibili] = await Promise.all([
-            fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_partner_assegnato=eq.${codicePartner}&data_partenza=eq.${dataQuery}&stato=neq.ANNULLATO&order=ora_partenza.asc`, {
+            fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_partner_assegnato=eq.${codicePartner}&data_partenza=eq.${dataQuery}&order=ora_partenza.asc`, {
                 headers: {
                     "apikey": chiaveAnon,
                     "Authorization": "Bearer " + token

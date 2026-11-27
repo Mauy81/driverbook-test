@@ -106,6 +106,28 @@ self.addEventListener('push', event => {
                 return;
             }
 
+            if (payloadDati.tipo === 'SERVIZIO_ANNULLATO') {
+                const isSilenziosa = payloadDati.silenziosa === true;
+                const opzioniAnnullamento = {
+                    body: payloadDati.body || "Un servizio è stato annullato dal passeggero.",
+                    icon: '../logo/icona-pwa-prt.png',
+                    badge: '../logo/badge-bianco.png',
+                    data: {
+                        url: urlDestinazione
+                    },
+                    tag: payloadDati.tag || 'driverbutler-annullamento',
+                    renotify: !isSilenziosa,
+                    silent: isSilenziosa
+                };
+
+                if (!isSilenziosa) {
+                    opzioniAnnullamento.vibrate = [200, 100, 200];
+                }
+
+                await self.registration.showNotification(payloadDati.title || "Servizio Annullato", opzioniAnnullamento);
+                return;
+            }
+
             const notifiche = await self.registration.getNotifications({ tag: 'driverbutler-notifiche' });
             let conteggio = 1;
             
