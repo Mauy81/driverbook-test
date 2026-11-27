@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (hashParams.get('type') === 'email_change' || hashParams.has('error_description')) {
         const chiaviDaCancellare = [
             'driverbutler_auth_token', 'driverbutler_refresh_token', 'driverbutler_ruolo', 'driverbutler_last_user',
-            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+            'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
             'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
             'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -334,6 +334,9 @@ document.addEventListener("DOMContentLoaded", function() {
         impostaLimitiData();
 
         document.getElementById('nome_passeggero').value = localStorage.getItem('db_nome_passeggero') || '';
+        if (document.getElementById('cognome_passeggero')) {
+            document.getElementById('cognome_passeggero').value = localStorage.getItem('db_cognome_passeggero') || '';
+        }
         if (localStorage.getItem('db_tel_passeggero') && itiPasseggero) {
             setTimeout(() => {
                 itiPasseggero.setNumber(localStorage.getItem('db_tel_passeggero'));
@@ -819,7 +822,7 @@ async function inviaLogin(event) {
         const ultimoUtente = localStorage.getItem('driverbutler_last_user');
         if (ultimoUtente && ultimoUtente !== userId) {
             const chiaviDaCancellare = [
-                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
                 'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
                 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -928,7 +931,7 @@ async function verificaOtpLogin() {
         const ultimoUtente = localStorage.getItem('driverbutler_last_user');
         if (ultimoUtente && ultimoUtente !== userId) {
             const chiaviDaCancellare = [
-                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
                 'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
                 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -1052,6 +1055,7 @@ function gestisciVisualizzazioneReferente() {
     const inputNome = document.getElementById('nome_referente');
     const inputTel = document.getElementById('tel_referente');
     const inputNomePax = document.getElementById('nome_passeggero');
+    const inputCognomePax = document.getElementById('cognome_passeggero');
 
     if (chk && sezione) {
         if (chk.checked) {
@@ -1061,20 +1065,24 @@ function gestisciVisualizzazioneReferente() {
             
             if (localStorage.getItem('driverbutler_is_business') === 'false') {
                 const defaultNome = localStorage.getItem('driverbutler_privato_nome') || '';
+                const defaultCognome = localStorage.getItem('driverbutler_privato_cognome') || '';
+                const defaultNomeCompleto = `${defaultNome} ${defaultCognome}`.trim();
                 const defaultTel = localStorage.getItem('driverbutler_privato_tel') || '';
                 
-                if (inputNome) inputNome.value = defaultNome;
+                if (inputNome) inputNome.value = defaultNomeCompleto;
                 if (itiReferente) itiReferente.setNumber(defaultTel);
                 
                 const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
+                const currentCognomePax = inputCognomePax ? inputCognomePax.value.trim() : '';
                 let currentTelPax = '';
                 if (itiPasseggero) {
                     currentTelPax = itiPasseggero.getNumber().replace(/\s+/g, '');
                 }
                 const cleanDefaultTel = defaultTel.replace(/\s+/g, '');
                 
-                if (currentNomePax === defaultNome.trim() && currentTelPax === cleanDefaultTel) {
+                if (currentNomePax === defaultNome.trim() && currentCognomePax === defaultCognome.trim() && currentTelPax === cleanDefaultTel) {
                     if (inputNomePax) inputNomePax.value = '';
+                    if (inputCognomePax) inputCognomePax.value = '';
                     if (itiPasseggero) itiPasseggero.setNumber('');
                 }
             }
@@ -1085,6 +1093,7 @@ function gestisciVisualizzazioneReferente() {
             
             if (localStorage.getItem('driverbutler_is_business') === 'false') {
                 if (inputNomePax) inputNomePax.value = localStorage.getItem('driverbutler_privato_nome') || '';
+                if (inputCognomePax) inputCognomePax.value = localStorage.getItem('driverbutler_privato_cognome') || '';
                 if (itiPasseggero) itiPasseggero.setNumber(localStorage.getItem('driverbutler_privato_tel') || '');
                 if (inputNome) inputNome.value = '';
                 if (itiReferente) itiReferente.setNumber('');
@@ -1449,7 +1458,8 @@ function inviaRichiesta(event) {
     }
 
     if (validaOrario()) {
-        localStorage.setItem('db_nome_passeggero', document.getElementById('nome_passeggero').value);
+        localStorage.setItem('db_nome_passeggero', document.getElementById('nome_passeggero').value.trim());
+        localStorage.setItem('db_cognome_passeggero', document.getElementById('cognome_passeggero').value.trim());
         let prefissoPax = "+" + itiPasseggero.getSelectedCountryData().dialCode;
         let numPax = document.getElementById('tel_passeggero').value.trim();
         localStorage.setItem('db_tel_passeggero', (numPax.startsWith('+') ? numPax : (prefissoPax + numPax)).replace(/\s+/g, '')); 
@@ -1509,7 +1519,7 @@ function caricaRiepilogo() {
     const linguaAttuale = localStorage.getItem('driverbutler_lang') || 'it';
     const dict = traduzioni[linguaAttuale] || traduzioni['it'];
 
-    const nomePax = localStorage.getItem('db_nome_passeggero');
+    const nomePax = [localStorage.getItem('db_nome_passeggero'), localStorage.getItem('db_cognome_passeggero')].filter(Boolean).join(' ');
     const telPax = localStorage.getItem('db_tel_passeggero');
     const chkReferente = localStorage.getItem('db_chk_referente') === 'true';
     const nomeRef = localStorage.getItem('db_nome_referente');
@@ -1665,6 +1675,7 @@ async function confermaPrenotazione() {
         codice_passeggero: codicePasseggero,
         id_passeggero: idUtente,
         nome_passeggero: localStorage.getItem('db_nome_passeggero') || null,
+        cognome_passeggero: localStorage.getItem('db_cognome_passeggero') || null,
         tel_passeggero: localStorage.getItem('db_tel_passeggero') || null,
         chk_referente: localStorage.getItem('db_chk_referente') === 'true',
         nome_referente: localStorage.getItem('db_nome_referente') || null,
@@ -1723,7 +1734,7 @@ async function confermaPrenotazione() {
 
         if (!partnerIdonei || partnerIdonei.length === 0) {
             const chiaviDaCancellare = [
-                'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+                'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
                 'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
                 'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
                 'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -1764,7 +1775,7 @@ async function confermaPrenotazione() {
         const codiceGenerato = datiSalvati[0].codice_prenotazione;
         
         const chiaviDaCancellare = [
-            'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+            'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
             'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
             'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
             'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -1929,10 +1940,13 @@ async function inviaRegistrazionePasseggero(event) {
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
         const richiedeFattura = document.getElementById('richiedeFattura').checked;
+        const nomeReg = document.getElementById('nome').value.trim();
+        const cognomeReg = document.getElementById('cognome').value.trim();
 
         const corpoDati = {
-            display_name: document.getElementById('nome').value,
-            nome_cognome: document.getElementById('nome').value,
+            display_name: `${nomeReg} ${cognomeReg}`.trim(),
+            nome: nomeReg,
+            cognome: cognomeReg,
             telefono: telefonoFinale,
             richiede_fattura: richiedeFattura,
             ragione_sociale: richiedeFattura ? document.getElementById('ragioneSociale').value : null,
@@ -2144,30 +2158,35 @@ function svuotaCachePax() {
 
 function applicaDatiPasseggeroUI(passeggero) {
     if (!passeggero) return;
+    const nomeCompleto = `${passeggero.nome || ''} ${passeggero.cognome || ''}`.trim();
 
     if (document.getElementById('dash_nome_utente')) {
-        document.getElementById('dash_nome_utente').textContent = passeggero.nome_cognome;
+        document.getElementById('dash_nome_utente').textContent = nomeCompleto;
     }
     if (document.getElementById('dash_codice_cliente')) {
         document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
     }
     
-    if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero')) {
+    if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero') && !localStorage.getItem('db_cognome_passeggero')) {
         if (passeggero.richiede_fattura) {
             document.getElementById('chk_referente').checked = true;
             gestisciVisualizzazioneReferente();
-            document.getElementById('nome_referente').value = passeggero.ragione_sociale || passeggero.nome_cognome || '';
+            document.getElementById('nome_referente').value = passeggero.ragione_sociale || nomeCompleto || '';
             if (itiReferente && passeggero.telefono) {
                 itiReferente.setNumber(passeggero.telefono);
             }
             localStorage.setItem('driverbutler_is_business', 'true');
         } else {
-            document.getElementById('nome_passeggero').value = passeggero.nome_cognome || '';
+            document.getElementById('nome_passeggero').value = passeggero.nome || '';
+            if (document.getElementById('cognome_passeggero')) {
+                document.getElementById('cognome_passeggero').value = passeggero.cognome || '';
+            }
             if (itiPasseggero && passeggero.telefono) {
                 itiPasseggero.setNumber(passeggero.telefono);
             }
             localStorage.setItem('driverbutler_is_business', 'false');
-            localStorage.setItem('driverbutler_privato_nome', passeggero.nome_cognome || '');
+            localStorage.setItem('driverbutler_privato_nome', passeggero.nome || '');
+            localStorage.setItem('driverbutler_privato_cognome', passeggero.cognome || '');
             localStorage.setItem('driverbutler_privato_tel', passeggero.telefono || '');
             
             const labelRef = document.querySelector('label[for="chk_referente"]');
@@ -2179,7 +2198,10 @@ function applicaDatiPasseggeroUI(passeggero) {
     }
     
     if (document.getElementById('profilo_nome')) {
-        document.getElementById('profilo_nome').value = passeggero.nome_cognome || '';
+        document.getElementById('profilo_nome').value = passeggero.nome || '';
+        if (document.getElementById('profilo_cognome')) {
+            document.getElementById('profilo_cognome').value = passeggero.cognome || '';
+        }
         document.getElementById('profilo_email').value = passeggero.email || '';
         if (itiProfiloPasseggero && passeggero.telefono) {
             itiProfiloPasseggero.setNumber(passeggero.telefono);
@@ -2302,9 +2324,13 @@ async function aggiornaProfilo(event) {
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
         const richiedeFattura = document.getElementById('profilo_richiedeFattura').checked;
+        const nomeProf = document.getElementById('profilo_nome').value.trim();
+        const cognomeProf = document.getElementById('profilo_cognome').value.trim();
+        const nomeCompletoProf = `${nomeProf} ${cognomeProf}`.trim();
         const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}`;
         const corpoDati = {
-            nome_cognome: document.getElementById('profilo_nome').value,
+            nome: nomeProf,
+            cognome: cognomeProf,
             telefono: telefonoFinale,
             richiede_fattura: richiedeFattura,
             ragione_sociale: richiedeFattura ? document.getElementById('profilo_ragioneSociale').value : null,
@@ -2339,7 +2365,7 @@ async function aggiornaProfilo(event) {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
+            body: JSON.stringify({ data: { display_name: nomeCompletoProf, name: nomeCompletoProf } })
         });
         
         if (typeof svuotaBozze === 'function') svuotaBozze();
@@ -2820,7 +2846,7 @@ async function esciAccount() {
     svuotaCachePax();
     const chiaviDaCancellare = [
         'driverbutler_auth_token', 'driverbutler_refresh_token', 'driverbutler_ruolo', 'driverbutler_last_user', 'driverbutler_last_page',
-        'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+        'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
         'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
         'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -3118,13 +3144,13 @@ async function inviaAssistenzaInterna(event) {
         let nomeUtente = "N/A";
         let codiceCliente = "N/A";
 
-        const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=nome_cognome,codice_passeggero`, {
+        const checkPasseggero = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userId}&select=nome,cognome,codice_passeggero`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const datiPasseggero = await checkPasseggero.json();
 
         if (datiPasseggero && datiPasseggero.length > 0) {
-            nomeUtente = datiPasseggero[0].nome_cognome || "N/A";
+            nomeUtente = `${datiPasseggero[0].nome || ''} ${datiPasseggero[0].cognome || ''}`.trim() || "N/A";
             codiceCliente = datiPasseggero[0].codice_passeggero || "N/A";
         }
 
@@ -3315,9 +3341,12 @@ function applicaTraduzioni() {
     }
 	
 	const elementiPlaceholders = [
-        { id: 'nome', chiave: 'ph_nome_reg' },
-        { id: 'profilo_nome', chiave: 'ph_nome_reg' },
-        { id: 'nome_passeggero', chiave: 'ph_nome_pax' },
+        { id: 'nome', chiave: 'ph_nome' },
+        { id: 'cognome', chiave: 'ph_cognome' },
+        { id: 'profilo_nome', chiave: 'ph_nome' },
+        { id: 'profilo_cognome', chiave: 'ph_cognome' },
+        { id: 'nome_passeggero', chiave: 'ph_nome_pax_singolo' },
+        { id: 'cognome_passeggero', chiave: 'ph_cognome_pax' },
         { id: 'nome_referente', chiave: 'ph_nome_ref' },
         { id: 'partenza', chiave: 'ph_indirizzo' },
         { id: 'arrivo', chiave: 'ph_indirizzo' },
@@ -3520,7 +3549,7 @@ window.svuotaBozze = function() {
     });
     
     const chiaviDaCancellare = [
-        'db_nome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
+        'db_nome_passeggero', 'db_cognome_passeggero', 'db_tel_passeggero', 'db_chk_referente', 'db_nome_referente',
         'db_tel_referente', 'db_tipo_servizio', 'db_partenza', 'db_partenza_lat', 'db_partenza_lng', 'db_partenza_citta', 'db_partenza_via',
         'db_arrivo', 'db_arrivo_lat', 'db_arrivo_lng', 'db_arrivo_citta', 'db_arrivo_via', 'db_itinerario_previsto',
         'db_chk_hub', 'db_info_trasporto', 'db_ore', 'db_data_partenza', 'db_ora_partenza',
@@ -3596,6 +3625,7 @@ function gestisciVisualizzazioneReferenteModifica() {
     const inputNome = document.getElementById('mod_nome_referente');
     const inputTel = document.getElementById('mod_tel_referente');
     const inputNomePax = document.getElementById('mod_nome_passeggero');
+    const inputCognomePax = document.getElementById('mod_cognome_passeggero');
 
     if (!chk || !sezione) return;
 
@@ -3606,20 +3636,24 @@ function gestisciVisualizzazioneReferenteModifica() {
 
         if (localStorage.getItem('driverbutler_is_business') === 'false') {
             const defaultNome = localStorage.getItem('driverbutler_privato_nome') || '';
+            const defaultCognome = localStorage.getItem('driverbutler_privato_cognome') || '';
+            const defaultNomeCompleto = `${defaultNome} ${defaultCognome}`.trim();
             const defaultTel = localStorage.getItem('driverbutler_privato_tel') || '';
 
-            if (inputNome && !inputNome.value.trim()) inputNome.value = defaultNome;
+            if (inputNome && !inputNome.value.trim()) inputNome.value = defaultNomeCompleto;
             if (itiModReferente && inputTel && !inputTel.value.trim()) itiModReferente.setNumber(defaultTel);
 
             const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
+            const currentCognomePax = inputCognomePax ? inputCognomePax.value.trim() : '';
             let currentTelPax = '';
             if (itiModPasseggero) {
                 currentTelPax = itiModPasseggero.getNumber().replace(/\s+/g, '');
             }
             const cleanDefaultTel = defaultTel.replace(/\s+/g, '');
 
-            if (currentNomePax === defaultNome.trim() && currentTelPax === cleanDefaultTel) {
+            if (currentNomePax === defaultNome.trim() && currentCognomePax === defaultCognome.trim() && currentTelPax === cleanDefaultTel) {
                 if (inputNomePax) inputNomePax.value = '';
+                if (inputCognomePax) inputCognomePax.value = '';
                 if (itiModPasseggero) itiModPasseggero.setNumber('');
             }
         }
@@ -3630,11 +3664,13 @@ function gestisciVisualizzazioneReferenteModifica() {
 
         if (localStorage.getItem('driverbutler_is_business') === 'false') {
             const currentNomePax = inputNomePax ? inputNomePax.value.trim() : '';
+            const currentCognomePax = inputCognomePax ? inputCognomePax.value.trim() : '';
             const inputTelPax = document.getElementById('mod_tel_passeggero');
             const currentTelVal = inputTelPax ? inputTelPax.value.trim() : '';
 
-            if (!currentNomePax && !currentTelVal) {
+            if (!currentNomePax && !currentCognomePax && !currentTelVal) {
                 if (inputNomePax) inputNomePax.value = localStorage.getItem('driverbutler_privato_nome') || '';
+                if (inputCognomePax) inputCognomePax.value = localStorage.getItem('driverbutler_privato_cognome') || '';
                 if (itiModPasseggero) itiModPasseggero.setNumber(localStorage.getItem('driverbutler_privato_tel') || '');
             }
             if (inputNome) inputNome.value = '';
@@ -3701,6 +3737,9 @@ function apriModuloModificaViaggio(codice) {
     if (modEl) modEl.classList.remove('hidden');
 
     document.getElementById('mod_nome_passeggero').value = viaggio.nome_passeggero || '';
+    if (document.getElementById('mod_cognome_passeggero')) {
+        document.getElementById('mod_cognome_passeggero').value = viaggio.cognome_passeggero || '';
+    }
     if (itiModPasseggero && viaggio.tel_passeggero) {
         itiModPasseggero.setNumber(viaggio.tel_passeggero);
     } else {
@@ -3818,6 +3857,7 @@ async function salvaModificheViaggio(event) {
 
     const payloadModifica = {
         nome_passeggero: document.getElementById('mod_nome_passeggero').value.trim(),
+        cognome_passeggero: document.getElementById('mod_cognome_passeggero').value.trim(),
         tel_passeggero: telPaxFinale,
         chk_referente: chkRefAttivo,
         nome_referente: chkRefAttivo ? (document.getElementById('mod_nome_referente').value.trim() || null) : null,
@@ -3979,7 +4019,7 @@ async function caricaViaggiProgrammati(silenzioso = false) {
             const userData = await userRes.json();
             localStorage.setItem('driverbutler_last_user', userData.id);
             
-            const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero,nome_cognome,telefono,richiede_fattura`, {
+            const passRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/passeggeri?id_passeggero=eq.${userData.id}&select=codice_passeggero,nome,cognome,telefono,richiede_fattura`, {
                 headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
             });
             if (!passRes.ok) throw new Error("Errore lettura passeggero");
@@ -3989,7 +4029,8 @@ async function caricaViaggiProgrammati(silenzioso = false) {
 
             localStorage.setItem('driverbutler_is_business', profiloPax.richiede_fattura ? 'true' : 'false');
             if (!profiloPax.richiede_fattura) {
-                localStorage.setItem('driverbutler_privato_nome', profiloPax.nome_cognome || '');
+                localStorage.setItem('driverbutler_privato_nome', profiloPax.nome || '');
+                localStorage.setItem('driverbutler_privato_cognome', profiloPax.cognome || '');
                 localStorage.setItem('driverbutler_privato_tel', profiloPax.telefono || '');
             }
 
@@ -4084,7 +4125,7 @@ async function caricaViaggiProgrammati(silenzioso = false) {
             const parti = dataFormattata.split('-');
             if (parti.length === 3) dataFormattata = `${parti[2]}/${parti[1]}/${parti[0]}`;
 
-            let nomePasseggero = viaggio.nome_passeggero || "-";
+            let nomePasseggero = `${viaggio.nome_passeggero || ''} ${viaggio.cognome_passeggero || ''}`.trim() || "-";
             let telPasseggero = viaggio.tel_passeggero || "-";
             
             let bloccoReferenteHtml = "";

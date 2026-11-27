@@ -24,8 +24,13 @@
             
             <form id="form_prenotazione">
                 <div class="form-group">
-                    <label class="label" data-i18n="label_nome_pax">Nome e Cognome Passeggero</label>
-                    <input type="text" id="nome_passeggero" class="input" placeholder="Es. Andrea Bianchi" required>
+                    <label class="label" for="nome_passeggero" data-i18n="label_nome_pax_singolo">Nome Passeggero</label>
+                    <input type="text" id="nome_passeggero" class="input" placeholder="Andrea" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="label" for="cognome_passeggero" data-i18n="label_cognome_pax">Cognome Passeggero</label>
+                    <input type="text" id="cognome_passeggero" class="input" placeholder="Bianchi" required>
                     <div class="label-nota" data-i18n="nota_cartello">(Per il cartello di benvenuto)</div>
                 </div>
 

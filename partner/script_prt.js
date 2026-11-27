@@ -199,6 +199,10 @@ document.addEventListener("DOMContentLoaded", function() {
         inizializzaCalendario();
     }
 
+    if (document.getElementById('card_miei_servizi')) {
+        inizializzaMieiServizi();
+    }
+
     const formProfilo = document.getElementById('formModificaProfilo');
     if (formProfilo) {
         formProfilo.addEventListener('submit', function(event) {
@@ -695,9 +699,13 @@ async function inviaRegistrazione(event) {
         let numeroDigitato = document.getElementById('telefono').value.trim();
         let telefonoFinale = (numeroDigitato.startsWith('+') ? numeroDigitato : (prefissoTel + numeroDigitato)).replace(/\s+/g, '');
 
+        const nomeReg = document.getElementById('nome').value.trim();
+        const cognomeReg = document.getElementById('cognome').value.trim();
+
         const corpoDati = {
-            display_name: document.getElementById('nome').value,
-            nome_cognome: document.getElementById('nome').value,
+            display_name: `${nomeReg} ${cognomeReg}`.trim(),
+            nome: nomeReg,
+            cognome: cognomeReg,
             tel_partner: telefonoFinale,
             ragione_sociale: document.getElementById('ragioneSociale').value,
             piva: document.getElementById('piva').value,
@@ -998,12 +1006,13 @@ function applicaDatiContestoUI(contesto, emailAuth) {
 
     if (contesto.tipoUtente === 'partner') {
         const partner = contesto.partner;
+        const nomeCompletoPrt = `${partner.nome || ''} ${partner.cognome || ''}`.trim();
 
         const lblCodPrinc = document.getElementById('lbl_codice_principale');
         if (lblCodPrinc) lblCodPrinc.textContent = 'Codice Partner:';
 
         if (document.getElementById('dash_nome_partner')) {
-            document.getElementById('dash_nome_partner').textContent = partner.nome_cognome;
+            document.getElementById('dash_nome_partner').textContent = nomeCompletoPrt;
         }
         if (document.getElementById('dash_codice_partner')) {
             document.getElementById('dash_codice_partner').textContent = partner.codice_partner;
@@ -1023,6 +1032,7 @@ function applicaDatiContestoUI(contesto, emailAuth) {
             if (bloccoSoc) bloccoSoc.classList.remove('hidden');
 
             document.getElementById('profilo_nome').required = true;
+            if (document.getElementById('profilo_cognome')) document.getElementById('profilo_cognome').required = true;
             ['profilo_dip_nome', 'profilo_dip_cognome', 'profilo_dip_numero_ruolo'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.required = false;
@@ -1034,7 +1044,8 @@ function applicaDatiContestoUI(contesto, emailAuth) {
             const chkKb = document.getElementById('profilo_autocertificazioneKb');
             if (chkKb) chkKb.required = true;
 
-            document.getElementById('profilo_nome').value = partner.nome_cognome || '';
+            document.getElementById('profilo_nome').value = partner.nome || '';
+            if (document.getElementById('profilo_cognome')) document.getElementById('profilo_cognome').value = partner.cognome || '';
             document.getElementById('profilo_email').value = partner.email || emailAuth || '';
             if (itiProfiloPartner && partner.tel_partner) {
                 itiProfiloPartner.setNumber(partner.tel_partner);
@@ -1077,7 +1088,8 @@ function applicaDatiContestoUI(contesto, emailAuth) {
             bloccoOpDash.classList.remove('hidden');
             const elAzienda = document.getElementById('dash_azienda_operativo');
             const elCodDip = document.getElementById('dash_codice_dipendente');
-            if (elAzienda) elAzienda.textContent = (partnerAzienda && (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome)) ? (partnerAzienda.ragione_sociale || partnerAzienda.nome_cognome) : '-';
+            const nomeTitAzienda = partnerAzienda ? `${partnerAzienda.nome || ''} ${partnerAzienda.cognome || ''}`.trim() : '';
+            if (elAzienda) elAzienda.textContent = (partnerAzienda && (partnerAzienda.ragione_sociale || nomeTitAzienda)) ? (partnerAzienda.ragione_sociale || nomeTitAzienda) : '-';
             if (elCodDip) elCodDip.textContent = contesto.codicePartnerAzienda || '-';
         }
 
@@ -1094,6 +1106,8 @@ function applicaDatiContestoUI(contesto, emailAuth) {
 
             const inputNomePrt = document.getElementById('profilo_nome');
             if (inputNomePrt) inputNomePrt.required = false;
+            const inputCognomePrt = document.getElementById('profilo_cognome');
+            if (inputCognomePrt) inputCognomePrt.required = false;
 
             ['profilo_ragioneSociale', 'profilo_piva', 'profilo_codice_sdi', 'profilo_pec', 'profilo_indirizzo_via', 'profilo_indirizzo_cap', 'profilo_indirizzo_citta', 'profilo_indirizzo_provincia', 'profilo_iban', 'profilo_intestatario_conto', 'profilo_ruoloConducenti', 'profilo_zonaOperativa'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1228,9 +1242,13 @@ async function aggiornaProfilo(event) {
         const nuovaEmail = document.getElementById('profilo_email').value.trim();
 
         if (contesto.tipoUtente === 'partner') {
+            const nomeProf = document.getElementById('profilo_nome').value.trim();
+            const cognomeProf = document.getElementById('profilo_cognome').value.trim();
+            const nomeCompletoProf = `${nomeProf} ${cognomeProf}`.trim();
             const urlPatch = `https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}`;
             const corpoDati = {
-                nome_cognome: document.getElementById('profilo_nome').value,
+                nome: nomeProf,
+                cognome: cognomeProf,
                 tel_partner: telefonoFinale,
                 ragione_sociale: document.getElementById('profilo_ragioneSociale').value,
                 piva: document.getElementById('profilo_piva').value,
@@ -1276,7 +1294,7 @@ async function aggiornaProfilo(event) {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ data: { display_name: corpoDati.nome_cognome, name: corpoDati.nome_cognome } })
+                body: JSON.stringify({ data: { display_name: nomeCompletoProf, name: nomeCompletoProf } })
             });
         } else {
             const nomeDip = document.getElementById('profilo_dip_nome').value.trim();
@@ -2152,12 +2170,12 @@ async function inviaAssistenzaInterna(event) {
         let codiceCliente = "N/A";
         let infoAziendaOp = "";
 
-        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome_cognome,codice_partner`, {
+        const checkPartner = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${userId}&select=nome,cognome,codice_partner`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         });
         const datiPartner = await checkPartner.json();
         if (datiPartner && datiPartner.length > 0) {
-            nomeUtente = datiPartner[0].nome_cognome || "N/A";
+            nomeUtente = `${datiPartner[0].nome || ''} ${datiPartner[0].cognome || ''}`.trim() || "N/A";
             codiceCliente = datiPartner[0].codice_partner || "N/A";
         } else {
             const checkDip = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_dipendente=eq.${userId}&select=nome,cognome,codice_dipendente,codice_partner,id_partner`, {
@@ -2170,12 +2188,13 @@ async function inviaAssistenzaInterna(event) {
                 codiceCliente = dip.codice_dipendente || "N/A";
                 let nomeAzienda = "N/A";
                 if (dip.id_partner) {
-                    const pRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${dip.id_partner}&select=ragione_sociale,nome_cognome,codice_partner`, {
+                    const pRes = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${dip.id_partner}&select=ragione_sociale,nome,cognome,codice_partner`, {
                         headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
                     });
                     const pData = await pRes.json();
                     if (pData && pData.length > 0) {
-                        nomeAzienda = pData[0].ragione_sociale || pData[0].nome_cognome || "N/A";
+                        const nomeTit = `${pData[0].nome || ''} ${pData[0].cognome || ''}`.trim();
+                        nomeAzienda = pData[0].ragione_sociale || nomeTit || "N/A";
                     }
                 }
                 infoAziendaOp = `\nRuolo: OPERATIVO\nAzienda Partner: ${nomeAzienda} (${dip.codice_partner || 'N/A'})`;
@@ -3042,7 +3061,8 @@ function popolaUIBacheca(richiesteFiltrate, ultimoAccessoMs, verificaSnapshot = 
             clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').classList.remove('hidden');
         }
 
-        clone.querySelector('[data-bind="nome_passeggero"]').textContent = viaggio.nome_passeggero || '-';
+        const nomeCompletoPax = `${viaggio.nome_passeggero || ''} ${viaggio.cognome_passeggero || ''}`.trim();
+        clone.querySelector('[data-bind="nome_passeggero"]').textContent = nomeCompletoPax || '-';
         
         let telPaxFormattato = viaggio.tel_passeggero || '-';
         if (viaggio.tel_passeggero && window.intlTelInputUtils) {
@@ -3106,6 +3126,11 @@ function popolaUIBacheca(richiesteFiltrate, ultimoAccessoMs, verificaSnapshot = 
         } else {
             clone.querySelector('[data-bind-container="itinerario_previsto_block"]').classList.remove('hidden');
             clone.querySelector('[data-bind="itinerario_previsto"]').textContent = viaggio.itinerario_previsto || '-';
+        }
+
+        if (viaggio.chk_hub && viaggio.info_trasporto) {
+            clone.querySelector('[data-bind-container="hub_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="info_trasporto"]').textContent = viaggio.info_trasporto;
         }
 
         const numPax = viaggio.passeggeri || 1;
@@ -3243,7 +3268,7 @@ async function recuperaConducentiAbilitatiAzienda(token, idPartnerAzienda) {
     const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
 
     const [partnerRes, dipRes] = await Promise.all([
-        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerAzienda}&select=id_partner,codice_partner,nome_cognome,abilitato_guida`, {
+        fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/partner?id_partner=eq.${idPartnerAzienda}&select=id_partner,codice_partner,nome,cognome,abilitato_guida`, {
             headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
         }),
         fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/dipendenti?id_partner=eq.${idPartnerAzienda}&stato_attivo=eq.true&email_verificata=eq.true&select=id_dipendente,codice_dipendente,nome,cognome,ruolo,abilitato_guida`, {
@@ -3255,29 +3280,34 @@ async function recuperaConducentiAbilitatiAzienda(token, idPartnerAzienda) {
     const dipData = dipRes.ok ? await dipRes.json() : [];
     const partner = partnerData.length > 0 ? partnerData[0] : null;
 
-    const dipendentiAbilitati = dipData
+    const conducenti = dipData
         .filter(d => d.ruolo === 'AUTISTA' || (d.ruolo === 'OPERATIVO' && d.abilitato_guida === true))
-        .sort((a, b) => {
-            const cmpCognome = (a.cognome || '').localeCompare(b.cognome || '', 'it', { sensitivity: 'base' });
-            if (cmpCognome !== 0) return cmpCognome;
-            return (a.nome || '').localeCompare(b.nome || '', 'it', { sensitivity: 'base' });
-        });
-
-    const conducenti = dipendentiAbilitati.map(d => ({
-        tipo: 'dipendente',
-        codice: d.codice_dipendente,
-        id_dipendente: d.id_dipendente,
-        label: `${d.cognome || ''} ${d.nome || ''}`.trim()
-    }));
+        .map(d => ({
+            tipo: 'dipendente',
+            codice: d.codice_dipendente,
+            id_dipendente: d.id_dipendente,
+            nome: d.nome || '',
+            cognome: d.cognome || '',
+            label: `${d.cognome || ''} ${d.nome || ''}`.trim()
+        }));
 
     if (partner && partner.abilitato_guida !== false) {
+        const labelPrt = `${partner.cognome || ''} ${partner.nome || ''}`.trim();
         conducenti.push({
             tipo: 'partner',
             codice: partner.codice_partner,
             id_dipendente: null,
-            label: partner.nome_cognome || partner.codice_partner
+            nome: partner.nome || '',
+            cognome: partner.cognome || '',
+            label: labelPrt || partner.codice_partner
         });
     }
+
+    conducenti.sort((a, b) => {
+        const cmpCognome = (a.cognome || '').localeCompare(b.cognome || '', 'it', { sensitivity: 'base' });
+        if (cmpCognome !== 0) return cmpCognome;
+        return (a.nome || '').localeCompare(b.nome || '', 'it', { sensitivity: 'base' });
+    });
 
     return conducenti;
 }
@@ -3686,8 +3716,9 @@ function avviaConnessioneRealtime(token) {
             const statoVecchio = payload.old ? payload.old.stato : null;
             const isCambioBacheca = !statoNuovo || !statoVecchio || statoNuovo === 'IN_ATTESA' || statoVecchio === 'IN_ATTESA';
             const isCambioCalendario = document.getElementById('lista_servizi_calendario') && (statoNuovo === 'ANNULLATO' || statoVecchio === 'ANNULLATO' || statoNuovo === 'CONFERMATO' || statoNuovo === 'ASSEGNATO');
+            const isCambioMieiServizi = document.getElementById('card_miei_servizi') && (statoNuovo === 'ANNULLATO' || statoVecchio === 'ANNULLATO' || statoNuovo === 'ASSEGNATO' || statoVecchio === 'ASSEGNATO' || statoNuovo === 'EFFETTUATO');
 
-            if (payload.eventType === 'UPDATE' && !isCambioBacheca && !isCambioCalendario) {
+            if (payload.eventType === 'UPDATE' && !isCambioBacheca && !isCambioCalendario && !isCambioMieiServizi) {
                 return;
             }
             clearTimeout(timerDebounceBacheca);
@@ -3696,6 +3727,8 @@ function avviaConnessioneRealtime(token) {
                     caricaBachecaRichieste(true);
                 } else if (document.getElementById('lista_servizi_calendario')) {
                     caricaServiziCalendario(true);
+                } else if (document.getElementById('card_miei_servizi')) {
+                    caricaMieiServizi(true);
                 } else {
                     if (typeof verificaBadgeBacheca === 'function') verificaBadgeBacheca();
                 }
@@ -3784,6 +3817,8 @@ document.addEventListener('visibilitychange', async () => {
             
             if (document.getElementById('contenitore_bacheca')) {
                 caricaBachecaRichieste(true);
+            } else if (document.getElementById('card_miei_servizi')) {
+                caricaMieiServizi(true);
             } else if (typeof verificaBadgeBacheca === 'function') {
                 verificaBadgeBacheca();
             }
@@ -3966,9 +4001,10 @@ function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDispon
             clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').classList.remove('hidden');
         }
 
-        clone.querySelector('[data-bind="pax_sintesi"]').textContent = servizio.nome_passeggero || '-';
+        const nomeCompletoPaxCal = `${servizio.nome_passeggero || ''} ${servizio.cognome_passeggero || ''}`.trim();
+        clone.querySelector('[data-bind="pax_sintesi"]').textContent = nomeCompletoPaxCal || '-';
 
-        clone.querySelector('[data-bind="nome_passeggero"]').textContent = servizio.nome_passeggero || '-';
+        clone.querySelector('[data-bind="nome_passeggero"]').textContent = nomeCompletoPaxCal || '-';
         clone.querySelector('[data-bind="tel_passeggero"]').textContent = servizio.tel_passeggero || '-';
         
         if (servizio.chk_referente && (servizio.nome_referente || servizio.tel_referente)) {
@@ -4030,6 +4066,11 @@ function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDispon
         } else {
             clone.querySelector('[data-bind-container="itinerario_previsto_block"]').classList.remove('hidden');
             clone.querySelector('[data-bind="itinerario_previsto"]').textContent = servizio.itinerario_previsto || '-';
+        }
+
+        if (servizio.chk_hub && servizio.info_trasporto) {
+            clone.querySelector('[data-bind-container="hub_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="info_trasporto"]').textContent = servizio.info_trasporto;
         }
 
         const numPax = servizio.passeggeri || 1;
@@ -5315,3 +5356,544 @@ document.addEventListener('invalid', function(e) {
         }, 350);
     }
 }, true);
+
+let dataMieiServiziAttuale = new Date();
+let filtroMieiServiziEffettuati = false;
+
+function inizializzaMieiServizi() {
+    const parametriUrl = new URLSearchParams(window.location.search);
+    const dataParam = parametriUrl.get('data');
+    if (dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam)) {
+        const partiData = dataParam.split('-');
+        dataMieiServiziAttuale = new Date(parseInt(partiData[0], 10), parseInt(partiData[1], 10) - 1, parseInt(partiData[2], 10));
+    }
+
+    aggiornaUISelezioneDataMieiServizi();
+
+    const btnPrec = document.getElementById('btn_ms_giorno_prec');
+    const btnSucc = document.getElementById('btn_ms_giorno_succ');
+    const inputData = document.getElementById('input_ms_data_calendario');
+
+    if (btnPrec) {
+        btnPrec.addEventListener('click', () => {
+            dataMieiServiziAttuale.setDate(dataMieiServiziAttuale.getDate() - 1);
+            aggiornaUISelezioneDataMieiServizi();
+            caricaMieiServizi();
+        });
+    }
+
+    if (btnSucc) {
+        btnSucc.addEventListener('click', () => {
+            dataMieiServiziAttuale.setDate(dataMieiServiziAttuale.getDate() + 1);
+            aggiornaUISelezioneDataMieiServizi();
+            caricaMieiServizi();
+        });
+    }
+
+    if (inputData) {
+        inputData.addEventListener('change', (e) => {
+            if (e.target.value) {
+                const parti = e.target.value.split('-');
+                dataMieiServiziAttuale = new Date(parseInt(parti[0], 10), parseInt(parti[1], 10) - 1, parseInt(parti[2], 10));
+                aggiornaUISelezioneDataMieiServizi();
+                caricaMieiServizi();
+            }
+        });
+
+        const contenitoreData = inputData.closest('.data-selezionata-container');
+        if (contenitoreData) {
+            contenitoreData.addEventListener('click', () => {
+                if (typeof inputData.showPicker === 'function') {
+                    inputData.showPicker();
+                } else {
+                    inputData.click();
+                }
+            });
+        }
+    }
+
+    caricaMieiServizi();
+}
+
+function aggiornaUISelezioneDataMieiServizi() {
+    const testoData = document.getElementById('testo_ms_data_selezionata');
+    const inputData = document.getElementById('input_ms_data_calendario');
+    if (!testoData || !inputData) return;
+
+    const anno = dataMieiServiziAttuale.getFullYear();
+    const mese = String(dataMieiServiziAttuale.getMonth() + 1).padStart(2, '0');
+    const giorno = String(dataMieiServiziAttuale.getDate()).padStart(2, '0');
+
+    inputData.value = `${anno}-${mese}-${giorno}`;
+    const opzioni = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
+    testoData.textContent = dataMieiServiziAttuale.toLocaleDateString('it-IT', opzioni);
+}
+
+function apriModaleContattoCliente(telefono, titoloModale = 'Contatta Passeggero') {
+    const telPulito = telefono.replace(/\s+/g, '');
+    const waNumero = telPulito.replace(/[^0-9]/g, '');
+
+    let overlay = document.getElementById('modale_contatto_cliente_prt');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modale_contatto_cliente_prt';
+        overlay.className = 'modale-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    overlay.innerHTML = `
+        <div class="modale-box">
+            <h3 class="modale-titolo">${titoloModale}</h3>
+            <p class="modale-testo">Scegli come vuoi contattare il numero:</p>
+            <div class="modale-bottoni-container">
+                <a href="tel:${telPulito}" id="btn_chiama_cli_modale" class="btn-modale-bianco btn-modale-link">Chiama</a>
+                <a href="https://wa.me/${waNumero}" target="_blank" rel="noopener noreferrer" id="btn_wa_cli_modale" class="btn-modale-bianco btn-modale-link">WhatsApp</a>
+            </div>
+        </div>
+    `;
+
+    overlay.classList.remove('hidden');
+
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            overlay.classList.add('hidden');
+        }
+    };
+
+    document.getElementById('btn_chiama_cli_modale').onclick = function() {
+        overlay.classList.add('hidden');
+    };
+
+    document.getElementById('btn_wa_cli_modale').onclick = function() {
+        overlay.classList.add('hidden');
+    };
+}
+
+function adattaFontCartello(spanEl, testo) {
+    if (!spanEl) return;
+    spanEl.textContent = testo || '';
+    const lunghezza = (testo || '').trim().length;
+    const vwMax = lunghezza <= 8 ? 14 : (lunghezza <= 14 ? 10.5 : (lunghezza <= 20 ? 8 : 6.2));
+    spanEl.style.fontSize = `clamp(26px, ${vwMax}vw, 96px)`;
+}
+
+function caricaImmagineSvg(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+function disegnaTestoAdattatoCanvas(ctx, testo, centerX, centerY, maxWidth) {
+    let fontSize = 135;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    while (fontSize > 36) {
+        ctx.font = `700 ${fontSize}px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif`;
+        if (ctx.measureText(testo).width <= maxWidth) {
+            break;
+        }
+        fontSize -= 4;
+    }
+    ctx.fillText(testo, centerX, centerY);
+}
+
+async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1920;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    try {
+        const [logoImg, scrittaImg] = await Promise.all([
+            caricaImmagineSvg('../logo/logo.svg'),
+            caricaImmagineSvg('../logo/scritta.svg')
+        ]);
+
+        const logoH = 110;
+        const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH || 110;
+        const scrittaH = 44;
+        const scrittaW = (scrittaImg.naturalWidth / scrittaImg.naturalHeight) * scrittaH || 340;
+        const gap = 28;
+        const totaleW = logoW + gap + scrittaW;
+        const startX = (canvas.width - totaleW) / 2;
+        const centerYBrand = 190;
+
+        ctx.drawImage(logoImg, startX, centerYBrand - (logoH / 2), logoW, logoH);
+        ctx.drawImage(scrittaImg, startX + logoW + gap, centerYBrand - (scrittaH / 2), scrittaW, scrittaH);
+    } catch (e) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '700 54px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('DRIVERBUTLER', canvas.width / 2, 190);
+    }
+
+    const maxWidthTesto = canvas.width - 180;
+    disegnaTestoAdattatoCanvas(ctx, (nomePax || '').trim(), canvas.width / 2, 540, maxWidthTesto);
+    disegnaTestoAdattatoCanvas(ctx, (cognomePax || '').trim(), canvas.width / 2, 860, maxWidthTesto);
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) return;
+
+    const nomeFilePulito = `${nomePax || 'Passeggero'}_${cognomePax || ''}`.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fileName = `Cartello_${nomeFilePulito}.png`;
+    const file = new File([blob], fileName, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: 'Cartello di Benvenuto DriverButler'
+            });
+            return;
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;
+        }
+    }
+
+    const urlDownload = URL.createObjectURL(blob);
+    const linkDownload = document.createElement('a');
+    linkDownload.href = urlDownload;
+    linkDownload.download = fileName;
+    document.body.appendChild(linkDownload);
+    linkDownload.click();
+    linkDownload.remove();
+    setTimeout(() => URL.revokeObjectURL(urlDownload), 5000);
+}
+
+function apriCartelloBenvenuto(nomePax, cognomePax) {
+    const overlay = document.getElementById('overlay_cartello_benvenuto');
+    if (!overlay) return;
+
+    const spanNome = document.getElementById('cartello_testo_nome');
+    const spanCognome = document.getElementById('cartello_testo_cognome');
+    const btnEsporta = document.getElementById('btn_esporta_cartello_png');
+    const btnChiudi = document.getElementById('btn_chiudi_cartello');
+
+    adattaFontCartello(spanNome, (nomePax || '').trim());
+    adattaFontCartello(spanCognome, (cognomePax || '').trim());
+
+    overlay.classList.remove('hidden');
+    document.body.classList.add('no-scroll');
+
+    if (btnChiudi) {
+        btnChiudi.onclick = function() {
+            overlay.classList.add('hidden');
+            document.body.classList.remove('no-scroll');
+        };
+    }
+
+    if (btnEsporta) {
+        btnEsporta.onclick = async function() {
+            btnEsporta.disabled = true;
+            const testoOrig = btnEsporta.textContent;
+            btnEsporta.textContent = 'GENERAZIONE...';
+            try {
+                await esportaCartelloBenvenutoPNG(nomePax, cognomePax);
+            } finally {
+                btnEsporta.disabled = false;
+                btnEsporta.textContent = testoOrig;
+            }
+        };
+    }
+}
+
+function renderizzaElencoMieiServizi(contenitore, serviziTotali, dataQuery) {
+    const listaTotali = Array.isArray(serviziTotali) ? serviziTotali : [];
+    const serviziDaFare = listaTotali.filter(s => s.stato === 'ASSEGNATO');
+    const serviziEffettuati = listaTotali.filter(s => s.stato === 'EFFETTUATO');
+
+    const boxFiltroMs = document.getElementById('box_filtro_miei_servizi');
+    const btnFiltroMs = document.getElementById('btn_filtro_miei_servizi');
+    const voceDaFare = document.getElementById('voce_ms_dafare');
+    const voceEffettuati = document.getElementById('voce_ms_effettuati');
+
+    if (boxFiltroMs && btnFiltroMs) {
+        boxFiltroMs.classList.remove('hidden');
+        if (voceDaFare) {
+            voceDaFare.textContent = `Da fare (${serviziDaFare.length})`;
+            voceDaFare.classList.toggle('attivo', !filtroMieiServiziEffettuati);
+        }
+        if (voceEffettuati) {
+            voceEffettuati.textContent = `Effettuati (${serviziEffettuati.length})`;
+            voceEffettuati.classList.toggle('attivo', filtroMieiServiziEffettuati);
+        }
+        btnFiltroMs.onclick = function() {
+            this.blur();
+            filtroMieiServiziEffettuati = !filtroMieiServiziEffettuati;
+            renderizzaElencoMieiServizi(contenitore, listaTotali, dataQuery);
+        };
+    }
+
+    let codiciAperti = [];
+    contenitore.querySelectorAll('.card-bacheca-minimal.aperta').forEach(card => {
+        const spanCodice = card.querySelector('[data-bind="codice_prenotazione_dettaglio"]');
+        if (spanCodice) codiciAperti.push(spanCodice.textContent);
+    });
+
+    contenitore.innerHTML = '';
+
+    const servizi = filtroMieiServiziEffettuati ? serviziEffettuati : serviziDaFare;
+
+    if (servizi.length === 0) {
+        const msgVuoto = filtroMieiServiziEffettuati
+            ? 'Nessun servizio effettuato in questa data.'
+            : 'Nessun servizio da fare in questa data.';
+        contenitore.innerHTML = `<div class="msg-caricamento">${msgVuoto}</div>`;
+        return;
+    }
+
+    const template = document.getElementById('template_miei_servizi_card');
+    if (!template) return;
+
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const apriNavigatore = (indirizzo) => {
+        if (isMobile) {
+            window.location.href = `geo:0,0?q=${encodeURIComponent(indirizzo)}`;
+        } else {
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`, '_blank');
+        }
+    };
+
+    servizi.forEach(servizio => {
+        const isEffettuato = servizio.stato === 'EFFETTUATO';
+        const clone = template.content.cloneNode(true);
+        const card = clone.querySelector('.card-bacheca-minimal');
+
+        if (codiciAperti.includes(servizio.codice_prenotazione)) {
+            card.classList.add('aperta');
+        }
+
+        clone.querySelector('[data-bind-action="toggle"]').onclick = function() {
+            card.classList.toggle('aperta');
+        };
+
+        const tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
+        const vetturaPulita = servizio.vettura_selezionata || '';
+        const spanIntestazione = clone.querySelector('[data-bind="intestazione_unificata"]');
+        spanIntestazione.textContent = `${servizio.ora_partenza} - ${tipoServizioStr} - ${vetturaPulita}`;
+
+        if (isEffettuato) {
+            spanIntestazione.classList.remove('bacheca-data-evidenziata');
+            spanIntestazione.classList.add('bacheca-data-scadenza');
+        }
+
+        const stringaPartenza = (servizio.partenza_citta && servizio.partenza_via) ? `${servizio.partenza_citta}, ${servizio.partenza_via}` : (servizio.partenza || '-');
+        clone.querySelector('[data-bind="partenza_sintesi"]').textContent = stringaPartenza;
+
+        if (servizio.tipo_servizio === 'TRANSFER') {
+            const stringaArrivo = (servizio.arrivo_citta && servizio.arrivo_via) ? `${servizio.arrivo_citta}, ${servizio.arrivo_via}` : (servizio.arrivo || '-');
+            clone.querySelector('[data-bind="arrivo_sintesi"]').textContent = stringaArrivo;
+            clone.querySelector('[data-bind-container="arrivo_sintesi_riga"]').classList.remove('hidden');
+        }
+
+        const nomeCompletoPax = `${servizio.nome_passeggero || ''} ${servizio.cognome_passeggero || ''}`.trim();
+        clone.querySelector('[data-bind="pax_sintesi"]').textContent = nomeCompletoPax || '-';
+        clone.querySelector('[data-bind="nome_passeggero"]').textContent = nomeCompletoPax || '-';
+
+        const spanTelPax = clone.querySelector('[data-bind="tel_passeggero"]');
+        if (servizio.tel_passeggero) {
+            let telPaxFormattato = servizio.tel_passeggero;
+            if (window.intlTelInputUtils) {
+                telPaxFormattato = window.intlTelInputUtils.formatNumber(servizio.tel_passeggero, null, window.intlTelInputUtils.numberFormat.INTERNATIONAL);
+            }
+            spanTelPax.textContent = telPaxFormattato;
+            spanTelPax.classList.add('link-navigatore');
+            spanTelPax.onclick = function(e) {
+                e.stopPropagation();
+                apriModaleContattoCliente(servizio.tel_passeggero, 'Contatta Passeggero');
+            };
+        } else {
+            spanTelPax.textContent = '-';
+        }
+
+        if (servizio.chk_referente && (servizio.nome_referente || servizio.tel_referente)) {
+            clone.querySelector('[data-bind-container="referente_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="nome_referente"]').textContent = servizio.nome_referente || '-';
+
+            const spanTelRef = clone.querySelector('[data-bind="tel_referente"]');
+            if (servizio.tel_referente) {
+                let telRefFormattato = servizio.tel_referente;
+                if (window.intlTelInputUtils) {
+                    telRefFormattato = window.intlTelInputUtils.formatNumber(servizio.tel_referente, null, window.intlTelInputUtils.numberFormat.INTERNATIONAL);
+                }
+                spanTelRef.textContent = telRefFormattato;
+                spanTelRef.classList.add('link-navigatore');
+                spanTelRef.onclick = function(e) {
+                    e.stopPropagation();
+                    apriModaleContattoCliente(servizio.tel_referente, 'Contatta Referente');
+                };
+            } else {
+                spanTelRef.textContent = '-';
+            }
+        }
+
+        clone.querySelector('[data-bind="tipo_servizio_full"]').textContent = tipoServizioStr;
+        if (servizio.tipo_servizio === 'DISPOSIZIONE') {
+            clone.querySelector('[data-bind-container="durata_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="durata"]').textContent = servizio.ore ? `${servizio.ore} Ore` : '-';
+        }
+        clone.querySelector('[data-bind="vettura_full"]').textContent = vetturaPulita;
+
+        let dataEstesa = dataQuery;
+        if (servizio.data_partenza) {
+            const parti = servizio.data_partenza.split('-');
+            if (parti.length === 3) {
+                dataEstesa = `${parti[2]}/${parti[1]}/${parti[0]}`;
+            }
+        }
+        clone.querySelector('[data-bind="data_ora_dettaglio"]').textContent = `${dataEstesa} alle ore ${servizio.ora_partenza}`;
+
+        const spanPartenza = clone.querySelector('[data-bind="partenza_full"]');
+        if (servizio.partenza) {
+            spanPartenza.textContent = servizio.partenza;
+            spanPartenza.classList.add('link-navigatore');
+            spanPartenza.onclick = function(e) {
+                e.stopPropagation();
+                apriNavigatore(servizio.partenza);
+            };
+        } else {
+            spanPartenza.textContent = '-';
+        }
+
+        if (servizio.tipo_servizio === 'TRANSFER') {
+            clone.querySelector('[data-bind-container="arrivo_full_block"]').classList.remove('hidden');
+            const spanArrivo = clone.querySelector('[data-bind="arrivo_full"]');
+            if (servizio.arrivo) {
+                spanArrivo.textContent = servizio.arrivo;
+                spanArrivo.classList.add('link-navigatore');
+                spanArrivo.onclick = function(e) {
+                    e.stopPropagation();
+                    apriNavigatore(servizio.arrivo);
+                };
+            } else {
+                spanArrivo.textContent = '-';
+            }
+        } else {
+            clone.querySelector('[data-bind-container="itinerario_previsto_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="itinerario_previsto"]').textContent = servizio.itinerario_previsto || '-';
+        }
+
+        if (servizio.chk_hub && servizio.info_trasporto) {
+            clone.querySelector('[data-bind-container="hub_block"]').classList.remove('hidden');
+            clone.querySelector('[data-bind="info_trasporto"]').textContent = servizio.info_trasporto;
+        }
+
+        const numPax = servizio.passeggeri || 1;
+        clone.querySelector('[data-bind="pax"]').textContent = numPax + (numPax === 1 ? ' Passeggero' : ' Passeggeri');
+        const numGrandi = servizio.bagagli_grandi || 0;
+        clone.querySelector('[data-bind="grandi"]').textContent = numGrandi + (numGrandi === 1 ? ' Valigia Grande' : ' Valigie Grandi');
+        clone.querySelector('[data-bind="mano"]').textContent = servizio.bagagli_mano || 0;
+
+        clone.querySelector('[data-bind="note_servizio"]').textContent = servizio.note_servizio || 'Nessuna nota';
+        clone.querySelector('[data-bind="codice_prenotazione_dettaglio"]').textContent = servizio.codice_prenotazione;
+
+        const btnCartello = clone.querySelector('[data-bind-action="cartello"]');
+        if (btnCartello) {
+            btnCartello.onclick = function(e) {
+                e.stopPropagation();
+                apriCartelloBenvenuto(servizio.nome_passeggero || '', servizio.cognome_passeggero || '');
+            };
+        }
+
+        contenitore.appendChild(clone);
+    });
+}
+
+async function caricaMieiServizi(silenzioso = false) {
+    const contenitore = document.getElementById('lista_miei_servizi');
+    const boxNonAbilitato = document.getElementById('box_non_abilitato_guida');
+    const boxFiltroMs = document.getElementById('box_filtro_miei_servizi');
+    const bottomBarMs = document.getElementById('bottom_bar_miei_servizi');
+    if (!contenitore) return;
+
+    const token = localStorage.getItem('driverbutler_auth_token');
+    const chiaveAnon = "sb_publishable_XFc00vrhf2Ein-PlAk9WMg_hAV8SIU8";
+
+    const anno = dataMieiServiziAttuale.getFullYear();
+    const mese = String(dataMieiServiziAttuale.getMonth() + 1).padStart(2, '0');
+    const giorno = String(dataMieiServiziAttuale.getDate()).padStart(2, '0');
+    const dataQuery = `${anno}-${mese}-${giorno}`;
+
+    const cacheMs = leggiCachePartner(`ms_${dataQuery}`);
+    if (!silenzioso) {
+        if (cacheMs) {
+            if (cacheMs.abilitatoGuida === false) {
+                if (boxNonAbilitato) boxNonAbilitato.classList.remove('hidden');
+                if (boxFiltroMs) boxFiltroMs.classList.add('hidden');
+                if (bottomBarMs) bottomBarMs.classList.add('hidden');
+                contenitore.innerHTML = '';
+            } else if (Array.isArray(cacheMs.servizi)) {
+                if (boxNonAbilitato) boxNonAbilitato.classList.add('hidden');
+                if (bottomBarMs) bottomBarMs.classList.remove('hidden');
+                renderizzaElencoMieiServizi(contenitore, cacheMs.servizi, dataQuery);
+            }
+        } else {
+            if (boxNonAbilitato) boxNonAbilitato.classList.add('hidden');
+            if (boxFiltroMs) boxFiltroMs.classList.add('hidden');
+            contenitore.innerHTML = '<div class="msg-caricamento">Caricamento in corso...</div>';
+        }
+    }
+
+    try {
+        const userRes = await fetch("https://drpgiwjwkfxztjbdyncm.supabase.co/auth/v1/user", {
+            headers: { "apikey": chiaveAnon, "Authorization": "Bearer " + token }
+        });
+        if (!userRes.ok) throw new Error("Errore sessione");
+        const userData = await userRes.json();
+
+        const contesto = await recuperaContestoUtentePartner(token, userData.id);
+        if (!contesto) throw new Error("Utente non autorizzato");
+
+        const abilitatoGuida = contesto.tipoUtente === 'partner'
+            ? (contesto.partner && contesto.partner.abilitato_guida !== false)
+            : (contesto.dipendente && contesto.dipendente.abilitato_guida === true);
+
+        if (!abilitatoGuida) {
+            salvaCachePartner(`ms_${dataQuery}`, { abilitatoGuida: false, servizi: [] });
+            if (boxNonAbilitato) boxNonAbilitato.classList.remove('hidden');
+            if (boxFiltroMs) boxFiltroMs.classList.add('hidden');
+            if (bottomBarMs) bottomBarMs.classList.add('hidden');
+            contenitore.innerHTML = '';
+            return;
+        }
+
+        if (boxNonAbilitato) boxNonAbilitato.classList.add('hidden');
+        if (bottomBarMs) bottomBarMs.classList.remove('hidden');
+
+        const codiceConducente = contesto.tipoUtente === 'partner'
+            ? contesto.codicePartnerAzienda
+            : contesto.dipendente.codice_dipendente;
+
+        const res = await fetch(`https://drpgiwjwkfxztjbdyncm.supabase.co/rest/v1/prenotazioni?codice_autista_assegnato=eq.${encodeURIComponent(codiceConducente)}&data_partenza=eq.${dataQuery}&stato=in.(ASSEGNATO,EFFETTUATO)&order=ora_partenza.asc`, {
+            headers: {
+                "apikey": chiaveAnon,
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!res.ok) throw new Error("Errore recupero servizi");
+        const servizi = await res.json();
+
+        const nuovoPayloadMs = {
+            abilitatoGuida: true,
+            servizi: servizi
+        };
+
+        if (JSON.stringify(nuovoPayloadMs) !== JSON.stringify(cacheMs)) {
+            salvaCachePartner(`ms_${dataQuery}`, nuovoPayloadMs);
+            renderizzaElencoMieiServizi(contenitore, servizi, dataQuery);
+        }
+    } catch (errore) {
+        if (!cacheMs) {
+            contenitore.innerHTML = '<div class="msg-errore-viaggi">Impossibile caricare i servizi. Riprova.</div>';
+        }
+    }
+}
