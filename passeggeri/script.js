@@ -2167,7 +2167,11 @@ function applicaDatiPasseggeroUI(passeggero) {
         document.getElementById('dash_codice_cliente').textContent = passeggero.codice_passeggero;
     }
     
-    if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero') && !localStorage.getItem('db_cognome_passeggero')) {
+    const haBozzaPrenotazione = localStorage.getItem('pax_db_draft_prenotazione.html_nome_passeggero') !== null
+        || localStorage.getItem('pax_db_draft_prenotazione.html_cognome_passeggero') !== null
+        || localStorage.getItem('pax_db_draft_prenotazione.html_chk_referente') !== null;
+
+    if (document.getElementById('nome_passeggero') && !localStorage.getItem('db_nome_passeggero') && !localStorage.getItem('db_cognome_passeggero') && !haBozzaPrenotazione) {
         if (passeggero.richiede_fattura) {
             document.getElementById('chk_referente').checked = true;
             gestisciVisualizzazioneReferente();
@@ -3502,6 +3506,15 @@ window.applicaBozze = function() {
                 if (valoreSalvato !== null) {
                     if (campo.type === 'checkbox' || campo.type === 'radio') {
                         campo.checked = (valoreSalvato === 'true');
+                        if (campo.id === 'richiedeFattura' && typeof toggleFatturazione === 'function') {
+                            toggleFatturazione();
+                        } else if (campo.id === 'profilo_richiedeFattura' && typeof verificaChiusuraFatturazione === 'function') {
+                            verificaChiusuraFatturazione();
+                        } else if (campo.id === 'chk_referente' && typeof gestisciVisualizzazioneReferente === 'function') {
+                            gestisciVisualizzazioneReferente();
+                        } else if (campo.id === 'chk_hub' && typeof gestisciVisualizzazioneHub === 'function') {
+                            gestisciVisualizzazioneHub();
+                        }
                     } else {
                         campo.value = valoreSalvato;
                     }
