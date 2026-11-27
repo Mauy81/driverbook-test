@@ -5516,7 +5516,6 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
     const ctx = canvas.getContext('2d');
 
     const margine = 55;
-    const logoH = 110;
     const gapBrandTesto = 70;
     const gapNomeCognome = 32;
     const maxWidthTesto = canvas.width - (margine * 2);
@@ -5527,41 +5526,73 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
     const fontNome = calcolaFontCanvas(ctx, nomePulito, maxWidthTesto);
     const fontCognome = calcolaFontCanvas(ctx, cognomePulito, maxWidthTesto);
 
+    const fontRiferimentoPax = (fontNome && fontCognome)
+        ? Math.min(fontNome, fontCognome)
+        : (fontNome || fontCognome || 140);
+
+    let scrittaH = Math.max(48, Math.round(fontRiferimentoPax * 0.50));
+    let logoH = Math.round(scrittaH * 2.5);
+
+    let logoImg = null;
+    let scrittaImg = null;
+    try {
+        [logoImg, scrittaImg] = await Promise.all([
+            caricaImmagineSvg('../logo/logo.svg'),
+            caricaImmagineSvg('../logo/scritta.svg')
+        ]);
+    } catch (e) {
+        logoImg = null;
+        scrittaImg = null;
+    }
+
+    let logoW = 0;
+    let scrittaW = 0;
+    let gapBrand = Math.round(scrittaH * 0.6);
+
+    if (logoImg && scrittaImg) {
+        const ratioLogo = (logoImg.naturalWidth / logoImg.naturalHeight) || 1;
+        const ratioScritta = (scrittaImg.naturalWidth / scrittaImg.naturalHeight) || 7.7;
+        logoW = logoH * ratioLogo;
+        scrittaW = scrittaH * ratioScritta;
+        const totaleW = logoW + gapBrand + scrittaW;
+
+        if (totaleW > maxWidthTesto) {
+            const fattoreScala = maxWidthTesto / totaleW;
+            scrittaH = Math.round(scrittaH * fattoreScala);
+            logoH = Math.round(logoH * fattoreScala);
+            logoW = logoW * fattoreScala;
+            scrittaW = scrittaW * fattoreScala;
+            gapBrand = Math.round(gapBrand * fattoreScala);
+        }
+    }
+
+    const altezzaBloccoBrand = logoH;
     const altezzaNome = fontNome ? fontNome * 1.02 : 0;
     const altezzaCognome = fontCognome ? fontCognome * 1.02 : 0;
     const gapEffettivoRighe = (altezzaNome && altezzaCognome) ? gapNomeCognome : 0;
 
-    canvas.height = Math.round(margine + logoH + gapBrandTesto + altezzaNome + gapEffettivoRighe + altezzaCognome + margine);
+    canvas.height = Math.round(margine + altezzaBloccoBrand + gapBrandTesto + altezzaNome + gapEffettivoRighe + altezzaCognome + margine);
 
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const centerYBrand = margine + (logoH / 2);
+    const centerYBrand = margine + (altezzaBloccoBrand / 2);
 
-    try {
-        const [logoImg, scrittaImg] = await Promise.all([
-            caricaImmagineSvg('../logo/logo.svg'),
-            caricaImmagineSvg('../logo/scritta.svg')
-        ]);
-
-        const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH || 110;
-        const scrittaH = 44;
-        const scrittaW = (scrittaImg.naturalWidth / scrittaImg.naturalHeight) * scrittaH || 340;
-        const gap = 28;
-        const totaleW = logoW + gap + scrittaW;
+    if (logoImg && scrittaImg) {
+        const totaleW = logoW + gapBrand + scrittaW;
         const startX = (canvas.width - totaleW) / 2;
 
         ctx.drawImage(logoImg, startX, centerYBrand - (logoH / 2), logoW, logoH);
-        ctx.drawImage(scrittaImg, startX + logoW + gap, centerYBrand - (scrittaH / 2), scrittaW, scrittaH);
-    } catch (e) {
+        ctx.drawImage(scrittaImg, startX + logoW + gapBrand, centerYBrand - (scrittaH / 2), scrittaW, scrittaH);
+    } else {
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = '700 54px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        ctx.font = `700 ${scrittaH}px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('DRIVERBUTLER', canvas.width / 2, centerYBrand);
     }
 
-    let cursoreY = margine + logoH + gapBrandTesto;
+    let cursoreY = margine + altezzaBloccoBrand + gapBrandTesto;
     if (altezzaNome) {
         disegnaRigaCanvas(ctx, nomePulito, fontNome, canvas.width / 2, cursoreY + (altezzaNome / 2));
         cursoreY += altezzaNome + gapEffettivoRighe;
