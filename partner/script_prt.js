@@ -4029,9 +4029,40 @@ function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDispon
         
         clone.querySelector('[data-bind="note_servizio"]').textContent = servizio.note_servizio || 'Nessuna nota';
         clone.querySelector('[data-bind="codice_prenotazione_dettaglio"]').textContent = servizio.codice_prenotazione;
-        
-        const importoFormattato = servizio.prezzo_totale ? servizio.prezzo_totale.toFixed(2).replace('.', ',') : '0,00';
-        clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${importoFormattato} €`;
+            
+            const importoFormattato = servizio.prezzo_totale ? servizio.prezzo_totale.toFixed(2).replace('.', ',') : '0,00';
+
+            if (isAnnullato) {
+                const bloccoAnnullamento = clone.querySelector('[data-bind-container="dettagli_annullamento_block"]');
+                if (bloccoAnnullamento) bloccoAnnullamento.classList.remove('hidden');
+
+                let testoDataCanc = '-';
+                if (servizio.data_ora_cancellazione) {
+                    const dtCanc = new Date(servizio.data_ora_cancellazione);
+                    if (!isNaN(dtCanc.getTime())) {
+                        const dataStr = dtCanc.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const oraStr = dtCanc.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' });
+                        testoDataCanc = `${dataStr} alle ore ${oraStr}`;
+                    }
+                }
+                const elDataCanc = clone.querySelector('[data-bind="data_ora_cancellazione"]');
+                if (elDataCanc) elDataCanc.textContent = testoDataCanc;
+
+                const percPenale = parseInt(servizio.penale_percentuale, 10) || 0;
+                const impPenale = servizio.importo_penale ? parseFloat(servizio.importo_penale) : 0;
+                const impPenaleFormattato = impPenale.toFixed(2).replace('.', ',');
+
+                const elPenale = clone.querySelector('[data-bind="penale_annullamento"]');
+                if (elPenale) {
+                    elPenale.textContent = percPenale > 0
+                        ? `${percPenale}% (su ${importoFormattato} €)`
+                        : `Nessuna penale (importo servizio ${importoFormattato} €)`;
+                }
+
+                clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${impPenaleFormattato} €`;
+            } else {
+                clone.querySelector('[data-bind="prezzo_dettaglio"]').textContent = `${importoFormattato} €`;
+            }
 
         const selectAutista = clone.querySelector('[data-bind="select_autista"]');
         const msgAssegnazione = clone.querySelector('[data-bind="msg_assegnazione"]');
