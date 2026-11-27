@@ -1941,13 +1941,14 @@ body.page-miei-servizi .login-wrapper,
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(22px, 5vh, 48px);
     width: 100%;
     overflow: hidden;
 }
 
 .cartello-terzo {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1958,6 +1959,7 @@ body.page-miei-servizi .login-wrapper,
 
 .cartello-terzo-brand {
     gap: 14px;
+    margin-bottom: clamp(10px, 2.5vh, 24px);
 }
 
 .cartello-logo-icon {

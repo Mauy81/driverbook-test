@@ -5525,7 +5525,7 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
         const gap = 28;
         const totaleW = logoW + gap + scrittaW;
         const startX = (canvas.width - totaleW) / 2;
-        const centerYBrand = 190;
+        const centerYBrand = 320;
 
         ctx.drawImage(logoImg, startX, centerYBrand - (logoH / 2), logoW, logoH);
         ctx.drawImage(scrittaImg, startX + logoW + gap, centerYBrand - (scrittaH / 2), scrittaW, scrittaH);
@@ -5534,12 +5534,12 @@ async function esportaCartelloBenvenutoPNG(nomePax, cognomePax) {
         ctx.font = '700 54px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('DRIVERBUTLER', canvas.width / 2, 190);
+        ctx.fillText('DRIVERBUTLER', canvas.width / 2, 320);
     }
 
     const maxWidthTesto = canvas.width - 180;
-    disegnaTestoAdattatoCanvas(ctx, (nomePax || '').trim(), canvas.width / 2, 540, maxWidthTesto);
-    disegnaTestoAdattatoCanvas(ctx, (cognomePax || '').trim(), canvas.width / 2, 860, maxWidthTesto);
+    disegnaTestoAdattatoCanvas(ctx, (nomePax || '').trim(), canvas.width / 2, 530, maxWidthTesto);
+    disegnaTestoAdattatoCanvas(ctx, (cognomePax || '').trim(), canvas.width / 2, 715, maxWidthTesto);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     if (!blob) return;
