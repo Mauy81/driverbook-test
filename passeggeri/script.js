@@ -5216,15 +5216,19 @@ function inizializzaRealtimeViaggiPax() {
             global: { headers: { Authorization: `Bearer ${token}` } }
         });
 
+        const aggiornaViaggiPaxRealtime = () => {
+            clearTimeout(timerDebounceViaggiPax);
+            timerDebounceViaggiPax = setTimeout(() => {
+                if (document.getElementById('lista_viaggi_attivi_edit') && !viaggioInModificaCorrente) {
+                    caricaViaggiProgrammati(true);
+                }
+            }, 400);
+        };
+
         clientSupa.channel('viaggi-pax-realtime')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, () => {
-                clearTimeout(timerDebounceViaggiPax);
-                timerDebounceViaggiPax = setTimeout(() => {
-                    if (document.getElementById('lista_viaggi_attivi_edit') && !viaggioInModificaCorrente) {
-                        caricaViaggiProgrammati(true);
-                    }
-                }, 400);
-            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, aggiornaViaggiPaxRealtime)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'dipendenti' }, aggiornaViaggiPaxRealtime)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'partner' }, aggiornaViaggiPaxRealtime)
             .subscribe();
     };
 

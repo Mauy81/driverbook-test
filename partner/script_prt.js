@@ -3710,30 +3710,30 @@ function avviaConnessioneRealtime(token) {
     clientSupa.realtime.setAuth(token);
     window._clientSupaRealtime = clientSupa;
 
-    clientSupa.channel('bacheca-globale')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, payload => {
-            const statoNuovo = payload.new ? payload.new.stato : null;
-            const statoVecchio = payload.old ? payload.old.stato : null;
-            const isCambioBacheca = !statoNuovo || !statoVecchio || statoNuovo === 'IN_ATTESA' || statoVecchio === 'IN_ATTESA';
-            const isCambioCalendario = document.getElementById('lista_servizi_calendario') && (statoNuovo === 'ANNULLATO' || statoVecchio === 'ANNULLATO' || statoNuovo === 'CONFERMATO' || statoNuovo === 'ASSEGNATO');
-            const isCambioMieiServizi = document.getElementById('card_miei_servizi') && (statoNuovo === 'ANNULLATO' || statoVecchio === 'ANNULLATO' || statoNuovo === 'ASSEGNATO' || statoVecchio === 'ASSEGNATO' || statoNuovo === 'EFFETTUATO');
-
-            if (payload.eventType === 'UPDATE' && !isCambioBacheca && !isCambioCalendario && !isCambioMieiServizi) {
-                return;
+    const aggiornaVistaAttivaPartner = () => {
+        clearTimeout(timerDebounceBacheca);
+        timerDebounceBacheca = setTimeout(() => {
+            if (document.getElementById('contenitore_bacheca')) {
+                caricaBachecaRichieste(true);
+            } else if (document.getElementById('lista_servizi_calendario')) {
+                caricaServiziCalendario(true);
+            } else if (document.getElementById('card_miei_servizi')) {
+                caricaMieiServizi(true);
+            } else if (document.getElementById('lista_dipendenti')) {
+                caricaDipendenti();
+            } else if (document.getElementById('sezione_elenco_veicoli')) {
+                caricaFlotta();
+            } else {
+                if (typeof verificaBadgeBacheca === 'function') verificaBadgeBacheca();
             }
-            clearTimeout(timerDebounceBacheca);
-            timerDebounceBacheca = setTimeout(() => {
-                if (document.getElementById('contenitore_bacheca')) {
-                    caricaBachecaRichieste(true);
-                } else if (document.getElementById('lista_servizi_calendario')) {
-                    caricaServiziCalendario(true);
-                } else if (document.getElementById('card_miei_servizi')) {
-                    caricaMieiServizi(true);
-                } else {
-                    if (typeof verificaBadgeBacheca === 'function') verificaBadgeBacheca();
-                }
-            }, 400);
-        })
+        }, 400);
+    };
+
+    clientSupa.channel('bacheca-globale')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prenotazioni' }, aggiornaVistaAttivaPartner)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'dipendenti' }, aggiornaVistaAttivaPartner)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'partner' }, aggiornaVistaAttivaPartner)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'veicoli_flotta' }, aggiornaVistaAttivaPartner)
         .subscribe();
 }
 
@@ -3817,6 +3817,8 @@ document.addEventListener('visibilitychange', async () => {
             
             if (document.getElementById('contenitore_bacheca')) {
                 caricaBachecaRichieste(true);
+            } else if (document.getElementById('lista_servizi_calendario')) {
+                caricaServiziCalendario(true);
             } else if (document.getElementById('card_miei_servizi')) {
                 caricaMieiServizi(true);
             } else if (typeof verificaBadgeBacheca === 'function') {
