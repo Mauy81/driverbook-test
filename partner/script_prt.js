@@ -2240,7 +2240,7 @@ let moduloSporco = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('input', function(e) {
-        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.hasAttribute('data-no-dirty') || e.target.closest('#formLogin') || e.target.closest('.hidden')) {
+        if (e.target.id === 'swipe_logout_range' || e.target.id === 'input_data_calendario' || e.target.id === 'input_ms_data_calendario' || e.target.hasAttribute('data-no-dirty') || e.target.closest('#formLogin') || e.target.closest('.hidden')) {
             return;
         }
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
@@ -2707,7 +2707,7 @@ window.applicaBozze = function() {
     }
 
     localStorage.removeItem(prefix + 'db_draft_' + paginaAutosave + '_swipe_logout_range');
-    document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range):not(#input_data_calendario), textarea, select').forEach(campo => {
+    document.querySelectorAll('input:not([type="password"]):not([type="hidden"]):not([type="file"]):not(#swipe_logout_range):not(#input_data_calendario):not(#input_ms_data_calendario), textarea, select').forEach(campo => {
         if (campo.id) {
             const valoreSalvato = localStorage.getItem(`${prefix}db_draft_${paginaAutosave}_${campo.id}`);
             if (valoreSalvato !== null) {
