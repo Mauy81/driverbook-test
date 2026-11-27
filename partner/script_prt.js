@@ -3937,12 +3937,18 @@ function renderizzaElencoCalendario(contenitore, serviziTotali, conducentiDispon
 
         const tipoServizioStr = servizio.tipo_servizio === 'TRANSFER' ? 'TRANSFER' : 'DISPOSIZIONE';
         const vetturaPulita = servizio.vettura_selezionata || '';
-        clone.querySelector('[data-bind="intestazione_unificata"]').textContent = `${servizio.ora_partenza} - ${tipoServizioStr} - ${vetturaPulita}`;
+        const spanIntestazione = clone.querySelector('[data-bind="intestazione_unificata"]');
+        spanIntestazione.textContent = `${servizio.ora_partenza} - ${tipoServizioStr} - ${vetturaPulita}`;
+
+        if (isAnnullato) {
+            spanIntestazione.classList.remove('bacheca-data-evidenziata');
+            spanIntestazione.classList.add('bacheca-data-scadenza');
+        }
 
         const badgeStato = clone.querySelector('[data-bind="badge_stato"]');
         if (isAnnullato) {
             badgeStato.textContent = 'ANNULLATO';
-            badgeStato.classList.add('cal-stato-annullato');
+            badgeStato.classList.add('cal-stato-da-assegnare');
         } else if (isAssegnato) {
             badgeStato.textContent = 'ASSEGNATO';
             badgeStato.classList.add('cal-stato-assegnato');
